@@ -1,5 +1,5 @@
 "use server";
-
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabaseServer";
 
@@ -69,15 +69,10 @@ export async function createJourney(formData: FormData) {
   if (!applicatorId) throw new Error("Aplicador obrigatorio.");
   if (!participantName) throw new Error("Nome do entrevistado obrigatorio.");
 
-  const token = generateToken();
+  const uniqueId = randomUUID().replaceAll("-", "").toUpperCase();
 
-  const { count } = await supabase
-    .from("journeys")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", profile.organization_id);
-
-  const nextNumber = String((count ?? 0) + 1).padStart(6, "0");
-  const code = `LFE-${nextNumber}`;
+const code = `LFE-${uniqueId.slice(0, 10)}`;
+const token = uniqueId.slice(10, 22);
 
   const { error } = await supabase.from("journeys").insert({
     organization_id: profile.organization_id,
