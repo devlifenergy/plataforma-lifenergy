@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className="border-b border-slate-200 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link href="/" className="text-xl font-bold text-[#0F2A43]">
-            Lifenergy Platform
+            Lifenergy Digital
           </Link>
 
           <span className="text-sm font-medium text-[#B98A2E]">

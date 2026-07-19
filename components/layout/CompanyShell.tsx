@@ -12,8 +12,7 @@ const menuItems: MenuItem[] = [
   { label: "Empresas", href: "/painel/empresas", superAdminOnly: true },
   { label: "Aplicadores", href: "/painel/aplicadores" },
   { label: "Avaliados", href: "/painel/entrevistados" },
-  { label: "Exportações", href: "/painel/exportacoes" },
-  { label: "Minha Conta", href: "/painel/conta" },
+  { label: "Laudos", href: "/painel/exportacoes" },
 ];
 
 type CompanyShellProps = {
@@ -29,16 +28,19 @@ export function CompanyShell({
   organizationName,
   role,
 }: CompanyShellProps) {
-  const visibleMenuItems = menuItems.filter(
-    (item) => !item.superAdminOnly || role === "super_admin"
-  );
+  const visibleMenuItems =
+    role === "super_admin"
+      ? menuItems.filter((item) =>
+          ["Painel", "Empresas"].includes(item.label)
+        )
+      : menuItems.filter((item) => !item.superAdminOnly);
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] text-[#1F2933]">
       <header className="border-b border-slate-200 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link href="/painel" className="text-xl font-bold text-[#0F2A43]">
-            Plataforma Lifenergy
+            Lifenergy Digital
           </Link>
 
           <div className="text-right text-sm">
