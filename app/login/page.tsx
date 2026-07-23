@@ -1,4 +1,5 @@
 import LoginForm from "./LoginForm";
+import { AppVersion } from "@/components/AppVersion";
 
 export default async function LoginPage({
   searchParams,
@@ -42,7 +43,7 @@ export default async function LoginPage({
 
         <footer className="mt-8 border-t border-slate-100 pt-5 text-center">
           <p className="text-xs text-slate-400">
-            Lifenergy Digital · Versão 1.1.2
+            Lifenergy Digital · <AppVersion />
           </p>
         </footer>
       </section>
