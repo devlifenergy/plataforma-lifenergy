@@ -32,22 +32,41 @@ function statusClasses(status: string) {
   return classes[status] ?? "bg-slate-100 text-slate-700";
 }
 
+function normalizeCpf(value: string | null) {
+  return String(value ?? "").replace(/\D/g, "");
+}
+
+function formatCpf(value: string | null) {
+  const digits = normalizeCpf(value);
+  if (digits.length !== 11) return "CPF ainda não informado";
+  return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+}
+
 export default async function EntrevistadosPage() {
   const [journeys, applicators] = await Promise.all([
     listJourneys(),
     listActiveApplicators(),
   ]);
 
-  const total = journeys.length;
+  const groups = new Map<string, typeof journeys>();
+  const PENDING_CPF_GROUP_KEY = "__cpf_pending__";
+
+  for (const journey of journeys) {
+    const normalizedCpf = normalizeCpf(journey.cpf);
+    const groupKey = normalizedCpf || PENDING_CPF_GROUP_KEY;
+    const current = groups.get(groupKey) ?? [];
+    current.push(journey);
+    groups.set(groupKey, current);
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-[#0F2D4A]">Avaliados</h1>
         <p className="mt-1 text-slate-500">
-          {total === 1
-            ? "1 avaliado cadastrado"
-            : `${total} avaliados cadastrados`}
+          {journeys.length === 1
+            ? "1 convite cadastrado"
+            : `${journeys.length} convites cadastrados`}
         </p>
       </div>
 
@@ -80,81 +99,111 @@ export default async function EntrevistadosPage() {
               Criar Convite
             </Button>
           </div>
+
+          <label className="block md:col-span-4">
+            <span className="mb-2 block text-sm font-semibold text-slate-700">
+              Atividade *
+            </span>
+            <textarea
+              name="activity"
+              required
+              rows={3}
+              className="min-h-28 w-full resize-y rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+            />
+          </label>
         </form>
       </Card>
 
-      <Card>
-        {journeys.length === 0 ? (
+      {journeys.length === 0 ? (
+        <Card>
           <div className="py-20 text-center">
             <h2 className="text-xl font-semibold text-[#0F2D4A]">
               Nenhum avaliado convidado
             </h2>
-            <p className="mt-2 text-slate-500">
-              Crie o primeiro convite acima.
-            </p>
+            <p className="mt-2 text-slate-500">Crie o primeiro convite acima.</p>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px] border-collapse text-left">
-              <thead>
-                <tr className="border-b text-sm text-slate-500">
-                  <th className="py-3 pr-4">Código</th>
-                  <th className="py-3 pr-4">Avaliado</th>
-                  <th className="py-3 pr-4">E-mail</th>
-                  <th className="py-3 pr-4">Aplicador</th>
-                  <th className="py-3 pr-4">Status</th>
-                  <th className="py-3">Ações</th>
-                </tr>
-              </thead>
+        </Card>
+      ) : (
+        <div className="space-y-5">
+          {Array.from(groups.entries()).map(([groupKey, items]) => {
+            const cpf = items[0]?.cpf ?? null;
+            const isPendingCpfGroup = groupKey === PENDING_CPF_GROUP_KEY;
 
-              <tbody>
-                {journeys.map((item) => {
-                  const applicatorName =
-                    (item as any).applicators?.name ??
-                    (item as any).applicators?.[0]?.name;
+            return (
+              <Card key={groupKey}>
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+                      CPF
+                    </p>
+                    <h2 className="mt-1 text-xl font-bold text-[#0F2D4A]">
+                      {formatCpf(cpf)}
+                    </h2>
+                    {isPendingCpfGroup ? (
+                      <p className="mt-1 text-sm text-slate-500">
+                        Links gerados e ainda não respondidos
+                      </p>
+                    ) : null}
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
+                    {items.length === 1 ? "1 link" : `${items.length} links`}
+                  </span>
+                </div>
 
-                  const link = `/r/${item.token}`;
+                <div className="space-y-4">
+                  {items.map((item) => {
+                    const applicatorName =
+                      (item as any).applicators?.name ??
+                      (item as any).applicators?.[0]?.name;
+                    const link = `/r/${item.token}`;
 
-                  return (
-                    <tr
-                      key={item.id}
-                      className="border-b align-top last:border-0"
-                    >
-                      <td className="py-4 pr-4 font-medium">{item.code}</td>
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-slate-200 p-5"
+                      >
+                        <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_auto]">
+                          <div>
+                            <p className="text-sm font-semibold text-slate-500">
+                              {item.code}
+                            </p>
+                            <h3 className="mt-1 text-lg font-bold text-[#0F2D4A]">
+                              {item.participant_name}
+                            </h3>
+                            <p className="mt-1 text-sm text-slate-600">
+                              Aplicador: {applicatorName || "-"}
+                            </p>
+                          </div>
 
-                      <td className="py-4 pr-4 text-slate-700">
-                        {item.participant_name}
-                      </td>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-500">
+                              Atividade
+                            </p>
+                            <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                              {item.activity || "-"}
+                            </p>
+                          </div>
 
-                      <td className="py-4 pr-4 text-slate-600">
-                        {item.participant_email || "-"}
-                      </td>
+                          <div className="flex flex-col items-start gap-3 lg:items-end">
+                            <span
+                              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusClasses(
+                                item.status
+                              )}`}
+                            >
+                              {statusLabel(item.status)}
+                            </span>
+                            <a
+                              href={link}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-semibold text-[#0F2D4A] underline"
+                            >
+                              Abrir link
+                            </a>
+                          </div>
+                        </div>
 
-                      <td className="py-4 pr-4 text-slate-600">
-                        {applicatorName || "-"}
-                      </td>
-
-                      <td className="py-4 pr-4">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusClasses(
-                            item.status
-                          )}`}
-                        >
-                          {statusLabel(item.status)}
-                        </span>
-                      </td>
-
-                      <td className="py-4">
-                        <div className="flex items-start gap-4">
-                          <a
-                            href={link}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="font-semibold text-[#0F2D4A] underline"
-                          >
-                            Abrir link
-                          </a>
-
+                        <div className="mt-4 border-t border-slate-100 pt-4">
                           {item.status !== "completed" &&
                           item.status !== "exported" ? (
                             <details>
@@ -162,7 +211,7 @@ export default async function EntrevistadosPage() {
                                 Editar
                               </summary>
 
-                              <div className="mt-4 w-[420px] max-w-[80vw] rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                              <div className="mt-4 max-w-2xl rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
                                 <form
                                   action={updateJourneyParticipant}
                                   className="space-y-3"
@@ -187,6 +236,19 @@ export default async function EntrevistadosPage() {
                                     defaultValue={item.participant_email || ""}
                                   />
 
+                                  <label className="block">
+                                    <span className="mb-2 block text-sm font-semibold text-slate-700">
+                                      Atividade *
+                                    </span>
+                                    <textarea
+                                      name="activity"
+                                      required
+                                      rows={4}
+                                      defaultValue={item.activity || ""}
+                                      className="min-h-28 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+                                    />
+                                  </label>
+
                                   <Button type="submit" className="w-full">
                                     Salvar alterações
                                   </Button>
@@ -199,15 +261,15 @@ export default async function EntrevistadosPage() {
                             </span>
                           )}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

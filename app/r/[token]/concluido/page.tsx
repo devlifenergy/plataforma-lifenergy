@@ -2,9 +2,7 @@ import { createClient } from "@/lib/supabaseServer";
 import { notFound } from "next/navigation";
 
 type PageProps = {
-  params: Promise<{
-    token: string;
-  }>;
+  params: Promise<{ token: string }>;
 };
 
 export default async function JourneyCompletedPage({ params }: PageProps) {
@@ -15,11 +13,9 @@ export default async function JourneyCompletedPage({ params }: PageProps) {
     .rpc("get_public_journey_by_token", { p_token: token })
     .single();
 
-const journey = data as any;
+  const journey = data as any;
 
-  if (error || !data) {
-    notFound();
-  }
+  if (error || !data) notFound();
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
@@ -27,18 +23,15 @@ const journey = data as any;
         <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
           {journey.organization_name}
         </p>
-
         <h1 className="text-3xl font-bold text-[#0F2D4A]">
           Avaliação concluída
         </h1>
-
-        <p className="mt-4 text-slate-600">
-          Obrigado pela sua participação. Sua avaliação foi registrada com
-          sucesso.
+        <p className="mt-4 text-lg leading-8 text-slate-700">
+          Desde já agradecemos seu empenho e participação neste projeto
+          inteiramente dedicado a você!
         </p>
-
         <p className="mt-4 text-sm text-slate-500">
-          Você já pode fechar esta página.
+          Sua avaliação foi registrada com sucesso. Você já pode fechar esta página.
         </p>
       </section>
     </main>

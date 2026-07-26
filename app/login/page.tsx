@@ -1,5 +1,5 @@
+import { AppVersion } from "@/components/application/AppVersion";
 import LoginForm from "./LoginForm";
-import { AppVersion } from "@/components/AppVersion";
 
 export default async function LoginPage({
   searchParams,

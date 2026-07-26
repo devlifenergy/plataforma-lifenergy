@@ -36,10 +36,10 @@ function normalizeOptionalField(value: FormDataEntryValue | null) {
 export async function listJourneys() {
   const { supabase, profile } = await getCurrentProfile();
 
-  const { data, error } = await supabase
+  const { data: journeys, error } = await supabase
     .from("journeys")
     .select(
-      "id, code, token, participant_name, participant_email, status, created_at, applicators(name)"
+      "id, code, token, participant_name, participant_email, activity, status, created_at, applicators(name)"
     )
     .eq("organization_id", profile.organization_id)
     .order("created_at", { ascending: false });
@@ -48,7 +48,30 @@ export async function listJourneys() {
     throw new Error(error.message);
   }
 
-  return data ?? [];
+  const journeyIds = (journeys ?? []).map((item) => item.id);
+  const cpfByJourney = new Map<string, string>();
+
+  if (journeyIds.length > 0) {
+    const { data: responses, error: responsesError } = await supabase
+      .from("journey_responses")
+      .select("journey_id, cpf")
+      .in("journey_id", journeyIds);
+
+    if (responsesError) {
+      throw new Error(responsesError.message);
+    }
+
+    for (const response of responses ?? []) {
+      if (response.journey_id && response.cpf) {
+        cpfByJourney.set(response.journey_id, response.cpf);
+      }
+    }
+  }
+
+  return (journeys ?? []).map((journey) => ({
+    ...journey,
+    cpf: cpfByJourney.get(journey.id) ?? null,
+  }));
 }
 
 export async function listActiveApplicators() {
@@ -78,6 +101,7 @@ export async function createJourney(formData: FormData) {
   const participantEmail = normalizeOptionalField(
     formData.get("participant_email")
   );
+  const activity = String(formData.get("activity") || "").trim();
 
   if (!applicatorId) {
     throw new Error("Aplicador obrigatório.");
@@ -85,6 +109,10 @@ export async function createJourney(formData: FormData) {
 
   if (!participantName) {
     throw new Error("Nome do avaliado obrigatório.");
+  }
+
+  if (!activity) {
+    throw new Error("Atividade obrigatória.");
   }
 
   const { data: applicator, error: applicatorError } = await supabase
@@ -110,6 +138,7 @@ export async function createJourney(formData: FormData) {
     token,
     participant_name: participantName,
     participant_email: participantEmail,
+    activity,
     status: "link_sent",
   });
 
@@ -130,9 +159,10 @@ export async function updateJourneyParticipant(formData: FormData) {
   const participantEmail = normalizeOptionalField(
     formData.get("participant_email")
   );
+  const activity = String(formData.get("activity") || "").trim();
 
-  if (!journeyId || !participantName) {
-    throw new Error("Informe o avaliado e o nome.");
+  if (!journeyId || !participantName || !activity) {
+    throw new Error("Informe o avaliado, o nome e a atividade.");
   }
 
   const { data: journey, error: journeyError } = await supabase
@@ -157,6 +187,7 @@ export async function updateJourneyParticipant(formData: FormData) {
     .update({
       participant_name: participantName,
       participant_email: participantEmail,
+      activity,
     })
     .eq("id", journeyId)
     .eq("organization_id", profile.organization_id);

@@ -10,18 +10,20 @@ export default async function FormularioPage({ params }: PageProps) {
   const { token } = await params;
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .rpc("get_public_journey_by_token", { p_token: token })
-    .single();
+  const [{ data, error }, { data: context, error: contextError }] =
+    await Promise.all([
+      supabase.rpc("get_public_journey_by_token", { p_token: token }).single(),
+      supabase
+        .rpc("get_public_journey_context_by_token", { p_token: token })
+        .single(),
+    ]);
 
-const journey = data as any;
+  const journey = data as any;
+  const journeyContext = context as any;
 
-  if (error || !data) notFound();
+  if (error || !data || contextError || !context) notFound();
 
- if (
-  journey.status === "completed" ||
-  journey.status === "exported"
-) {
+  if (journey.status === "completed" || journey.status === "exported") {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
         <section className="w-full max-w-xl rounded-3xl bg-white p-10 text-center shadow-sm">
@@ -38,7 +40,12 @@ const journey = data as any;
 
   return (
     <main className="min-h-screen bg-slate-100 px-6 py-10">
-      <PublicLifenergyForm organizationName={journey.organization_name} token={token} />
+      <PublicLifenergyForm
+        organizationName={journey.organization_name}
+        token={token}
+        activity={journeyContext.activity || ""}
+        applicatorName={journeyContext.applicator_name || ""}
+      />
     </main>
   );
 }
