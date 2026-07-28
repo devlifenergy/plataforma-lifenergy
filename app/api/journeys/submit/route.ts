@@ -11,6 +11,16 @@ function getTokenFromReferer(request: Request) {
   return parts[2] || "";
 }
 
+function normalizeDateForDatabase(value: string) {
+  const trimmed = value.trim();
+  const match = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+  if (!match) return trimmed;
+
+  const [, day, month, year] = match;
+  return `${year}-${month}-${day}`;
+}
+
 export async function POST(request: Request) {
   const formData = await request.formData();
   const supabase = await createClient();
@@ -24,13 +34,13 @@ export async function POST(request: Request) {
 
   const { error } = await supabase.rpc("submit_public_journey_response", {
     p_token: token,
-    p_application_date: String(formData.get("application_date") || ""),
+    p_application_date: normalizeDateForDatabase(String(formData.get("application_date") || "")),
     p_initial_time: String(formData.get("initial_time") || ""),
     p_full_name: String(formData.get("nome") || ""),
     p_email: String(formData.get("email") || ""),
     p_naturalidade: String(formData.get("naturalidade") || ""),
     p_cpf: String(formData.get("cpf") || ""),
-    p_birth_date: String(formData.get("data_nascimento") || ""),
+    p_birth_date: normalizeDateForDatabase(String(formData.get("data_nascimento") || "")),
     p_participation_objective: String(formData.get("objetivo") || ""),
     p_application_type: String(formData.get("tipo_aplicacao") || ""),
     p_applicator_name: String(formData.get("nome_aplicador") || ""),

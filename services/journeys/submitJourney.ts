@@ -13,6 +13,16 @@ function optional(formData: FormData, key: string) {
   return String(formData.get(key) || "").trim();
 }
 
+function normalizeDateForDatabase(value: string) {
+  const trimmed = value.trim();
+  const match = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+  if (!match) return trimmed;
+
+  const [, day, month, year] = match;
+  return `${year}-${month}-${day}`;
+}
+
 function toHierarchy(formData: FormData, key: string) {
   const value = Number(required(formData, key));
   if (![1, 2, 3].includes(value)) {
@@ -33,13 +43,13 @@ export async function submitJourney(token: string, formData: FormData) {
 
   const { error } = await supabase.rpc("submit_public_journey_response", {
     p_token: token,
-    p_application_date: required(formData, "application_date"),
+    p_application_date: normalizeDateForDatabase(required(formData, "application_date")),
     p_initial_time: required(formData, "initial_time"),
     p_full_name: required(formData, "nome"),
     p_email: required(formData, "email"),
     p_naturalidade: required(formData, "naturalidade"),
     p_cpf: required(formData, "cpf"),
-    p_birth_date: required(formData, "data_nascimento"),
+    p_birth_date: normalizeDateForDatabase(required(formData, "data_nascimento")),
     p_participation_objective: required(formData, "objetivo"),
     p_application_type: applicationType,
     p_applicator_name: applicatorName,

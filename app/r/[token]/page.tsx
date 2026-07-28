@@ -55,8 +55,8 @@ const journey = data as any;
         </p>
 
         <p className="mt-4 text-slate-600">
-          Você foi convidado(a) para participar de uma avaliação. O tempo
-          aproximado de preenchimento é de 10 minutos.
+          Você foi convidado(a) a participar de uma avaliação. O tempo
+          aproximado é de preenchimento e de 10 minutos.
         </p>
 
         <p className="mt-4 text-sm text-slate-500">

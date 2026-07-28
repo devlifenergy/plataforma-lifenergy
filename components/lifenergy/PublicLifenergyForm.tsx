@@ -41,6 +41,49 @@ function formatCpf(value: string) {
     .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
 }
 
+function formatDateBr(value: string) {
+  const digits = onlyDigits(value).slice(0, 8);
+  return digits
+    .replace(/^(\d{2})(\d)/, "$1/$2")
+    .replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3");
+}
+
+function isValidDateBr(value: string) {
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return false;
+
+  const [, dayText, monthText, yearText] = match;
+  const day = Number(dayText);
+  const month = Number(monthText);
+  const year = Number(yearText);
+
+  if (year < 1900 || year > new Date().getFullYear()) return false;
+  if (month < 1 || month > 12) return false;
+
+  const date = new Date(year, month - 1, day);
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
+}
+
+function dateBrToIso(value: string) {
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return value;
+
+  const [, day, month, year] = match;
+  return `${year}-${month}-${day}`;
+}
+
+function localDateToIso(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function fieldClass(extra = "") {
   return `w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 ${extra}`;
 }
@@ -105,7 +148,7 @@ export function PublicLifenergyForm({
   const [lowest, setLowest] = useState<number | null>(null);
 
   const today = useMemo(() => new Date(), []);
-  const applicationDate = today.toLocaleDateString("pt-BR");
+  const applicationDate = localDateToIso(today);
   const initialTime = today.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -144,7 +187,7 @@ export function PublicLifenergyForm({
           form.cpf.trim().length >= 14 &&
           isEmailValid(form.email) &&
           form.naturalidade.trim() &&
-          form.birthDate &&
+          isValidDateBr(form.birthDate) &&
           form.objective.trim()
       );
     }
@@ -206,7 +249,7 @@ export function PublicLifenergyForm({
       <input type="hidden" name="cpf" value={form.cpf} />
       <input type="hidden" name="email" value={form.email} />
       <input type="hidden" name="naturalidade" value={form.naturalidade} />
-      <input type="hidden" name="data_nascimento" value={form.birthDate} />
+      <input type="hidden" name="data_nascimento" value={dateBrToIso(form.birthDate)} />
       <input type="hidden" name="objetivo" value={form.objective} />
       <input type="hidden" name="nome_aplicador" value={form.applicatorName} />
       <input type="hidden" name="fractal" value={form.fractal} />
@@ -223,7 +266,7 @@ export function PublicLifenergyForm({
 
       <header className="sticky top-0 z-10 -mx-6 -mt-6 border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur md:-mx-8 md:-mt-8 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#B98A2E]">
-          Plataforma Lifenergy
+          Lifenergy Digital
         </p>
         <h1 className="mt-1 text-2xl font-bold text-[#0F2D4A]">
           Passo {step} de {TOTAL_STEPS} da sua tarefa.
@@ -249,9 +292,6 @@ export function PublicLifenergyForm({
               <h2 className="text-4xl font-bold text-[#0F2D4A]">
                 Bem-vindo ao Lifenergy Digital — seu cantinho de reflexão e crescimento pessoal.
               </h2>
-              <p className="mt-4 text-lg leading-8 text-slate-700">
-                Bem-vindo à Plataforma Lifenergy Digital.
-              </p>
             </div>
             <div className="space-y-4 text-base leading-8 text-slate-700">
               <p>
@@ -330,8 +370,10 @@ export function PublicLifenergyForm({
                 <span className={labelClass()}>Data de Nascimento *</span>
                 <input
                   value={form.birthDate}
-                  onChange={(event) => update("birthDate", event.target.value)}
-                  type="date"
+                  onChange={(event) => update("birthDate", formatDateBr(event.target.value))}
+                  inputMode="numeric"
+                  maxLength={10}
+                  placeholder="dd/mm/aaaa"
                   className={fieldClass()}
                 />
               </label>
@@ -482,9 +524,13 @@ export function PublicLifenergyForm({
 
             {highest && lowest && remaining && (
               <div className="mt-8 rounded-2xl border-2 border-[#0F2D4A] bg-[#0F2D4A]/5 p-5 text-slate-700 shadow-sm">
-                <p className="font-bold text-[#0F2D4A]">Resposta Restante — Média importância — 2</p>
-                <p className="mt-2 font-semibold">{responseLabel(remaining)}</p>
-                <p className="mt-1">{responseByIndex(form, remaining)}</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+                  {responseLabel(remaining)}
+                </p>
+                <p className="mt-3 text-base font-semibold text-[#0F2D4A]">
+                  {responseByIndex(form, remaining)}
+                </p>
+                <p className="mt-3 font-bold text-[#0F2D4A]">Média Importância</p>
               </div>
             )}
           </section>
@@ -537,17 +583,17 @@ export function PublicLifenergyForm({
                   </tr>
                 </thead>
                 <tbody>
-                  {[1, 2, 3].map((index) => (
-                    <tr key={index} className="border-b border-slate-100 last:border-0">
+                  {orderedByHierarchy.map((item) => (
+                    <tr key={item.index} className="border-b border-slate-100 last:border-0">
                       <td className="px-5 py-4 align-top">
-                        <p className="font-semibold text-[#0F2D4A]">{responseLabel(index)}</p>
-                        <p className="mt-1 text-sm text-slate-600">{responseByIndex(form, index)}</p>
+                        <p className="font-semibold text-[#0F2D4A]">{responseLabel(item.index)}</p>
+                        <p className="mt-1 text-sm text-slate-600">{item.response}</p>
                       </td>
                       <td className="px-5 py-4 align-top text-sm text-slate-700">
-                        {hierarchyLabel(hierarchyMap[index])}
+                        {hierarchyLabel(item.hierarchy)}
                       </td>
                       <td className="px-5 py-4 align-top text-sm text-slate-700">
-                        {justificationByIndex(form, index)}
+                        {justificationByIndex(form, item.index)}
                       </td>
                     </tr>
                   ))}
@@ -557,9 +603,6 @@ export function PublicLifenergyForm({
 
             <div className="mt-10 border-t border-slate-200 pt-8">
               <h2 className="text-3xl font-bold text-[#0F2D4A]">Reflexão Final</h2>
-              <p className="mt-2 text-slate-600">
-                Você concluiu todas as etapas da atividade. Reserve alguns instantes para refletir sobre a experiência antes de responder à última pergunta.
-              </p>
               <label className="mt-8 block">
                 <span className={labelClass()}>
                   Agora pare por alguns instantes e descreva como você se sentiu durante o desenvolvimento da atividade. *
