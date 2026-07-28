@@ -295,8 +295,8 @@ export function PublicLifenergyForm({
             </div>
             <div className="space-y-4 text-base leading-8 text-slate-700">
               <p>
-                Você iniciará agora um assessment de padrão relacional,
-                atividade de autopercepção conduzida pela Metodologia Lifenergy.
+                Você iniciará, a partir de agora, uma avaliação do seu padrão relacional —
+                uma prática de autopercepção guiada pela Metodologia Lifenergy.
               </p>
               <p>
                 Utilize preferencialmente um computador, tablet ou celular com
