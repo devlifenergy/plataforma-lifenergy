@@ -407,20 +407,22 @@ export function PublicLifenergyForm({
                 primeiro à sua percepção.
               </p>
               <ol className="list-decimal space-y-3 pl-6">
-                <li>Leia com atenção a atividade apresentada.</li>
-                <li>No campo indicado, digite a atividade ou o fractal de comportamento apresentado pelo aplicador.</li>
-                <li>Em seguida, registre três respostas, uma em cada campo indicado.</li>
+                <li>Leia com atenção, em voz alta, a atividade ou fractal de comportamento apresentado pelo aplicador.</li>
+                <li>No campo indicado, digite a atividade ou o fractal de comportamento que você leu.</li>
+                <li>Em seguida, registre as três respostas, uma em cada campo indicado.</li>
                 <li>Depois de registrar as três respostas, releia todas elas com atenção.</li>
-                <li>Selecione a resposta que você considera de maior importância neste momento.</li>
-                <li>Em seguida, selecione a resposta que você considera de menor importância.</li>
+                <li>Selecione a resposta que você considera de maior importância neste momento e clique sobre ela.</li>
+                <li>Em seguida, selecione a resposta que você considera de menor importância e clique sobre ela.</li>
                 <li>A resposta restante será considerada automaticamente como de média importância.</li>
-                <li>Na etapa de justificativas, explique cada resposta e o motivo da importância atribuída a ela.</li>
-                <li>Ao final, descreva como você se sentiu durante a realização da atividade.</li>
-                <li>Antes de enviar, revise o resumo da sua tarefa. Caso queira alterar alguma resposta, importância ou justificativa, utilize a opção de voltar.</li>
+                <li>Na etapa de justificativas, explique o porquê da resposta que você deu e da importância atribuída a ela.</li>
+                <li>Ao final, no quadro indicado, descreva como você se sentiu durante a realização da atividade.</li>
+                <li>Quando aparecer o quadro resumo, faça uma revisão das suas respostas, importância e justificativas.</li>
+                <li>Caso queira alterar alguma resposta, importância ou justificativa, utilize a opção de voltar.</li>
+                <li>Antes de enviar, revise o resumo da sua tarefa.</li>
               </ol>
             </div>
             <p className="mt-6 font-bold text-[#0F2D4A]">
-              Ao continuar, você confirma que leu e compreendeu as instruções.
+              Ao continuar, você confirma que leu, compreendeu as instruções e realizou a tarefa.
             </p>
           </section>
         )}

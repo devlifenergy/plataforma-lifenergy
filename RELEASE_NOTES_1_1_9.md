@@ -1,14 +1,16 @@
-# Release 1.1.9 — Ajustes finais no formulário e exportação
+# Release 1.1.9 — Ajuste final das instruções enumeradas
 
-## Correções incluídas
+Este pacote altera apenas o texto da tela **Instruções** do formulário público.
 
-- Ajustes finais de texto e fluxo do formulário público.
-- Inclusão da instrução para clicar em continuar nas etapas intermediárias.
-- Criação da etapa de média importância para a resposta restante.
-- Resumo final organizado pela ordem das respostas.
-- Correção do CSV de exportação para abertura correta no Excel:
-  - declaração explícita de separador `sep=;`;
-  - campos sempre entre aspas;
-  - remoção de quebras de linha internas;
-  - datas e horários sem vírgula para evitar divisão indevida em colunas;
-  - linhas geradas com CRLF.
+## Ajuste realizado
+
+- Instruções reescritas em formato enumerado de 1 a 12.
+- Texto alinhado com a dinâmica atual do formulário: leitura em voz alta, digitação manual da atividade, registro das respostas, seleção da maior e menor importância, média importância automática, justificativas, reflexão final e revisão do resumo.
+
+## Arquivos alterados
+
+- `components/lifenergy/PublicLifenergyForm.tsx`
+
+## Banco de dados
+
+Nenhuma alteração de banco de dados é necessária.
