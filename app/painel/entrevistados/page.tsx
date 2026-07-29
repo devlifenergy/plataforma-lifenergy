@@ -1,3 +1,4 @@
+import { CopyLinkButton } from "@/components/application/CopyLinkButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -192,14 +193,17 @@ export default async function EntrevistadosPage() {
                             >
                               {statusLabel(item.status)}
                             </span>
-                            <a
-                              href={link}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="font-semibold text-[#0F2D4A] underline"
-                            >
-                              Abrir link
-                            </a>
+                            <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+                              <a
+                                href={link}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-semibold text-[#0F2D4A] underline"
+                              >
+                                Abrir link
+                              </a>
+                              <CopyLinkButton path={link} />
+                            </div>
                           </div>
                         </div>
 

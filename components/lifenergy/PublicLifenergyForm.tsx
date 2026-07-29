@@ -27,7 +27,7 @@ type FormState = {
   finalFeeling: string;
 };
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 10;
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "");
@@ -175,6 +175,14 @@ export function PublicLifenergyForm({
     .filter((item) => item.hierarchy > 0)
     .sort((a, b) => b.hierarchy - a.hierarchy);
 
+  const orderedByResponse = [1, 2, 3]
+    .map((index) => ({
+      index,
+      response: responseByIndex(form, index),
+      hierarchy: hierarchyMap[index],
+    }))
+    .filter((item) => item.hierarchy > 0);
+
   function update<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [field]: value }));
   }
@@ -202,14 +210,15 @@ export function PublicLifenergyForm({
     }
     if (step === 6) return highest !== null;
     if (step === 7) return lowest !== null;
-    if (step === 8) {
+    if (step === 8) return Boolean(highest && lowest && remaining);
+    if (step === 9) {
       return Boolean(
         form.justification1.trim() &&
           form.justification2.trim() &&
           form.justification3.trim()
       );
     }
-    if (step === 9) return Boolean(form.finalFeeling.trim());
+    if (step === 10) return Boolean(form.finalFeeling.trim());
     return false;
   }
 
@@ -316,9 +325,6 @@ export function PublicLifenergyForm({
                 Durante toda a atividade, siga cada etapa na ordem apresentada.
                 Evite antecipar respostas e mantenha sua atenção voltada para a tarefa.
               </p>
-              <p className="font-semibold text-[#0F2D4A]">
-                Clique em Continuar para iniciar.
-              </p>
             </div>
           </section>
         )}
@@ -394,21 +400,23 @@ export function PublicLifenergyForm({
             <h2 className="text-3xl font-bold text-[#0F2D4A]">Instruções</h2>
             <div className="mt-8 space-y-5 rounded-2xl bg-slate-50 p-6 text-base leading-8 text-slate-700">
               <p>
-                Você receberá do aplicador uma atividade intitulada “Fractal de
-                Comportamento”, composta por tarefas que devem ser realizadas de
-                forma contínua e sem interrupções; essas tarefas podem ser
-                executadas imaginariamente e devem ser respondidas de maneira
-                espontânea, sem excesso de reflexão, pois se tratam de ações
-                simples e rotineiras do dia a dia.
+                Você receberá uma atividade intitulada “Fractal de Comportamento”,
+                apresentada pelo aplicador. Essa atividade deve ser realizada com
+                atenção, de forma contínua e sem interrupções. Responda de maneira
+                espontânea, sem excesso de reflexão, considerando aquilo que vier
+                primeiro à sua percepção.
               </p>
               <ol className="list-decimal space-y-3 pl-6">
-                <li>Copie, no campo indicado, a atividade ou o fractal de comportamento apresentado pelo aplicador.</li>
-                <li>Leia a atividade com atenção.</li>
-                <li>Escreva três respostas na primeira coluna do quadro.</li>
-                <li>Classifique as respostas na segunda coluna: 3 para a mais importante; 1 para a menos importante; 2 para a resposta restante.</li>
-                <li>Na terceira coluna, explique cada resposta e o motivo da classificação escolhida.</li>
-                <li>No campo final, descreva como você se sentiu durante a atividade.</li>
-                <li>Mantenha o foco na tarefa para alcançar o resultado esperado.</li>
+                <li>Leia com atenção a atividade apresentada.</li>
+                <li>No campo indicado, digite a atividade ou o fractal de comportamento apresentado pelo aplicador.</li>
+                <li>Em seguida, registre três respostas, uma em cada campo indicado.</li>
+                <li>Depois de registrar as três respostas, releia todas elas com atenção.</li>
+                <li>Selecione a resposta que você considera de maior importância neste momento.</li>
+                <li>Em seguida, selecione a resposta que você considera de menor importância.</li>
+                <li>A resposta restante será considerada automaticamente como de média importância.</li>
+                <li>Na etapa de justificativas, explique cada resposta e o motivo da importância atribuída a ela.</li>
+                <li>Ao final, descreva como você se sentiu durante a realização da atividade.</li>
+                <li>Antes de enviar, revise o resumo da sua tarefa. Caso queira alterar alguma resposta, importância ou justificativa, utilize a opção de voltar.</li>
               </ol>
             </div>
             <p className="mt-6 font-bold text-[#0F2D4A]">
@@ -423,7 +431,10 @@ export function PublicLifenergyForm({
             <p className="mt-2 text-slate-600">
               Copie abaixo a atividade ou Fractal de comportamento apresentado pelo Aplicador:
             </p>
-            <div className="mt-6 rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-6">
+            <div
+              className="mt-6 select-none rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-6"
+              onCopy={(event) => event.preventDefault()}
+            >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8A671E]">
                 Atividade apresentada pelo aplicador
               </p>
@@ -435,6 +446,11 @@ export function PublicLifenergyForm({
               <textarea
                 value={form.fractal}
                 onChange={(event) => update("fractal", event.target.value)}
+                onCopy={(event) => event.preventDefault()}
+                onCut={(event) => event.preventDefault()}
+                onPaste={(event) => event.preventDefault()}
+                onDrop={(event) => event.preventDefault()}
+                autoComplete="off"
                 className={fieldClass("min-h-48 bg-white")}
               />
             </div>
@@ -521,8 +537,16 @@ export function PublicLifenergyForm({
                   </button>
                 ))}
             </div>
+          </section>
+        )}
 
-            {highest && lowest && remaining && (
+        {step === 8 && (
+          <section>
+            <h2 className="text-3xl font-bold text-[#0F2D4A]">Média Importância</h2>
+            <p className="mt-2 text-slate-600">
+              A resposta restante será considerada de média importância.
+            </p>
+            {remaining ? (
               <div className="mt-8 rounded-2xl border-2 border-[#0F2D4A] bg-[#0F2D4A]/5 p-5 text-slate-700 shadow-sm">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
                   {responseLabel(remaining)}
@@ -532,11 +556,11 @@ export function PublicLifenergyForm({
                 </p>
                 <p className="mt-3 font-bold text-[#0F2D4A]">Média Importância</p>
               </div>
-            )}
+            ) : null}
           </section>
         )}
 
-        {step === 8 && (
+        {step === 9 && (
           <section>
             <h2 className="text-3xl font-bold text-[#0F2D4A]">Justificativas</h2>
             <p className="mt-2 text-slate-600">
@@ -567,11 +591,11 @@ export function PublicLifenergyForm({
           </section>
         )}
 
-        {step === 9 && (
+        {step === 10 && (
           <section>
             <h2 className="text-3xl font-bold text-[#0F2D4A]">Resumo da sua tarefa</h2>
             <p className="mt-2 text-slate-600">
-              Revise o resumo abaixo antes de continuar. Caso queira alterar alguma resposta, classificação ou justificativa, utilize a opção Voltar para retornar às etapas anteriores e realizar os ajustes necessários.
+              Revise o resumo abaixo antes de concluir. Caso queira alterar alguma resposta, classificação ou justificativa, utilize a opção Voltar para retornar às etapas anteriores e realizar os ajustes necessários.
             </p>
             <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-200">
               <table className="w-full min-w-[720px] border-collapse text-left">
@@ -583,7 +607,7 @@ export function PublicLifenergyForm({
                   </tr>
                 </thead>
                 <tbody>
-                  {orderedByHierarchy.map((item) => (
+                  {orderedByResponse.map((item) => (
                     <tr key={item.index} className="border-b border-slate-100 last:border-0">
                       <td className="px-5 py-4 align-top">
                         <p className="font-semibold text-[#0F2D4A]">{responseLabel(item.index)}</p>
@@ -617,6 +641,12 @@ export function PublicLifenergyForm({
           </section>
         )}
       </main>
+
+      {step < TOTAL_STEPS ? (
+        <p className="mt-8 text-sm font-semibold text-[#0F2D4A]">
+          Para seguir, clique em continuar.
+        </p>
+      ) : null}
 
       <footer className="mt-10 flex flex-col-reverse gap-4 border-t border-slate-200 pt-6 md:flex-row md:items-center md:justify-between">
         <button
