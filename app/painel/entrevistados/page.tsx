@@ -1,9 +1,10 @@
 import { CopyLinkButton } from "@/components/application/CopyLinkButton";
+import { CreateJourneyForm } from "@/components/application/CreateJourneyForm";
+import { DeletePendingJourneyButton } from "@/components/application/DeletePendingJourneyButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import {
-  createJourney,
   listActiveApplicators,
   listJourneys,
   updateJourneyParticipant,
@@ -72,47 +73,7 @@ export default async function EntrevistadosPage() {
       </div>
 
       <Card>
-        <form action={createJourney} className="grid gap-4 md:grid-cols-4">
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">
-              Aplicador *
-            </span>
-
-            <select
-              name="applicator_id"
-              required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
-            >
-              <option value="">Selecione</option>
-              {applicators.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <Input name="participant_name" label="Nome do avaliado *" required />
-          <Input name="participant_email" label="E-mail" type="email" />
-
-          <div className="flex items-end">
-            <Button type="submit" className="w-full">
-              Criar Convite
-            </Button>
-          </div>
-
-          <label className="block md:col-span-4">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">
-              Atividade *
-            </span>
-            <textarea
-              name="activity"
-              required
-              rows={3}
-              className="min-h-28 w-full resize-y rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
-            />
-          </label>
-        </form>
+        <CreateJourneyForm applicators={applicators} />
       </Card>
 
       {journeys.length === 0 ? (
@@ -141,12 +102,12 @@ export default async function EntrevistadosPage() {
                       {formatCpf(cpf)}
                     </h2>
                     {isPendingCpfGroup ? (
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-[15px] leading-6 text-slate-500">
                         Links gerados e ainda não respondidos
                       </p>
                     ) : null}
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-[15px] font-semibold leading-6 text-slate-600">
                     {items.length === 1 ? "1 link" : `${items.length} links`}
                   </span>
                 </div>
@@ -165,29 +126,29 @@ export default async function EntrevistadosPage() {
                       >
                         <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_auto]">
                           <div>
-                            <p className="text-sm font-semibold text-slate-500">
+                            <p className="text-[15px] font-semibold leading-6 text-slate-500">
                               {item.code}
                             </p>
                             <h3 className="mt-1 text-lg font-bold text-[#0F2D4A]">
                               {item.participant_name}
                             </h3>
-                            <p className="mt-1 text-sm text-slate-600">
+                            <p className="mt-1 text-[15px] leading-6 text-slate-600">
                               Aplicador: {applicatorName || "-"}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-sm font-semibold text-slate-500">
+                            <p className="text-[15px] font-semibold leading-6 text-slate-500">
                               Atividade
                             </p>
-                            <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                            <p className="mt-1 whitespace-pre-wrap text-[15px] leading-7 text-slate-700">
                               {item.activity || "-"}
                             </p>
                           </div>
 
                           <div className="flex flex-col items-start gap-3 lg:items-end">
                             <span
-                              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusClasses(
+                              className={`inline-flex rounded-full px-3 py-1 text-[13px] font-semibold leading-5 ${statusClasses(
                                 item.status
                               )}`}
                             >
@@ -203,6 +164,9 @@ export default async function EntrevistadosPage() {
                                 Abrir link
                               </a>
                               <CopyLinkButton path={link} />
+                              {item.status === "created" || item.status === "link_sent" ? (
+                                <DeletePendingJourneyButton journeyId={item.id} />
+                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -241,7 +205,7 @@ export default async function EntrevistadosPage() {
                                   />
 
                                   <label className="block">
-                                    <span className="mb-2 block text-sm font-semibold text-slate-700">
+                                    <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
                                       Atividade *
                                     </span>
                                     <textarea
@@ -249,7 +213,7 @@ export default async function EntrevistadosPage() {
                                       required
                                       rows={4}
                                       defaultValue={item.activity || ""}
-                                      className="min-h-28 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+                                      className="min-h-28 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-base leading-7 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
                                     />
                                   </label>
 
@@ -260,7 +224,7 @@ export default async function EntrevistadosPage() {
                               </div>
                             </details>
                           ) : (
-                            <span className="text-sm font-medium text-slate-400">
+                            <span className="text-[15px] font-medium leading-6 text-slate-400">
                               Edição bloqueada
                             </span>
                           )}

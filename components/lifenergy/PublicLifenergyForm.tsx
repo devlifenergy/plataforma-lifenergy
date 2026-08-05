@@ -85,11 +85,11 @@ function localDateToIso(date: Date) {
 }
 
 function fieldClass(extra = "") {
-  return `w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 ${extra}`;
+  return `w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 ${extra}`;
 }
 
 function labelClass() {
-  return "mb-2 block text-sm font-semibold text-slate-700";
+  return "mb-2 block text-base font-semibold leading-7 text-slate-700";
 }
 
 function isEmailValid(email: string) {
@@ -247,7 +247,7 @@ export function PublicLifenergyForm({
     <form
       action="/api/journeys/submit"
       method="POST"
-      className="mx-auto max-w-5xl rounded-3xl bg-white p-6 shadow-sm md:p-8"
+      className="lifenergy-public-form mx-auto max-w-5xl rounded-3xl bg-white p-5 shadow-sm sm:p-6 md:p-8"
     >
       <input type="hidden" name="token" value={token} />
       <input type="hidden" name="application_date" value={applicationDate} />
@@ -456,7 +456,7 @@ export function PublicLifenergyForm({
                 className={fieldClass("min-h-48 bg-white")}
               />
             </div>
-            <p className="mt-5 text-sm font-semibold text-[#0F2D4A]">
+            <p className="mt-5 text-[15px] font-semibold leading-6 text-[#0F2D4A]">
               Leia atentamente o Fractal de Comportamento antes de prosseguir.
             </p>
           </section>
@@ -499,13 +499,13 @@ export function PublicLifenergyForm({
                   type="button"
                   key={index}
                   onClick={() => chooseHighest(index)}
-                  className={`rounded-2xl border p-5 text-left transition ${
+                  className={`rounded-2xl border p-5 text-left leading-7 transition ${
                     highest === index
                       ? "border-[#0F2D4A] bg-[#0F2D4A] text-white"
                       : "border-slate-200 bg-white text-slate-700 hover:border-[#B98A2E]"
                   }`}
                 >
-                  <span className="block text-sm font-semibold">{responseLabel(index)}</span>
+                  <span className="block text-base font-semibold">{responseLabel(index)}</span>
                   <span className="mt-2 block">{responseByIndex(form, index)}</span>
                 </button>
               ))}
@@ -528,13 +528,13 @@ export function PublicLifenergyForm({
                     type="button"
                     key={index}
                     onClick={() => chooseLowest(index)}
-                    className={`rounded-2xl border p-5 text-left transition ${
+                    className={`rounded-2xl border p-5 text-left leading-7 transition ${
                       lowest === index
                         ? "border-[#B98A2E] bg-[#B98A2E] text-white"
                         : "border-slate-200 bg-white text-slate-700 hover:border-[#B98A2E]"
                     }`}
                   >
-                    <span className="block text-sm font-semibold">{responseLabel(index)}</span>
+                    <span className="block text-base font-semibold">{responseLabel(index)}</span>
                     <span className="mt-2 block">{responseByIndex(form, index)}</span>
                   </button>
                 ))}
@@ -603,9 +603,9 @@ export function PublicLifenergyForm({
               <table className="w-full min-w-[720px] border-collapse text-left">
                 <thead className="bg-slate-50">
                   <tr className="border-b border-slate-200">
-                    <th className="px-5 py-4 text-sm font-bold text-[#0F2D4A]">Resposta</th>
-                    <th className="px-5 py-4 text-sm font-bold text-[#0F2D4A]">Importância</th>
-                    <th className="px-5 py-4 text-sm font-bold text-[#0F2D4A]">Justificativa</th>
+                    <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Resposta</th>
+                    <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Importância</th>
+                    <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Justificativa</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -613,12 +613,12 @@ export function PublicLifenergyForm({
                     <tr key={item.index} className="border-b border-slate-100 last:border-0">
                       <td className="px-5 py-4 align-top">
                         <p className="font-semibold text-[#0F2D4A]">{responseLabel(item.index)}</p>
-                        <p className="mt-1 text-sm text-slate-600">{item.response}</p>
+                        <p className="mt-1 text-base text-slate-600">{item.response}</p>
                       </td>
-                      <td className="px-5 py-4 align-top text-sm text-slate-700">
+                      <td className="px-5 py-4 align-top text-base text-slate-700">
                         {hierarchyLabel(item.hierarchy)}
                       </td>
-                      <td className="px-5 py-4 align-top text-sm text-slate-700">
+                      <td className="px-5 py-4 align-top text-base text-slate-700">
                         {justificationByIndex(form, item.index)}
                       </td>
                     </tr>
@@ -645,7 +645,7 @@ export function PublicLifenergyForm({
       </main>
 
       {step < TOTAL_STEPS ? (
-        <p className="mt-8 text-sm font-semibold text-[#0F2D4A]">
+        <p className="mt-8 text-[15px] font-semibold leading-6 text-[#0F2D4A]">
           Para seguir, clique em continuar.
         </p>
       ) : null}

@@ -198,3 +198,53 @@ export async function updateJourneyParticipant(formData: FormData) {
 
   revalidatePath("/painel/entrevistados");
 }
+
+export async function deletePendingJourney(formData: FormData) {
+  const { supabase, profile } = await getCurrentProfile();
+
+  const journeyId = String(formData.get("journey_id") || "").trim();
+
+  if (!journeyId) {
+    throw new Error("Link não informado.");
+  }
+
+  const { data: journey, error: journeyError } = await supabase
+    .from("journeys")
+    .select("id, status")
+    .eq("id", journeyId)
+    .eq("organization_id", profile.organization_id)
+    .single();
+
+  if (journeyError || !journey) {
+    throw new Error("Link não encontrado.");
+  }
+
+  if (journey.status !== "created" && journey.status !== "link_sent") {
+    throw new Error("Somente links ainda não respondidos podem ser excluídos.");
+  }
+
+  const { count, error: responsesError } = await supabase
+    .from("journey_responses")
+    .select("id", { count: "exact", head: true })
+    .eq("journey_id", journeyId);
+
+  if (responsesError) {
+    throw new Error(responsesError.message);
+  }
+
+  if ((count ?? 0) > 0) {
+    throw new Error("Este link já possui respostas registradas e não pode ser excluído.");
+  }
+
+  const { error } = await supabase
+    .from("journeys")
+    .delete()
+    .eq("id", journeyId)
+    .eq("organization_id", profile.organization_id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/painel/entrevistados");
+}

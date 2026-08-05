@@ -17,7 +17,7 @@ export function Button({
 
   return (
     <button
-      className={`rounded-xl px-5 py-3 font-semibold transition ${variants[variant]} ${className}`}
+      className={`rounded-xl px-5 py-3 text-base font-semibold leading-6 transition disabled:cursor-not-allowed disabled:opacity-60 ${variants[variant]} ${className}`}
       {...props}
     >
       {children}
