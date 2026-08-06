@@ -103,6 +103,21 @@ export default async function PainelPage() {
             Exporte os dados para o arquivo, a fim de gerar os laudos.
           </p>
         </Link>
+
+        <Link
+          href="/painel/prototipo-multiplos-fractais"
+          className="block rounded-2xl border border-dashed border-[#B98A2E] bg-[#B98A2E]/5 p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-[#B98A2E]/10 hover:shadow-md"
+        >
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+            Protótipo 1.2.0
+          </p>
+          <h2 className="text-lg font-semibold text-[#0F2A43]">
+            Múltiplos Fractais
+          </h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Valide visualmente a proposta de até 3 fractais por link antes de alterar o banco.
+          </p>
+        </Link>
       </div>
     </section>
   );
