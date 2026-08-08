@@ -41,6 +41,16 @@ function normalizeEmail(value: FormDataEntryValue | null) {
   return String(value || "").trim().toLowerCase();
 }
 
+function isAuthUserAlreadyExistsMessage(message: string) {
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("already registered") ||
+    normalized.includes("already been registered") ||
+    normalized.includes("already exists") ||
+    normalized.includes("user already")
+  );
+}
+
 export async function listCompanies(): Promise<CompanyListItem[]> {
   await requireSuperAdmin();
 
@@ -111,27 +121,44 @@ export async function createCompany(formData: FormData) {
   const companyName = String(formData.get("company_name") || "").trim();
   const adminName = String(formData.get("admin_name") || "").trim();
   const adminEmail = normalizeEmail(formData.get("admin_email"));
-  const password = String(formData.get("password") || "").trim();
+  const password = String(formData.get("password") || "");
 
   if (!companyName || !adminName || !adminEmail || !password) {
     throw new Error("Preencha todos os campos.");
   }
 
-  const admin = createAdminClient();
-
-  const { data: organization, error: organizationError } = await admin
-    .from("organizations")
-    .insert({
-      name: companyName,
-      status: "active",
-    })
-    .select("id")
-    .single();
-
-  if (organizationError || !organization) {
-    throw new Error(organizationError?.message || "Erro ao criar empresa.");
+  if (password.length < 6) {
+    throw new Error("A senha inicial deve ter no mínimo 6 caracteres.");
   }
 
+  const admin = createAdminClient();
+
+  const { data: existingProfile, error: existingProfileError } = await admin
+    .from("profiles")
+    .select("id, auth_user_id, email, role")
+    .eq("email", adminEmail)
+    .maybeSingle();
+
+  if (existingProfileError) {
+    throw new Error(existingProfileError.message);
+  }
+
+  if (existingProfile) {
+    throw new Error(
+      "Este e-mail já está vinculado a um usuário da plataforma. Use outro e-mail ou edite a empresa existente."
+    );
+  }
+
+  /*
+   * Ordem corrigida:
+   * 1. cria o usuário no Supabase Auth;
+   * 2. cria a empresa;
+   * 3. cria o profile organization_admin.
+   *
+   * Antes, a empresa podia ficar gravada sem administrador quando alguma etapa
+   * posterior falhava no Sandbox. Isso causava a mensagem:
+   * "Esta empresa não possui um administrador vinculado...".
+   */
   const { data: authUser, error: authError } = await admin.auth.admin.createUser({
     email: adminEmail,
     password,
@@ -143,11 +170,33 @@ export async function createCompany(formData: FormData) {
   });
 
   if (authError || !authUser.user) {
-    await admin.from("organizations").delete().eq("id", organization.id);
-    throw new Error(authError?.message || "Erro ao criar usuário.");
+    const message = authError?.message || "Erro ao criar usuário.";
+
+    if (isAuthUserAlreadyExistsMessage(message)) {
+      throw new Error(
+        "Este e-mail já existe no Authentication do Supabase, mas não está vinculado corretamente a uma empresa. No Sandbox, apague esse usuário em Authentication > Users ou use outro e-mail de teste."
+      );
+    }
+
+    throw new Error(message);
+  }
+
+  const { data: organization, error: organizationError } = await admin
+    .from("organizations")
+    .insert({
+      name: companyName,
+      status: "active",
+    })
+    .select("id")
+    .single();
+
+  if (organizationError || !organization) {
+    await admin.auth.admin.deleteUser(authUser.user.id);
+    throw new Error(organizationError?.message || "Erro ao criar empresa.");
   }
 
   const { error: profileError } = await admin.from("profiles").insert({
+    id: authUser.user.id,
     auth_user_id: authUser.user.id,
     organization_id: organization.id,
     name: adminName,
@@ -156,8 +205,8 @@ export async function createCompany(formData: FormData) {
   });
 
   if (profileError) {
-    await admin.auth.admin.deleteUser(authUser.user.id);
     await admin.from("organizations").delete().eq("id", organization.id);
+    await admin.auth.admin.deleteUser(authUser.user.id);
     throw new Error(profileError.message);
   }
 
