@@ -1,15 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+type FractalConfig = {
+  id: string | null;
+  position: number;
+  activity: string;
+};
 
 type Props = {
   organizationName: string;
   token: string;
   activity: string;
   applicatorName: string;
+  fractals?: FractalConfig[];
 };
 
-type FormState = {
+type IdentificationState = {
   fullName: string;
   cpf: string;
   email: string;
@@ -17,7 +24,10 @@ type FormState = {
   birthDate: string;
   objective: string;
   applicatorName: string;
-  fractal: string;
+};
+
+type FractalState = {
+  copiedActivity: string;
   response1: string;
   response2: string;
   response3: string;
@@ -25,9 +35,11 @@ type FormState = {
   justification2: string;
   justification3: string;
   finalFeeling: string;
+  highest: number | null;
+  lowest: number | null;
 };
 
-const TOTAL_STEPS = 10;
+const STAGES_PER_FRACTAL = 8;
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "");
@@ -84,6 +96,14 @@ function localDateToIso(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function localTimeToDatabase(date: Date) {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${hours}:${minutes}:${seconds}`;
+}
+
 function fieldClass(extra = "") {
   return `w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 ${extra}`;
 }
@@ -108,34 +128,9 @@ function responseLabel(index: number) {
   return "Terceira Resposta";
 }
 
-function responseByIndex(form: FormState, index: number) {
-  if (index === 1) return form.response1;
-  if (index === 2) return form.response2;
-  return form.response3;
-}
-
-function justificationByIndex(form: FormState, index: number) {
-  if (index === 1) return form.justification1;
-  if (index === 2) return form.justification2;
-  return form.justification3;
-}
-
-export function PublicLifenergyForm({
-  organizationName,
-  token,
-  activity,
-  applicatorName,
-}: Props) {
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState<FormState>({
-    fullName: "",
-    cpf: "",
-    email: "",
-    naturalidade: "",
-    birthDate: "",
-    objective: "",
-    applicatorName,
-    fractal: "",
+function emptyFractalState(): FractalState {
+  return {
+    copiedActivity: "",
     response1: "",
     response2: "",
     response3: "",
@@ -143,142 +138,361 @@ export function PublicLifenergyForm({
     justification2: "",
     justification3: "",
     finalFeeling: "",
+    highest: null,
+    lowest: null,
+  };
+}
+
+function responseByIndex(fractal: FractalState, index: number) {
+  if (index === 1) return fractal.response1;
+  if (index === 2) return fractal.response2;
+  return fractal.response3;
+}
+
+function justificationByIndex(fractal: FractalState, index: number) {
+  if (index === 1) return fractal.justification1;
+  if (index === 2) return fractal.justification2;
+  return fractal.justification3;
+}
+
+function hierarchyMap(fractal: FractalState) {
+  const map: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
+  if (fractal.highest) map[fractal.highest] = 3;
+  if (fractal.lowest) map[fractal.lowest] = 1;
+  const remaining = [1, 2, 3].find(
+    (item) => item !== fractal.highest && item !== fractal.lowest
+  );
+  if (fractal.highest && fractal.lowest && remaining) map[remaining] = 2;
+  return map;
+}
+
+function remainingResponse(fractal: FractalState) {
+  return [1, 2, 3].find(
+    (item) => item !== fractal.highest && item !== fractal.lowest
+  );
+}
+
+function normalizedFractals(fractals: FractalConfig[] | undefined, fallbackActivity: string) {
+  const source = fractals?.length
+    ? fractals
+    : [{ id: null, position: 1, activity: fallbackActivity }];
+
+  const normalized = source
+    .filter((item) => item.activity?.trim())
+    .slice(0, 3)
+    .map((item, index) => ({
+      id: item.id ?? null,
+      position: item.position || index + 1,
+      activity: item.activity,
+    }));
+
+  return normalized.length
+    ? normalized
+    : [{ id: null, position: 1, activity: "Fractal de Comportamento" }];
+}
+
+export function PublicLifenergyForm({
+  organizationName,
+  token,
+  activity,
+  applicatorName,
+  fractals,
+}: Props) {
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const configuredFractals = useMemo(
+    () => normalizedFractals(fractals, activity),
+    [activity, fractals]
+  );
+
+  const [step, setStep] = useState(1);
+  const [identity, setIdentity] = useState<IdentificationState>({
+    fullName: "",
+    cpf: "",
+    email: "",
+    naturalidade: "",
+    birthDate: "",
+    objective: "",
+    applicatorName,
   });
-  const [highest, setHighest] = useState<number | null>(null);
-  const [lowest, setLowest] = useState<number | null>(null);
+  const [fractalStates, setFractalStates] = useState<FractalState[]>(
+    configuredFractals.map(() => emptyFractalState())
+  );
 
   const today = useMemo(() => new Date(), []);
   const applicationDate = localDateToIso(today);
-  const initialTime = today.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
+  const initialTime = localTimeToDatabase(today);
+
+  const totalSteps = 3 + configuredFractals.length * STAGES_PER_FRACTAL + 1;
+  const progress = Math.max(8, Math.round((step / totalSteps) * 100));
+  const isFinalSummary = step === totalSteps;
+
+  function scrollToFormTop() {
+    window.requestAnimationFrame(() => {
+      const top = formRef.current
+        ? formRef.current.getBoundingClientRect().top + window.scrollY - 12
+        : 0;
+
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+  }
+
+  useEffect(() => {
+    scrollToFormTop();
+  }, [step]);
+
+  const currentFractalIndex =
+    step >= 4 && !isFinalSummary
+      ? Math.floor((step - 4) / STAGES_PER_FRACTAL)
+      : 0;
+  const currentFractal = configuredFractals[currentFractalIndex];
+  const currentState = fractalStates[currentFractalIndex];
+  const currentStage =
+    step >= 4 && !isFinalSummary ? ((step - 4) % STAGES_PER_FRACTAL) + 1 : 0;
+
+  const fractalsPayload = configuredFractals.map((fractal, index) => {
+    const state = fractalStates[index];
+    const map = hierarchyMap(state);
+    return {
+      fractal_id: fractal.id ?? "",
+      position: fractal.position,
+      presented_activity: fractal.activity,
+      copied_activity: state.copiedActivity,
+      response_1: state.response1,
+      hierarchy_1: map[1],
+      justification_1: state.justification1,
+      response_2: state.response2,
+      hierarchy_2: map[2],
+      justification_2: state.justification2,
+      response_3: state.response3,
+      hierarchy_3: map[3],
+      justification_3: state.justification3,
+      final_feeling: state.finalFeeling,
+    };
   });
 
-  const progress = Math.max(8, Math.round((step / TOTAL_STEPS) * 100));
+  function updateIdentity<K extends keyof IdentificationState>(
+    field: K,
+    value: IdentificationState[K]
+  ) {
+    setIdentity((current) => ({ ...current, [field]: value }));
+  }
 
-  const hierarchyMap: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
-  if (highest) hierarchyMap[highest] = 3;
-  if (lowest) hierarchyMap[lowest] = 1;
+  function updateFractal<K extends keyof FractalState>(
+    index: number,
+    field: K,
+    value: FractalState[K]
+  ) {
+    setFractalStates((current) =>
+      current.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item
+      )
+    );
+  }
 
-  const remaining = [1, 2, 3].find(
-    (item) => item !== highest && item !== lowest
-  );
+  function chooseHighest(index: number) {
+    updateFractal(currentFractalIndex, "highest", index);
+    if (currentState.lowest === index) {
+      updateFractal(currentFractalIndex, "lowest", null);
+    }
+  }
 
-  if (highest && lowest && remaining) hierarchyMap[remaining] = 2;
-
-  const orderedByHierarchy = [1, 2, 3]
-    .map((index) => ({
-      index,
-      response: responseByIndex(form, index),
-      hierarchy: hierarchyMap[index],
-    }))
-    .filter((item) => item.hierarchy > 0)
-    .sort((a, b) => b.hierarchy - a.hierarchy);
-
-  const orderedByResponse = [1, 2, 3]
-    .map((index) => ({
-      index,
-      response: responseByIndex(form, index),
-      hierarchy: hierarchyMap[index],
-    }))
-    .filter((item) => item.hierarchy > 0);
-
-  function update<K extends keyof FormState>(field: K, value: FormState[K]) {
-    setForm((current) => ({ ...current, [field]: value }));
+  function chooseLowest(index: number) {
+    if (index === currentState.highest) return;
+    updateFractal(currentFractalIndex, "lowest", index);
   }
 
   function canContinue() {
     if (step === 1) return true;
     if (step === 2) {
       return Boolean(
-        form.fullName.trim() &&
-          form.cpf.trim().length >= 14 &&
-          isEmailValid(form.email) &&
-          form.naturalidade.trim() &&
-          isValidDateBr(form.birthDate) &&
-          form.objective.trim()
+        identity.fullName.trim() &&
+          identity.cpf.trim().length >= 14 &&
+          isEmailValid(identity.email) &&
+          identity.naturalidade.trim() &&
+          isValidDateBr(identity.birthDate) &&
+          identity.objective.trim()
       );
     }
     if (step === 3) return true;
-    if (step === 4) return Boolean(form.fractal.trim());
-    if (step === 5) {
+    if (isFinalSummary) return true;
+    if (!currentState) return false;
+
+    if (currentStage === 1) return Boolean(currentState.copiedActivity.trim());
+    if (currentStage === 2) {
       return Boolean(
-        form.response1.trim() &&
-          form.response2.trim() &&
-          form.response3.trim()
+        currentState.response1.trim() &&
+          currentState.response2.trim() &&
+          currentState.response3.trim()
       );
     }
-    if (step === 6) return highest !== null;
-    if (step === 7) return lowest !== null;
-    if (step === 8) return Boolean(highest && lowest && remaining);
-    if (step === 9) {
+    if (currentStage === 3) return currentState.highest !== null;
+    if (currentStage === 4) return currentState.lowest !== null;
+    if (currentStage === 5) {
+      return Boolean(currentState.highest && currentState.lowest && remainingResponse(currentState));
+    }
+    if (currentStage === 6) {
       return Boolean(
-        form.justification1.trim() &&
-          form.justification2.trim() &&
-          form.justification3.trim()
+        currentState.justification1.trim() &&
+          currentState.justification2.trim() &&
+          currentState.justification3.trim()
       );
     }
-    if (step === 10) return Boolean(form.finalFeeling.trim());
+    if (currentStage === 7) return Boolean(currentState.finalFeeling.trim());
+    if (currentStage === 8) return true;
     return false;
   }
 
   function goNext() {
     if (!canContinue()) return;
-    setStep((current) => Math.min(TOTAL_STEPS, current + 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setStep((current) => Math.min(totalSteps, current + 1));
   }
 
   function goBack() {
     setStep((current) => Math.max(1, current - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function chooseHighest(index: number) {
-    setHighest(index);
-    if (lowest === index) setLowest(null);
+  function renderFractalTitle() {
+    return `Fractal ${currentFractalIndex + 1} de ${configuredFractals.length}`;
   }
 
-  function chooseLowest(index: number) {
-    if (index === highest) return;
-    setLowest(index);
+  function renderResponseButton(index: number, mode: "highest" | "lowest") {
+    const selected = mode === "highest" ? currentState.highest === index : currentState.lowest === index;
+    const disabled = mode === "lowest" && currentState.highest === index;
+
+    return (
+      <button
+        type="button"
+        key={index}
+        onClick={() => (mode === "highest" ? chooseHighest(index) : chooseLowest(index))}
+        disabled={disabled}
+        className={`rounded-2xl border p-5 text-left leading-7 transition ${
+          selected
+            ? "border-[#B98A2E] bg-[#B98A2E] text-white"
+            : disabled
+              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+              : "border-slate-200 bg-white text-slate-700 hover:border-[#B98A2E]"
+        }`}
+      >
+        <span className="block text-base font-semibold">{responseLabel(index)}</span>
+        <span className="mt-2 block">{responseByIndex(currentState, index)}</span>
+      </button>
+    );
+  }
+
+  function renderFractalSummary(fractal: FractalConfig, state: FractalState) {
+    const map = hierarchyMap(state);
+    const rows = [1, 2, 3].map((index) => ({
+      index,
+      response: responseByIndex(state, index),
+      hierarchy: map[index],
+      justification: justificationByIndex(state, index),
+    }));
+
+    return (
+      <section key={fractal.position} className="rounded-2xl border border-slate-200 p-5">
+        <h3 className="text-2xl font-bold text-[#0F2D4A]">
+          Fractal {fractal.position} de {configuredFractals.length}
+        </h3>
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <div className="rounded-xl bg-slate-50 p-4">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+              Atividade apresentada
+            </p>
+            <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-slate-700">
+              {fractal.activity}
+            </p>
+          </div>
+          <div className="rounded-xl bg-slate-50 p-4">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+              Atividade digitada pelo avaliado
+            </p>
+            <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-slate-700">
+              {state.copiedActivity}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200">
+          <table className="w-full min-w-[760px] border-collapse text-left">
+            <thead className="bg-slate-50">
+              <tr className="border-b border-slate-200">
+                <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Resposta</th>
+                <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Importância</th>
+                <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Justificativa</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((item) => (
+                <tr key={item.index} className="border-b border-slate-100 last:border-0">
+                  <td className="px-5 py-4 align-top">
+                    <p className="font-semibold text-[#0F2D4A]">{responseLabel(item.index)}</p>
+                    <p className="mt-1 text-base text-slate-600">{item.response}</p>
+                  </td>
+                  <td className="px-5 py-4 align-top text-base text-slate-700">
+                    {hierarchyLabel(item.hierarchy)}
+                  </td>
+                  <td className="px-5 py-4 align-top text-base text-slate-700">
+                    {item.justification}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-6 rounded-xl bg-[#0F2D4A]/5 p-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+            Reflexão após essa tarefa
+          </p>
+          <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-slate-700">
+            {state.finalFeeling}
+          </p>
+        </div>
+      </section>
+    );
   }
 
   return (
     <form
+      ref={formRef}
       action="/api/journeys/submit"
       method="POST"
-      className="lifenergy-public-form mx-auto max-w-5xl rounded-3xl bg-white p-5 shadow-sm sm:p-6 md:p-8"
+      noValidate
+      onSubmit={(event) => {
+        if (!isFinalSummary || !canContinue()) {
+          event.preventDefault();
+        }
+      }}
+      onKeyDown={(event) => {
+        const target = event.target as HTMLElement;
+        const isTextArea = target.tagName.toLowerCase() === "textarea";
+        if (event.key === "Enter" && !isTextArea && !isFinalSummary) {
+          event.preventDefault();
+        }
+      }}
+      className="lifenergy-public-form mx-auto max-w-5xl rounded-3xl bg-white p-5 shadow-sm sm:p-6 md:p-8 scroll-mt-4"
     >
       <input type="hidden" name="token" value={token} />
       <input type="hidden" name="application_date" value={applicationDate} />
       <input type="hidden" name="initial_time" value={initialTime} />
       <input type="hidden" name="tipo_aplicacao" value="aplicacao_assistida" />
       <input type="hidden" name="escolha_atividade" value="aplicador" />
-      <input type="hidden" name="nome" value={form.fullName} />
-      <input type="hidden" name="cpf" value={form.cpf} />
-      <input type="hidden" name="email" value={form.email} />
-      <input type="hidden" name="naturalidade" value={form.naturalidade} />
-      <input type="hidden" name="data_nascimento" value={dateBrToIso(form.birthDate)} />
-      <input type="hidden" name="objetivo" value={form.objective} />
-      <input type="hidden" name="nome_aplicador" value={form.applicatorName} />
-      <input type="hidden" name="fractal" value={form.fractal} />
-      <input type="hidden" name="resposta_1" value={form.response1} />
-      <input type="hidden" name="resposta_2" value={form.response2} />
-      <input type="hidden" name="resposta_3" value={form.response3} />
-      <input type="hidden" name="hierarquia_1" value={hierarchyMap[1] || ""} />
-      <input type="hidden" name="hierarquia_2" value={hierarchyMap[2] || ""} />
-      <input type="hidden" name="hierarquia_3" value={hierarchyMap[3] || ""} />
-      <input type="hidden" name="justificativa_1" value={form.justification1} />
-      <input type="hidden" name="justificativa_2" value={form.justification2} />
-      <input type="hidden" name="justificativa_3" value={form.justification3} />
-      <input type="hidden" name="sentimento_final" value={form.finalFeeling} />
+      <input type="hidden" name="nome" value={identity.fullName} />
+      <input type="hidden" name="cpf" value={identity.cpf} />
+      <input type="hidden" name="email" value={identity.email} />
+      <input type="hidden" name="naturalidade" value={identity.naturalidade} />
+      <input type="hidden" name="data_nascimento" value={dateBrToIso(identity.birthDate)} />
+      <input type="hidden" name="objetivo" value={identity.objective} />
+      <input type="hidden" name="nome_aplicador" value={identity.applicatorName} />
+      <input type="hidden" name="fractal_count" value={configuredFractals.length} />
+      <input type="hidden" name="fractals_json" value={JSON.stringify(fractalsPayload)} />
 
       <header className="sticky top-0 z-10 -mx-6 -mt-6 border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur md:-mx-8 md:-mt-8 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#B98A2E]">
           Lifenergy Digital
         </p>
         <h1 className="mt-1 text-2xl font-bold text-[#0F2D4A]">
-          Passo {step} de {TOTAL_STEPS} da sua tarefa.
+          Passo {step} de {totalSteps} da sua tarefa.
         </h1>
         <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-200">
           <div
@@ -297,33 +511,20 @@ export function PublicLifenergyForm({
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
               {organizationName}
             </p>
-            <div>
-              <h2 className="text-4xl font-bold text-[#0F2D4A]">
-                Bem-vindo ao Lifenergy Digital — seu cantinho de reflexão e crescimento pessoal.
-              </h2>
-            </div>
+            <h2 className="text-4xl font-bold text-[#0F2D4A]">
+              Bem-vindo ao Lifenergy Digital — seu cantinho de reflexão e crescimento pessoal.
+            </h2>
             <div className="space-y-4 text-base leading-8 text-slate-700">
               <p>
                 Você iniciará, a partir de agora, uma avaliação do seu padrão relacional —
                 uma prática de autopercepção guiada pela Metodologia Lifenergy.
               </p>
               <p>
-                Utilize preferencialmente um computador, tablet ou celular com
-                acesso estável à internet, em um ambiente tranquilo, sem
-                distrações ou interrupções, para manter sua atenção durante toda
-                a atividade.
+                Este link contém {configuredFractals.length === 1 ? "1 fractal" : `${configuredFractals.length} fractais`} de comportamento.
+                Cada tarefa deverá ser realizada em sequência, com atenção e sem interrupções.
               </p>
               <p>
-                Desenvolva as atividades exatamente na sequência apresentada.
-                Elas representam situações simples e frequentes do seu cotidiano.
-              </p>
-              <p>
-                Após iniciar, prossiga até a conclusão da atividade, evitando
-                interrupções, para garantir o registro completo de suas respostas.
-              </p>
-              <p>
-                Durante toda a atividade, siga cada etapa na ordem apresentada.
-                Evite antecipar respostas e mantenha sua atenção voltada para a tarefa.
+                Ao final de cada fractal, você será convidado(a) a registrar como está se sentindo após aquela tarefa específica.
               </p>
             </div>
           </section>
@@ -339,16 +540,16 @@ export function PublicLifenergyForm({
               <label>
                 <span className={labelClass()}>Nome Completo *</span>
                 <input
-                  value={form.fullName}
-                  onChange={(event) => update("fullName", event.target.value)}
+                  value={identity.fullName}
+                  onChange={(event) => updateIdentity("fullName", event.target.value)}
                   className={fieldClass()}
                 />
               </label>
               <label>
                 <span className={labelClass()}>CPF *</span>
                 <input
-                  value={form.cpf}
-                  onChange={(event) => update("cpf", formatCpf(event.target.value))}
+                  value={identity.cpf}
+                  onChange={(event) => updateIdentity("cpf", formatCpf(event.target.value))}
                   className={fieldClass()}
                   inputMode="numeric"
                   maxLength={14}
@@ -357,8 +558,8 @@ export function PublicLifenergyForm({
               <label>
                 <span className={labelClass()}>E-mail *</span>
                 <input
-                  value={form.email}
-                  onChange={(event) => update("email", event.target.value)}
+                  value={identity.email}
+                  onChange={(event) => updateIdentity("email", event.target.value)}
                   type="email"
                   className={fieldClass()}
                 />
@@ -366,8 +567,8 @@ export function PublicLifenergyForm({
               <label>
                 <span className={labelClass()}>Naturalidade *</span>
                 <input
-                  value={form.naturalidade}
-                  onChange={(event) => update("naturalidade", event.target.value)}
+                  value={identity.naturalidade}
+                  onChange={(event) => updateIdentity("naturalidade", event.target.value)}
                   placeholder="Cidade / Estado"
                   className={fieldClass()}
                 />
@@ -375,8 +576,8 @@ export function PublicLifenergyForm({
               <label>
                 <span className={labelClass()}>Data de Nascimento *</span>
                 <input
-                  value={form.birthDate}
-                  onChange={(event) => update("birthDate", formatDateBr(event.target.value))}
+                  value={identity.birthDate}
+                  onChange={(event) => updateIdentity("birthDate", formatDateBr(event.target.value))}
                   inputMode="numeric"
                   maxLength={10}
                   placeholder="dd/mm/aaaa"
@@ -386,8 +587,8 @@ export function PublicLifenergyForm({
               <label className="md:col-span-2">
                 <span className={labelClass()}>Objetivo de Participação *</span>
                 <textarea
-                  value={form.objective}
-                  onChange={(event) => update("objective", event.target.value)}
+                  value={identity.objective}
+                  onChange={(event) => updateIdentity("objective", event.target.value)}
                   className={fieldClass("min-h-32")}
                 />
               </label>
@@ -400,36 +601,37 @@ export function PublicLifenergyForm({
             <h2 className="text-3xl font-bold text-[#0F2D4A]">Instruções</h2>
             <div className="mt-8 space-y-5 rounded-2xl bg-slate-50 p-6 text-base leading-8 text-slate-700">
               <p>
-                Você receberá uma atividade intitulada “Fractal de Comportamento”,
-                apresentada pelo aplicador. Essa atividade deve ser realizada com
-                atenção, de forma contínua e sem interrupções. Responda de maneira
-                espontânea, sem excesso de reflexão, considerando aquilo que vier
-                primeiro à sua percepção.
+                Você receberá uma ou mais atividades intituladas “Fractal de Comportamento”, apresentadas pelo aplicador. Cada atividade deve ser realizada com atenção, de forma contínua e sem interrupções. Responda de maneira espontânea, sem excesso de reflexão, considerando aquilo que vier primeiro à sua percepção.
               </p>
               <ol className="list-decimal space-y-3 pl-6">
                 <li>Leia com atenção, em voz alta, a atividade ou fractal de comportamento apresentado pelo aplicador.</li>
-                <li>No campo indicado, digite a atividade ou o fractal de comportamento que você leu.</li>
+                <li>No campo indicado, digite manualmente a atividade ou o fractal de comportamento que você leu.</li>
                 <li>Em seguida, registre as três respostas, uma em cada campo indicado.</li>
                 <li>Depois de registrar as três respostas, releia todas elas com atenção.</li>
                 <li>Selecione a resposta que você considera de maior importância neste momento e clique sobre ela.</li>
                 <li>Em seguida, selecione a resposta que você considera de menor importância e clique sobre ela.</li>
                 <li>A resposta restante será considerada automaticamente como de média importância.</li>
                 <li>Na etapa de justificativas, explique o porquê da resposta que você deu e da importância atribuída a ela.</li>
-                <li>Ao final, no quadro indicado, descreva como você se sentiu durante a realização da atividade.</li>
+                <li>Ao final de cada fractal, no quadro indicado, descreva como você está se sentindo após aquela tarefa.</li>
                 <li>Quando aparecer o quadro resumo, faça uma revisão das suas respostas, importância e justificativas.</li>
                 <li>Caso queira alterar alguma resposta, importância ou justificativa, utilize a opção de voltar.</li>
-                <li>Antes de enviar, revise o resumo da sua tarefa.</li>
+                <li>Antes de enviar, revise o resumo final da sua tarefa.</li>
               </ol>
             </div>
             <p className="mt-6 font-bold text-[#0F2D4A]">
-              Ao continuar, você confirma que leu, compreendeu as instruções e realizou a tarefa.
+              Ao continuar, você confirma que leu, compreendeu as instruções e realizará a tarefa.
             </p>
           </section>
         )}
 
-        {step === 4 && (
+        {currentStage === 1 && currentFractal && currentState && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Fractal de Comportamento</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+              {renderFractalTitle()}
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">
+              Fractal de Comportamento
+            </h2>
             <p className="mt-2 text-slate-600">
               Copie abaixo a atividade ou Fractal de comportamento apresentado pelo Aplicador:
             </p>
@@ -441,120 +643,94 @@ export function PublicLifenergyForm({
                 Atividade apresentada pelo aplicador
               </p>
               <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-slate-800">
-                {activity}
+                {currentFractal.activity}
               </p>
             </div>
             <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6">
               <textarea
-                value={form.fractal}
-                onChange={(event) => update("fractal", event.target.value)}
+                value={currentState.copiedActivity}
+                onChange={(event) => updateFractal(currentFractalIndex, "copiedActivity", event.target.value)}
                 onCopy={(event) => event.preventDefault()}
                 onCut={(event) => event.preventDefault()}
                 onPaste={(event) => event.preventDefault()}
                 onDrop={(event) => event.preventDefault()}
-                autoComplete="off"
-                className={fieldClass("min-h-48 bg-white")}
+                className={fieldClass("min-h-36")}
+                placeholder="Digite aqui a atividade/fractal. Copiar e colar está bloqueado."
               />
             </div>
-            <p className="mt-5 text-[15px] font-semibold leading-6 text-[#0F2D4A]">
-              Leia atentamente o Fractal de Comportamento antes de prosseguir.
-            </p>
           </section>
         )}
 
-        {step === 5 && (
+        {currentStage === 2 && currentFractal && currentState && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Registro de Dados</h2>
-            <p className="mt-2 text-slate-600">
-              Nesta etapa, registre <strong>APENAS</strong> as suas três respostas.
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+              {renderFractalTitle()}
             </p>
-            <div className="mt-8 space-y-5">
-              {[1, 2, 3].map((item) => {
-                const field = item === 1 ? "response1" : item === 2 ? "response2" : "response3";
-                return (
-                  <label key={item} className="block">
-                    <span className={labelClass()}>{responseLabel(item)} *</span>
-                    <textarea
-                      value={form[field]}
-                      onChange={(event) => update(field as keyof FormState, event.target.value)}
-                      className={fieldClass("min-h-28")}
-                    />
-                  </label>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {step === 6 && (
-          <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Hierarquia</h2>
-            <p className="mt-2 text-slate-600">Agora vamos organizar suas respostas por importância.</p>
-            <h3 className="mt-8 text-xl font-bold text-[#0F2D4A]">
-              Releia suas respostas e clique na que você considera de Maior Importância.
-            </h3>
-            <div className="mt-4 grid gap-4">
+            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Registro das respostas</h2>
+            <p className="mt-2 text-slate-600">Escreva três respostas espontâneas para a tarefa.</p>
+            <div className="mt-8 grid gap-5">
               {[1, 2, 3].map((index) => (
-                <button
-                  type="button"
-                  key={index}
-                  onClick={() => chooseHighest(index)}
-                  className={`rounded-2xl border p-5 text-left leading-7 transition ${
-                    highest === index
-                      ? "border-[#0F2D4A] bg-[#0F2D4A] text-white"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-[#B98A2E]"
-                  }`}
-                >
-                  <span className="block text-base font-semibold">{responseLabel(index)}</span>
-                  <span className="mt-2 block">{responseByIndex(form, index)}</span>
-                </button>
+                <label key={index}>
+                  <span className={labelClass()}>{responseLabel(index)} *</span>
+                  <textarea
+                    value={responseByIndex(currentState, index)}
+                    onChange={(event) =>
+                      updateFractal(
+                        currentFractalIndex,
+                        index === 1 ? "response1" : index === 2 ? "response2" : "response3",
+                        event.target.value
+                      )
+                    }
+                    className={fieldClass("min-h-28")}
+                  />
+                </label>
               ))}
             </div>
           </section>
         )}
 
-        {step === 7 && (
+        {currentStage === 3 && currentState && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Hierarquia</h2>
-            <p className="mt-2 text-slate-600">Agora vamos organizar suas respostas por importância.</p>
-            <h3 className="mt-8 text-xl font-bold text-[#0F2D4A]">
-              Releia suas respostas e clique na que você considera de Menor Importância.
-            </h3>
-            <div className="mt-4 grid gap-4">
-              {[1, 2, 3]
-                .filter((index) => index !== highest)
-                .map((index) => (
-                  <button
-                    type="button"
-                    key={index}
-                    onClick={() => chooseLowest(index)}
-                    className={`rounded-2xl border p-5 text-left leading-7 transition ${
-                      lowest === index
-                        ? "border-[#B98A2E] bg-[#B98A2E] text-white"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-[#B98A2E]"
-                    }`}
-                  >
-                    <span className="block text-base font-semibold">{responseLabel(index)}</span>
-                    <span className="mt-2 block">{responseByIndex(form, index)}</span>
-                  </button>
-                ))}
-            </div>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+              {renderFractalTitle()}
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Maior Importância</h2>
+            <p className="mt-2 text-slate-600">
+              Releia suas respostas e clique na que você considera de maior importância.
+            </p>
+            <div className="mt-8 grid gap-4">{[1, 2, 3].map((index) => renderResponseButton(index, "highest"))}</div>
           </section>
         )}
 
-        {step === 8 && (
+        {currentStage === 4 && currentState && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Média Importância</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+              {renderFractalTitle()}
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Menor Importância</h2>
+            <p className="mt-2 text-slate-600">
+              Agora clique na resposta que você considera de menor importância.
+            </p>
+            <div className="mt-8 grid gap-4">{[1, 2, 3].map((index) => renderResponseButton(index, "lowest"))}</div>
+          </section>
+        )}
+
+        {currentStage === 5 && currentState && (
+          <section>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+              {renderFractalTitle()}
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Média Importância</h2>
             <p className="mt-2 text-slate-600">
               A resposta restante será considerada de média importância.
             </p>
-            {remaining ? (
+            {remainingResponse(currentState) ? (
               <div className="mt-8 rounded-2xl border-2 border-[#0F2D4A] bg-[#0F2D4A]/5 p-5 text-slate-700 shadow-sm">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
-                  {responseLabel(remaining)}
+                  {responseLabel(remainingResponse(currentState) ?? 1)}
                 </p>
                 <p className="mt-3 text-base font-semibold text-[#0F2D4A]">
-                  {responseByIndex(form, remaining)}
+                  {responseByIndex(currentState, remainingResponse(currentState) ?? 1)}
                 </p>
                 <p className="mt-3 font-bold text-[#0F2D4A]">Média Importância</p>
               </div>
@@ -562,89 +738,113 @@ export function PublicLifenergyForm({
           </section>
         )}
 
-        {step === 9 && (
+        {currentStage === 6 && currentState && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Justificativas</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+              {renderFractalTitle()}
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Justificativas</h2>
             <p className="mt-2 text-slate-600">
-              Para cada resposta, justifique o porquê da resposta apresentada e da hierarquia escolhida, iniciando pela resposta de maior importância e finalizando pela de menor importância.
+              Para cada resposta, justifique o porquê da resposta apresentada e da hierarquia escolhida.
             </p>
             <div className="mt-8 space-y-6">
-              {orderedByHierarchy.map((item) => {
-                const field = item.index === 1 ? "justification1" : item.index === 2 ? "justification2" : "justification3";
-                return (
+              {[1, 2, 3]
+                .map((index) => ({ index, hierarchy: hierarchyMap(currentState)[index] }))
+                .sort((a, b) => b.hierarchy - a.hierarchy)
+                .map((item) => (
                   <div key={item.index} className="rounded-2xl border border-slate-200 p-5">
                     <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
                       {hierarchyLabel(item.hierarchy)}
                     </p>
                     <p className="mt-3 font-semibold text-[#0F2D4A]">{responseLabel(item.index)}</p>
-                    <p className="mt-2 text-slate-700">{item.response}</p>
+                    <p className="mt-2 text-slate-700">{responseByIndex(currentState, item.index)}</p>
                     <label className="mt-5 block">
                       <span className={labelClass()}>Justificativa *</span>
                       <textarea
-                        value={form[field]}
-                        onChange={(event) => update(field as keyof FormState, event.target.value)}
+                        value={justificationByIndex(currentState, item.index)}
+                        onChange={(event) =>
+                          updateFractal(
+                            currentFractalIndex,
+                            item.index === 1 ? "justification1" : item.index === 2 ? "justification2" : "justification3",
+                            event.target.value
+                          )
+                        }
                         className={fieldClass("min-h-32")}
                       />
                     </label>
                   </div>
-                );
-              })}
+                ))}
             </div>
           </section>
         )}
 
-        {step === 10 && (
+        {currentStage === 7 && currentState && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Resumo da sua tarefa</h2>
-            <p className="mt-2 text-slate-600">
-              Revise o resumo abaixo antes de concluir. Caso queira alterar alguma resposta, classificação ou justificativa, utilize a opção Voltar para retornar às etapas anteriores e realizar os ajustes necessários.
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+              {renderFractalTitle()}
             </p>
-            <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-200">
-              <table className="w-full min-w-[720px] border-collapse text-left">
-                <thead className="bg-slate-50">
-                  <tr className="border-b border-slate-200">
-                    <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Resposta</th>
-                    <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Importância</th>
-                    <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Justificativa</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orderedByResponse.map((item) => (
-                    <tr key={item.index} className="border-b border-slate-100 last:border-0">
-                      <td className="px-5 py-4 align-top">
-                        <p className="font-semibold text-[#0F2D4A]">{responseLabel(item.index)}</p>
-                        <p className="mt-1 text-base text-slate-600">{item.response}</p>
-                      </td>
-                      <td className="px-5 py-4 align-top text-base text-slate-700">
-                        {hierarchyLabel(item.hierarchy)}
-                      </td>
-                      <td className="px-5 py-4 align-top text-base text-slate-700">
-                        {justificationByIndex(form, item.index)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Reflexão após essa tarefa</h2>
+            <label className="mt-8 block">
+              <span className={labelClass()}>
+                Agora pare, pense e escreva como você está sentindo-se após essa tarefa. *
+              </span>
+              <textarea
+                value={currentState.finalFeeling}
+                onChange={(event) => updateFractal(currentFractalIndex, "finalFeeling", event.target.value)}
+                className={fieldClass("min-h-40")}
+              />
+            </label>
+          </section>
+        )}
 
-            <div className="mt-10 border-t border-slate-200 pt-8">
-              <h2 className="text-3xl font-bold text-[#0F2D4A]">Reflexão Final</h2>
-              <label className="mt-8 block">
-                <span className={labelClass()}>
-                  Agora pare por alguns instantes e descreva como você se sentiu durante o desenvolvimento da atividade. *
-                </span>
-                <textarea
-                  value={form.finalFeeling}
-                  onChange={(event) => update("finalFeeling", event.target.value)}
-                  className={fieldClass("min-h-40")}
-                />
-              </label>
+        {currentStage === 8 && currentFractal && currentState && (
+          <section>
+            <h2 className="text-3xl font-bold text-[#0F2D4A]">
+              Quadro resumo do {renderFractalTitle()}
+            </h2>
+            <div className="mt-4 rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-5 text-slate-700">
+              <p className="font-bold text-[#0F2D4A]">Revise antes de continuar.</p>
+              <p className="mt-2 leading-7">
+                Confira a atividade digitada, as três respostas, as importâncias, as justificativas
+                e a reflexão após essa tarefa. Caso queira alterar alguma informação deste fractal,
+                utilize a opção <strong>Voltar</strong> antes de avançar.
+              </p>
+            </div>
+            <div className="mt-8">
+              {renderFractalSummary(currentFractal, currentState)}
+            </div>
+          </section>
+        )}
+
+        {isFinalSummary && (
+          <section>
+            <h2 className="text-3xl font-bold text-[#0F2D4A]">Resumo final da sua tarefa</h2>
+            <div className="mt-4 rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-5 text-slate-700">
+              <p className="font-bold text-[#0F2D4A]">Revise antes de enviar.</p>
+              <p className="mt-2 leading-7">
+                Confira suas respostas, importâncias, justificativas e reflexões de cada fractal.
+                Caso queira alterar alguma informação, utilize a opção <strong>Voltar</strong> antes de concluir.
+              </p>
+            </div>
+            <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <h3 className="text-xl font-bold text-[#0F2D4A]">Avaliado</h3>
+              <div className="mt-4 grid gap-3 text-base leading-7 text-slate-700 md:grid-cols-2">
+                <p><strong>Nome:</strong> {identity.fullName}</p>
+                <p><strong>E-mail:</strong> {identity.email}</p>
+                <p><strong>CPF:</strong> {identity.cpf}</p>
+                <p><strong>Data de nascimento:</strong> {identity.birthDate}</p>
+                <p><strong>Naturalidade:</strong> {identity.naturalidade}</p>
+                <p><strong>Objetivo:</strong> {identity.objective}</p>
+              </div>
+            </div>
+            <div className="mt-8 space-y-8">
+              {configuredFractals.map((fractal, index) => renderFractalSummary(fractal, fractalStates[index]))}
             </div>
           </section>
         )}
       </main>
 
-      {step < TOTAL_STEPS ? (
+      {!isFinalSummary ? (
         <p className="mt-8 text-[15px] font-semibold leading-6 text-[#0F2D4A]">
           Para seguir, clique em continuar.
         </p>
@@ -653,7 +853,10 @@ export function PublicLifenergyForm({
       <footer className="mt-10 flex flex-col-reverse gap-4 border-t border-slate-200 pt-6 md:flex-row md:items-center md:justify-between">
         <button
           type="button"
-          onClick={goBack}
+          onClick={(event) => {
+            event.preventDefault();
+            goBack();
+          }}
           disabled={step === 1}
           className={`rounded-xl px-6 py-3 font-semibold transition ${
             step === 1
@@ -664,10 +867,13 @@ export function PublicLifenergyForm({
           Voltar
         </button>
 
-        {step < TOTAL_STEPS ? (
+        {!isFinalSummary ? (
           <button
             type="button"
-            onClick={goNext}
+            onClick={(event) => {
+              event.preventDefault();
+              goNext();
+            }}
             disabled={!canContinue()}
             className={`rounded-xl px-6 py-3 font-semibold transition ${
               canContinue()
@@ -675,17 +881,18 @@ export function PublicLifenergyForm({
                 : "cursor-not-allowed bg-slate-200 text-slate-500"
             }`}
           >
-            Continuar
+            {currentStage === 7
+              ? "Revisar este fractal"
+              : currentStage === 8 && currentFractalIndex === configuredFractals.length - 1
+                ? "Ir para revisão final"
+                : currentStage === 8
+                  ? "Continuar para o próximo fractal"
+                  : "Continuar"}
           </button>
         ) : (
           <button
             type="submit"
-            disabled={!canContinue()}
-            className={`rounded-xl px-6 py-3 font-semibold transition ${
-              canContinue()
-                ? "bg-[#0F2D4A] text-white hover:opacity-90"
-                : "cursor-not-allowed bg-slate-200 text-slate-500"
-            }`}
+            className="rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90"
           >
             Concluir Avaliação
           </button>

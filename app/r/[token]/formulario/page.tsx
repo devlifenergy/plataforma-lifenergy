@@ -6,6 +6,29 @@ type PageProps = {
   params: Promise<{ token: string }>;
 };
 
+type FractalContext = {
+  id: string | null;
+  position: number;
+  activity: string;
+};
+
+function parseFractals(value: unknown, fallbackActivity: string): FractalContext[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item, index) => ({
+        id: typeof item?.id === "string" ? item.id : null,
+        position: Number(item?.position || index + 1),
+        activity: String(item?.activity || ""),
+      }))
+      .filter((item) => item.activity.trim())
+      .slice(0, 3);
+  }
+
+  return [{ id: null, position: 1, activity: fallbackActivity }].filter((item) =>
+    item.activity.trim()
+  );
+}
+
 export default async function FormularioPage({ params }: PageProps) {
   const { token } = await params;
   const supabase = await createClient();
@@ -14,7 +37,7 @@ export default async function FormularioPage({ params }: PageProps) {
     await Promise.all([
       supabase.rpc("get_public_journey_by_token", { p_token: token }).single(),
       supabase
-        .rpc("get_public_journey_context_by_token", { p_token: token })
+        .rpc("get_public_journey_context_v2_by_token", { p_token: token })
         .single(),
     ]);
 
@@ -38,13 +61,17 @@ export default async function FormularioPage({ params }: PageProps) {
     );
   }
 
+  const fallbackActivity = journeyContext.activity || "";
+  const fractals = parseFractals(journeyContext.fractals, fallbackActivity);
+
   return (
     <main className="min-h-screen bg-slate-100 px-6 py-10">
       <PublicLifenergyForm
         organizationName={journey.organization_name}
         token={token}
-        activity={journeyContext.activity || ""}
+        activity={fallbackActivity}
         applicatorName={journeyContext.applicator_name || ""}
+        fractals={fractals}
       />
     </main>
   );

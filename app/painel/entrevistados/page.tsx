@@ -139,11 +139,18 @@ export default async function EntrevistadosPage() {
 
                           <div>
                             <p className="text-[15px] font-semibold leading-6 text-slate-500">
-                              Atividade
+                              Fractais
                             </p>
-                            <p className="mt-1 whitespace-pre-wrap text-[15px] leading-7 text-slate-700">
-                              {item.activity || "-"}
-                            </p>
+                            <div className="mt-1 space-y-2 text-[15px] leading-7 text-slate-700">
+                              {((item as any).fractals ?? []).map((fractal: any) => (
+                                <p key={fractal.position} className="whitespace-pre-wrap">
+                                  <span className="font-semibold text-[#0F2D4A]">
+                                    Fractal {fractal.position}:
+                                  </span>{" "}
+                                  {fractal.activity || "-"}
+                                </p>
+                              ))}
+                            </div>
                           </div>
 
                           <div className="flex flex-col items-start gap-3 lg:items-end">
@@ -204,18 +211,28 @@ export default async function EntrevistadosPage() {
                                     defaultValue={item.participant_email || ""}
                                   />
 
-                                  <label className="block">
-                                    <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
-                                      Atividade *
-                                    </span>
-                                    <textarea
-                                      name="activity"
-                                      required
-                                      rows={4}
-                                      defaultValue={item.activity || ""}
-                                      className="min-h-28 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-base leading-7 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
-                                    />
-                                  </label>
+                                  <input
+                                    type="hidden"
+                                    name="fractal_count"
+                                    value={((item as any).fractals ?? []).length || 1}
+                                  />
+
+                                  {(((item as any).fractals ?? [
+                                    { position: 1, activity: item.activity || "" },
+                                  ]) as Array<{ position: number; activity: string }>).map((fractal) => (
+                                    <label key={fractal.position} className="block">
+                                      <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
+                                        Fractal {fractal.position} *
+                                      </span>
+                                      <textarea
+                                        name={`activity_${fractal.position}`}
+                                        required
+                                        rows={4}
+                                        defaultValue={fractal.activity || ""}
+                                        className="min-h-28 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-base leading-7 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+                                      />
+                                    </label>
+                                  ))}
 
                                   <Button type="submit" className="w-full">
                                     Salvar alterações

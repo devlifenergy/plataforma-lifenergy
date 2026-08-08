@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabaseServer";
 
-
 const WINDOWS_1252_SPECIAL_CHARS: Record<string, number> = {
   "€": 0x80,
   "‚": 0x82,
@@ -92,8 +91,6 @@ function formatDateTime(value: unknown) {
   const minutes = pad(date.getMinutes());
   const seconds = pad(date.getSeconds());
 
-  // Não usar vírgula aqui. Alguns editores/planilhas interpretam a vírgula
-  // como separador de coluna quando o CSV é aberto diretamente.
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
@@ -127,6 +124,14 @@ function labelStatus(value: unknown) {
   return labels[String(value ?? "")] ?? normalizeCell(value);
 }
 
+function hierarchyLabel(value: unknown) {
+  const number = Number(value || 0);
+  if (number === 3) return "Maior importância — 3";
+  if (number === 2) return "Média importância — 2";
+  if (number === 1) return "Menor importância — 1";
+  return "";
+}
+
 function applicatorNameFromJourney(journey: any) {
   const applicators = journey?.applicators;
   if (Array.isArray(applicators)) return applicators[0]?.name ?? "";
@@ -138,6 +143,24 @@ function buildFileStamp() {
   const date = now.toISOString().slice(0, 10);
   const time = now.toTimeString().slice(0, 5).replace(":", "-");
   return `${date}_${time}`;
+}
+
+function legacyFractalFromResponse(response: any, journey: any) {
+  return {
+    position: 1,
+    presented_activity: journey.activity,
+    copied_activity: response.behavior_fractal,
+    response_1: response.response_1,
+    hierarchy_1: response.hierarchy_1,
+    justification_1: response.justification_1,
+    response_2: response.response_2,
+    hierarchy_2: response.hierarchy_2,
+    justification_2: response.justification_2,
+    response_3: response.response_3,
+    hierarchy_3: response.hierarchy_3,
+    justification_3: response.justification_3,
+    final_feeling: response.final_feeling,
+  };
 }
 
 export async function GET() {
@@ -166,9 +189,7 @@ export async function GET() {
 
   const { data: journeys, error: journeysError } = await supabase
     .from("journeys")
-    .select(
-      "id, code, token, status, activity, created_at, completed_at, applicators(name)"
-    )
+    .select("id, code, token, status, activity, created_at, completed_at, applicators(name)")
     .eq("organization_id", profile.organization_id)
     .order("created_at", { ascending: false });
 
@@ -199,11 +220,30 @@ export async function GET() {
     responses = data ?? [];
   }
 
-  const headers = [
+  const responseIds = responses.map((response) => response.id).filter(Boolean);
+  const fractalsByResponse = new Map<string, any[]>();
+
+  if (responseIds.length > 0) {
+    const { data: responseFractals, error: responseFractalsError } = await supabase
+      .from("journey_response_fractals")
+      .select("*")
+      .in("journey_response_id", responseIds)
+      .order("position", { ascending: true });
+
+    if (!responseFractalsError) {
+      for (const fractal of responseFractals ?? []) {
+        const current = fractalsByResponse.get(fractal.journey_response_id) ?? [];
+        current.push(fractal);
+        fractalsByResponse.set(fractal.journey_response_id, current);
+      }
+    }
+  }
+
+  const baseHeaders = [
     "Código",
     "Status do Link",
-    "Atividade Cadastrada no Link",
     "Aplicador do Link",
+    "Quantidade de Fractais Respondidos",
     "Data da Aplicação",
     "Hora Inicial",
     "Nome do Avaliado",
@@ -215,29 +255,46 @@ export async function GET() {
     "Tipo de Aplicação",
     "Nome do Aplicador Informado",
     "Escolha da Atividade",
-    "Fractal/Atividade Digitada",
-    "Primeira Resposta",
-    "Hierarquia da Primeira Resposta",
-    "Justificativa da Primeira Resposta",
-    "Segunda Resposta",
-    "Hierarquia da Segunda Resposta",
-    "Justificativa da Segunda Resposta",
-    "Terceira Resposta",
-    "Hierarquia da Terceira Resposta",
-    "Justificativa da Terceira Resposta",
-    "Reflexão Final",
+  ];
+
+  const fractalHeaders = [1, 2, 3].flatMap((position) => [
+    `Fractal ${position} - Atividade Apresentada`,
+    `Fractal ${position} - Atividade Digitada`,
+    `Fractal ${position} - Primeira Resposta`,
+    `Fractal ${position} - Hierarquia da Primeira Resposta`,
+    `Fractal ${position} - Justificativa da Primeira Resposta`,
+    `Fractal ${position} - Segunda Resposta`,
+    `Fractal ${position} - Hierarquia da Segunda Resposta`,
+    `Fractal ${position} - Justificativa da Segunda Resposta`,
+    `Fractal ${position} - Terceira Resposta`,
+    `Fractal ${position} - Hierarquia da Terceira Resposta`,
+    `Fractal ${position} - Justificativa da Terceira Resposta`,
+    `Fractal ${position} - Reflexão após a Tarefa`,
+  ]);
+
+  const headers = [
+    ...baseHeaders,
+    ...fractalHeaders,
     "Data de Conclusão",
     "Token",
   ];
 
   const rows = responses.map((response) => {
     const journey = journeysById.get(response.journey_id) ?? {};
+    const fractals = fractalsByResponse.get(response.id) ?? [
+      legacyFractalFromResponse(response, journey),
+    ];
+    const fractalsByPosition = new Map<number, any>();
 
-    return [
+    for (const fractal of fractals) {
+      fractalsByPosition.set(Number(fractal.position), fractal);
+    }
+
+    const baseValues = [
       journey.code,
       labelStatus(journey.status),
-      journey.activity,
       applicatorNameFromJourney(journey),
+      fractals.length,
       formatDate(response.application_date),
       response.initial_time,
       response.full_name,
@@ -249,17 +306,31 @@ export async function GET() {
       labelApplicationType(response.application_type),
       response.applicator_name,
       labelActivityChoice(response.activity_choice),
-      response.behavior_fractal,
-      response.response_1,
-      response.hierarchy_1,
-      response.justification_1,
-      response.response_2,
-      response.hierarchy_2,
-      response.justification_2,
-      response.response_3,
-      response.hierarchy_3,
-      response.justification_3,
-      response.final_feeling,
+    ];
+
+    const fractalValues = [1, 2, 3].flatMap((position) => {
+      const fractal = fractalsByPosition.get(position);
+      if (!fractal) return Array(12).fill("");
+
+      return [
+        fractal.presented_activity,
+        fractal.copied_activity,
+        fractal.response_1,
+        hierarchyLabel(fractal.hierarchy_1),
+        fractal.justification_1,
+        fractal.response_2,
+        hierarchyLabel(fractal.hierarchy_2),
+        fractal.justification_2,
+        fractal.response_3,
+        hierarchyLabel(fractal.hierarchy_3),
+        fractal.justification_3,
+        fractal.final_feeling,
+      ];
+    });
+
+    return [
+      ...baseValues,
+      ...fractalValues,
       formatDateTime(journey.completed_at ?? response.created_at),
       journey.token,
     ]

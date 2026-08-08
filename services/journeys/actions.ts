@@ -33,6 +33,28 @@ function normalizeOptionalField(value: FormDataEntryValue | null) {
   return normalized || null;
 }
 
+function readFractalActivities(formData: FormData) {
+  const countFromForm = Number(formData.get("fractal_count") || 1);
+  const fractalCount = [1, 2, 3].includes(countFromForm) ? countFromForm : 1;
+
+  const activities = Array.from({ length: fractalCount }, (_, index) => {
+    const position = index + 1;
+    const value = String(
+      formData.get(`activity_${position}`) ||
+        (position === 1 ? formData.get("activity") : "") ||
+        ""
+    ).trim();
+
+    if (!value) {
+      throw new Error(`Atividade do Fractal ${position} obrigatória.`);
+    }
+
+    return { position, activity: value };
+  });
+
+  return activities;
+}
+
 export async function listJourneys() {
   const { supabase, profile } = await getCurrentProfile();
 
@@ -50,6 +72,7 @@ export async function listJourneys() {
 
   const journeyIds = (journeys ?? []).map((item) => item.id);
   const cpfByJourney = new Map<string, string>();
+  const fractalsByJourney = new Map<string, Array<{ position: number; activity: string }>>();
 
   if (journeyIds.length > 0) {
     const { data: responses, error: responsesError } = await supabase
@@ -66,12 +89,37 @@ export async function listJourneys() {
         cpfByJourney.set(response.journey_id, response.cpf);
       }
     }
+
+    const { data: fractals, error: fractalsError } = await supabase
+      .from("journey_fractals")
+      .select("journey_id, position, activity")
+      .in("journey_id", journeyIds)
+      .order("position", { ascending: true });
+
+    if (!fractalsError) {
+      for (const fractal of fractals ?? []) {
+        const current = fractalsByJourney.get(fractal.journey_id) ?? [];
+        current.push({
+          position: Number(fractal.position),
+          activity: String(fractal.activity || ""),
+        });
+        fractalsByJourney.set(fractal.journey_id, current);
+      }
+    }
   }
 
-  return (journeys ?? []).map((journey) => ({
-    ...journey,
-    cpf: cpfByJourney.get(journey.id) ?? null,
-  }));
+  return (journeys ?? []).map((journey) => {
+    const fractals = fractalsByJourney.get(journey.id) ?? [
+      { position: 1, activity: journey.activity || "" },
+    ];
+
+    return {
+      ...journey,
+      cpf: cpfByJourney.get(journey.id) ?? null,
+      fractals,
+      fractal_count: fractals.length,
+    };
+  });
 }
 
 export async function listActiveApplicators() {
@@ -95,13 +143,10 @@ export async function createJourney(formData: FormData) {
   const { supabase, profile } = await getCurrentProfile();
 
   const applicatorId = String(formData.get("applicator_id") || "").trim();
-  const participantName = String(
-    formData.get("participant_name") || ""
-  ).trim();
-  const participantEmail = normalizeOptionalField(
-    formData.get("participant_email")
-  );
-  const activity = String(formData.get("activity") || "").trim();
+  const participantName = String(formData.get("participant_name") || "").trim();
+  const participantEmail = normalizeOptionalField(formData.get("participant_email"));
+  const activities = readFractalActivities(formData);
+  const firstActivity = activities[0]?.activity ?? "";
 
   if (!applicatorId) {
     throw new Error("Aplicador obrigatório.");
@@ -109,10 +154,6 @@ export async function createJourney(formData: FormData) {
 
   if (!participantName) {
     throw new Error("Nome do avaliado obrigatório.");
-  }
-
-  if (!activity) {
-    throw new Error("Atividade obrigatória.");
   }
 
   const { data: applicator, error: applicatorError } = await supabase
@@ -131,19 +172,40 @@ export async function createJourney(formData: FormData) {
   const code = `LFE-${uniqueId.slice(0, 10)}`;
   const token = uniqueId.slice(10, 22);
 
-  const { error } = await supabase.from("journeys").insert({
-    organization_id: profile.organization_id,
-    applicator_id: applicatorId,
-    code,
-    token,
-    participant_name: participantName,
-    participant_email: participantEmail,
-    activity,
-    status: "link_sent",
-  });
+  const { data: journey, error } = await supabase
+    .from("journeys")
+    .insert({
+      organization_id: profile.organization_id,
+      applicator_id: applicatorId,
+      code,
+      token,
+      participant_name: participantName,
+      participant_email: participantEmail,
+      activity: firstActivity,
+      status: "link_sent",
+    })
+    .select("id")
+    .single();
 
-  if (error) {
-    throw new Error(error.message);
+  if (error || !journey?.id) {
+    throw new Error(error?.message ?? "Não foi possível criar o convite.");
+  }
+
+  const { error: fractalsError } = await supabase.from("journey_fractals").insert(
+    activities.map((item) => ({
+      journey_id: journey.id,
+      position: item.position,
+      activity: item.activity,
+    }))
+  );
+
+  if (fractalsError) {
+    await supabase
+      .from("journeys")
+      .delete()
+      .eq("id", journey.id)
+      .eq("organization_id", profile.organization_id);
+    throw new Error(fractalsError.message);
   }
 
   revalidatePath("/painel/entrevistados");
@@ -153,15 +215,12 @@ export async function updateJourneyParticipant(formData: FormData) {
   const { supabase, profile } = await getCurrentProfile();
 
   const journeyId = String(formData.get("journey_id") || "").trim();
-  const participantName = String(
-    formData.get("participant_name") || ""
-  ).trim();
-  const participantEmail = normalizeOptionalField(
-    formData.get("participant_email")
-  );
-  const activity = String(formData.get("activity") || "").trim();
+  const participantName = String(formData.get("participant_name") || "").trim();
+  const participantEmail = normalizeOptionalField(formData.get("participant_email"));
+  const activities = readFractalActivities(formData);
+  const firstActivity = activities[0]?.activity ?? "";
 
-  if (!journeyId || !participantName || !activity) {
+  if (!journeyId || !participantName || !firstActivity) {
     throw new Error("Informe o avaliado, o nome e a atividade.");
   }
 
@@ -177,9 +236,7 @@ export async function updateJourneyParticipant(formData: FormData) {
   }
 
   if (journey.status === "completed" || journey.status === "exported") {
-    throw new Error(
-      "Não é permitido editar um avaliado com avaliação concluída."
-    );
+    throw new Error("Não é permitido editar um avaliado com avaliação concluída.");
   }
 
   const { error } = await supabase
@@ -187,13 +244,34 @@ export async function updateJourneyParticipant(formData: FormData) {
     .update({
       participant_name: participantName,
       participant_email: participantEmail,
-      activity,
+      activity: firstActivity,
     })
     .eq("id", journeyId)
     .eq("organization_id", profile.organization_id);
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  const { error: deleteError } = await supabase
+    .from("journey_fractals")
+    .delete()
+    .eq("journey_id", journeyId);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  const { error: insertError } = await supabase.from("journey_fractals").insert(
+    activities.map((item) => ({
+      journey_id: journeyId,
+      position: item.position,
+      activity: item.activity,
+    }))
+  );
+
+  if (insertError) {
+    throw new Error(insertError.message);
   }
 
   revalidatePath("/painel/entrevistados");
