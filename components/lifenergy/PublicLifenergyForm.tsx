@@ -217,14 +217,14 @@ export function PublicLifenergyForm({
   const [fractalStates, setFractalStates] = useState<FractalState[]>(
     configuredFractals.map(() => emptyFractalState())
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const today = useMemo(() => new Date(), []);
   const applicationDate = localDateToIso(today);
   const initialTime = localTimeToDatabase(today);
 
-  const totalSteps = 3 + configuredFractals.length * STAGES_PER_FRACTAL + 1;
+  const totalSteps = 3 + configuredFractals.length * STAGES_PER_FRACTAL;
   const progress = Math.max(8, Math.round((step / totalSteps) * 100));
-  const isFinalSummary = step === totalSteps;
 
   function scrollToFormTop() {
     window.requestAnimationFrame(() => {
@@ -241,13 +241,15 @@ export function PublicLifenergyForm({
   }, [step]);
 
   const currentFractalIndex =
-    step >= 4 && !isFinalSummary
-      ? Math.floor((step - 4) / STAGES_PER_FRACTAL)
-      : 0;
+    step >= 4 ? Math.floor((step - 4) / STAGES_PER_FRACTAL) : 0;
   const currentFractal = configuredFractals[currentFractalIndex];
   const currentState = fractalStates[currentFractalIndex];
   const currentStage =
-    step >= 4 && !isFinalSummary ? ((step - 4) % STAGES_PER_FRACTAL) + 1 : 0;
+    step >= 4 ? ((step - 4) % STAGES_PER_FRACTAL) + 1 : 0;
+  const isLastFractalSummary =
+    step >= 4 &&
+    currentFractalIndex === configuredFractals.length - 1 &&
+    currentStage === STAGES_PER_FRACTAL;
 
   const fractalsPayload = configuredFractals.map((fractal, index) => {
     const state = fractalStates[index];
@@ -303,7 +305,8 @@ export function PublicLifenergyForm({
 
   function canContinue() {
     if (step === 1) return true;
-    if (step === 2) {
+    if (step === 2) return true;
+    if (step === 3) {
       return Boolean(
         identity.fullName.trim() &&
           identity.cpf.trim().length >= 14 &&
@@ -313,8 +316,6 @@ export function PublicLifenergyForm({
           identity.objective.trim()
       );
     }
-    if (step === 3) return true;
-    if (isFinalSummary) return true;
     if (!currentState) return false;
 
     if (currentStage === 1) return Boolean(currentState.copiedActivity.trim());
@@ -459,14 +460,17 @@ export function PublicLifenergyForm({
       method="POST"
       noValidate
       onSubmit={(event) => {
-        if (!isFinalSummary || !canContinue()) {
+        if (!isLastFractalSummary || !canContinue() || isSubmitting) {
           event.preventDefault();
+          return;
         }
+
+        setIsSubmitting(true);
       }}
       onKeyDown={(event) => {
         const target = event.target as HTMLElement;
         const isTextArea = target.tagName.toLowerCase() === "textarea";
-        if (event.key === "Enter" && !isTextArea && !isFinalSummary) {
+        if (event.key === "Enter" && !isTextArea && !isLastFractalSummary) {
           event.preventDefault();
         }
       }}
@@ -516,21 +520,45 @@ export function PublicLifenergyForm({
             </h2>
             <div className="space-y-4 text-base leading-8 text-slate-700">
               <p>
-                Você iniciará, a partir de agora, uma avaliação do seu padrão relacional —
-                uma prática de autopercepção guiada pela Metodologia Lifenergy.
+                Este link contém {configuredFractals.length === 1 ? "1 fractal ou atividade" : `${configuredFractals.length} fractais ou atividades`} de comportamento.
               </p>
               <p>
-                Este link contém {configuredFractals.length === 1 ? "1 fractal" : `${configuredFractals.length} fractais`} de comportamento.
+                O tempo estimado é de aproximadamente 10 minutos por fractal ou atividade.
+              </p>
+              <p>
                 Cada tarefa deverá ser realizada em sequência, com atenção e sem interrupções.
-              </p>
-              <p>
-                Ao final de cada fractal, você será convidado(a) a registrar como está se sentindo após aquela tarefa específica.
               </p>
             </div>
           </section>
         )}
 
         {step === 2 && (
+          <section>
+            <h2 className="text-3xl font-bold text-[#0F2D4A]">Antes de iniciar</h2>
+            <div className="mt-8 space-y-5 rounded-2xl bg-slate-50 p-6 text-base leading-8 text-slate-700">
+              <p>
+                Você iniciará, a partir de agora, uma avaliação do seu padrão relacional — uma prática de autopercepção guiada pela Metodologia Lifenergy.
+              </p>
+              <p>
+                Utilize preferencialmente um computador, tablet ou celular com acesso estável à internet, em um ambiente tranquilo, sem distrações ou interrupções, para manter sua atenção durante toda a atividade.
+              </p>
+              <p>
+                Desenvolva as atividades exatamente na sequência apresentada. Elas representam situações simples e frequentes do seu cotidiano.
+              </p>
+              <p>
+                Após iniciar, prossiga até a conclusão da atividade, evitando interrupções, para garantir o registro completo de suas respostas.
+              </p>
+              <p>
+                Durante toda a atividade, siga cada etapa na ordem apresentada. Evite antecipar respostas e mantenha sua atenção voltada para a tarefa.
+              </p>
+            </div>
+            <p className="mt-6 font-bold text-[#0F2D4A]">
+              Ao continuar, você confirma que leu e compreendeu as orientações iniciais.
+            </p>
+          </section>
+        )}
+
+        {step === 3 && (
           <section>
             <h2 className="text-3xl font-bold text-[#0F2D4A]">Identificação</h2>
             <p className="mt-2 text-slate-600">
@@ -593,34 +621,6 @@ export function PublicLifenergyForm({
                 />
               </label>
             </div>
-          </section>
-        )}
-
-        {step === 3 && (
-          <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Instruções</h2>
-            <div className="mt-8 space-y-5 rounded-2xl bg-slate-50 p-6 text-base leading-8 text-slate-700">
-              <p>
-                Você receberá uma ou mais atividades intituladas “Fractal de Comportamento”, apresentadas pelo aplicador. Cada atividade deve ser realizada com atenção, de forma contínua e sem interrupções. Responda de maneira espontânea, sem excesso de reflexão, considerando aquilo que vier primeiro à sua percepção.
-              </p>
-              <ol className="list-decimal space-y-3 pl-6">
-                <li>Leia com atenção, em voz alta, a atividade ou fractal de comportamento apresentado pelo aplicador.</li>
-                <li>No campo indicado, digite manualmente a atividade ou o fractal de comportamento que você leu.</li>
-                <li>Em seguida, registre as três respostas, uma em cada campo indicado.</li>
-                <li>Depois de registrar as três respostas, releia todas elas com atenção.</li>
-                <li>Selecione a resposta que você considera de maior importância neste momento e clique sobre ela.</li>
-                <li>Em seguida, selecione a resposta que você considera de menor importância e clique sobre ela.</li>
-                <li>A resposta restante será considerada automaticamente como de média importância.</li>
-                <li>Na etapa de justificativas, explique o porquê da resposta que você deu e da importância atribuída a ela.</li>
-                <li>Ao final de cada fractal, no quadro indicado, descreva como você está se sentindo após aquela tarefa.</li>
-                <li>Quando aparecer o quadro resumo, faça uma revisão das suas respostas, importância e justificativas.</li>
-                <li>Caso queira alterar alguma resposta, importância ou justificativa, utilize a opção de voltar.</li>
-                <li>Antes de enviar, revise o resumo final da sua tarefa.</li>
-              </ol>
-            </div>
-            <p className="mt-6 font-bold text-[#0F2D4A]">
-              Ao continuar, você confirma que leu, compreendeu as instruções e realizará a tarefa.
-            </p>
           </section>
         )}
 
@@ -807,7 +807,7 @@ export function PublicLifenergyForm({
               <p className="mt-2 leading-7">
                 Confira a atividade digitada, as três respostas, as importâncias, as justificativas
                 e a reflexão após essa tarefa. Caso queira alterar alguma informação deste fractal,
-                utilize a opção <strong>Voltar</strong> antes de avançar.
+                utilize a opção <strong>Voltar</strong> antes de avançar ou concluir.
               </p>
             </div>
             <div className="mt-8">
@@ -815,36 +815,9 @@ export function PublicLifenergyForm({
             </div>
           </section>
         )}
-
-        {isFinalSummary && (
-          <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Resumo final da sua tarefa</h2>
-            <div className="mt-4 rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-5 text-slate-700">
-              <p className="font-bold text-[#0F2D4A]">Revise antes de enviar.</p>
-              <p className="mt-2 leading-7">
-                Confira suas respostas, importâncias, justificativas e reflexões de cada fractal.
-                Caso queira alterar alguma informação, utilize a opção <strong>Voltar</strong> antes de concluir.
-              </p>
-            </div>
-            <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <h3 className="text-xl font-bold text-[#0F2D4A]">Avaliado</h3>
-              <div className="mt-4 grid gap-3 text-base leading-7 text-slate-700 md:grid-cols-2">
-                <p><strong>Nome:</strong> {identity.fullName}</p>
-                <p><strong>E-mail:</strong> {identity.email}</p>
-                <p><strong>CPF:</strong> {identity.cpf}</p>
-                <p><strong>Data de nascimento:</strong> {identity.birthDate}</p>
-                <p><strong>Naturalidade:</strong> {identity.naturalidade}</p>
-                <p><strong>Objetivo:</strong> {identity.objective}</p>
-              </div>
-            </div>
-            <div className="mt-8 space-y-8">
-              {configuredFractals.map((fractal, index) => renderFractalSummary(fractal, fractalStates[index]))}
-            </div>
-          </section>
-        )}
       </main>
 
-      {!isFinalSummary ? (
+      {!isLastFractalSummary ? (
         <p className="mt-8 text-[15px] font-semibold leading-6 text-[#0F2D4A]">
           Para seguir, clique em continuar.
         </p>
@@ -857,7 +830,7 @@ export function PublicLifenergyForm({
             event.preventDefault();
             goBack();
           }}
-          disabled={step === 1}
+          disabled={step === 1 || isSubmitting}
           className={`rounded-xl px-6 py-3 font-semibold transition ${
             step === 1
               ? "cursor-not-allowed bg-slate-100 text-slate-400"
@@ -867,7 +840,7 @@ export function PublicLifenergyForm({
           Voltar
         </button>
 
-        {!isFinalSummary ? (
+        {!isLastFractalSummary ? (
           <button
             type="button"
             onClick={(event) => {
@@ -883,18 +856,17 @@ export function PublicLifenergyForm({
           >
             {currentStage === 7
               ? "Revisar este fractal"
-              : currentStage === 8 && currentFractalIndex === configuredFractals.length - 1
-                ? "Ir para revisão final"
-                : currentStage === 8
-                  ? "Continuar para o próximo fractal"
-                  : "Continuar"}
+              : currentStage === 8
+                ? "Continuar para o próximo fractal"
+                : "Continuar"}
           </button>
         ) : (
           <button
             type="submit"
-            className="rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90"
+            disabled={isSubmitting}
+            className="rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Concluir Avaliação
+            {isSubmitting ? "Enviando avaliação..." : "Concluir Avaliação"}
           </button>
         )}
       </footer>

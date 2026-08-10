@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
 
 const WINDOWS_1252_SPECIAL_CHARS: Record<string, number> = {
@@ -138,6 +139,12 @@ function applicatorNameFromJourney(journey: any) {
   return applicators?.name ?? "";
 }
 
+function organizationNameFromJourney(journey: any) {
+  const organizations = journey?.organizations;
+  if (Array.isArray(organizations)) return organizations[0]?.name ?? "";
+  return organizations?.name ?? "";
+}
+
 function buildFileStamp() {
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
@@ -163,7 +170,7 @@ function legacyFractalFromResponse(response: any, journey: any) {
   };
 }
 
-export async function GET() {
+async function requireSuperAdmin() {
   const supabase = await createClient();
 
   const {
@@ -171,27 +178,46 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+    return { error: NextResponse.json({ error: "Não autenticado." }, { status: 401 }) };
   }
 
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
-    .select("organization_id")
+    .select("role")
     .eq("auth_user_id", user.id)
     .single();
 
-  if (profileError || !profile?.organization_id) {
-    return NextResponse.json(
-      { error: "Perfil da empresa não encontrado." },
-      { status: 400 }
-    );
+  if (error || profile?.role !== "super_admin") {
+    return { error: NextResponse.json({ error: "Acesso restrito ao super usuário." }, { status: 403 }) };
   }
 
-  const { data: journeys, error: journeysError } = await supabase
+  return { error: null };
+}
+
+export async function GET(request: Request) {
+  const guard = await requireSuperAdmin();
+  if (guard.error) return guard.error;
+
+  const url = new URL(request.url);
+  const organizationId = url.searchParams.get("organization_id")?.trim() || "";
+  const avaliado = url.searchParams.get("avaliado")?.trim() || "";
+  const startDate = url.searchParams.get("start_date")?.trim() || "";
+  const endDate = url.searchParams.get("end_date")?.trim() || "";
+
+  const admin = createAdminClient();
+
+  let journeysQuery = admin
     .from("journeys")
-    .select("id, code, token, status, activity, created_at, completed_at, applicators(name)")
-    .eq("organization_id", profile.organization_id)
+    .select(
+      "id, organization_id, code, token, status, activity, created_at, completed_at, applicators(name), organizations(name)"
+    )
     .order("created_at", { ascending: false });
+
+  if (organizationId) {
+    journeysQuery = journeysQuery.eq("organization_id", organizationId);
+  }
+
+  const { data: journeys, error: journeysError } = await journeysQuery;
 
   if (journeysError) {
     return NextResponse.json({ error: journeysError.message }, { status: 400 });
@@ -203,15 +229,31 @@ export async function GET() {
   }
 
   const journeyIds = Array.from(journeysById.keys());
-
   let responses: any[] = [];
 
   if (journeyIds.length > 0) {
-    const { data, error } = await supabase
+    let responsesQuery = admin
       .from("journey_responses")
       .select("*")
       .in("journey_id", journeyIds)
       .order("created_at", { ascending: false });
+
+    if (avaliado) {
+      const safeSearch = avaliado.replace(/[%,]/g, "");
+      responsesQuery = responsesQuery.or(
+        `full_name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%,cpf.ilike.%${safeSearch}%`
+      );
+    }
+
+    if (startDate) {
+      responsesQuery = responsesQuery.gte("application_date", startDate);
+    }
+
+    if (endDate) {
+      responsesQuery = responsesQuery.lte("application_date", endDate);
+    }
+
+    const { data, error } = await responsesQuery;
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -224,7 +266,7 @@ export async function GET() {
   const fractalsByResponse = new Map<string, any[]>();
 
   if (responseIds.length > 0) {
-    const { data: responseFractals, error: responseFractalsError } = await supabase
+    const { data: responseFractals, error: responseFractalsError } = await admin
       .from("journey_response_fractals")
       .select("*")
       .in("journey_response_id", responseIds)
@@ -240,6 +282,7 @@ export async function GET() {
   }
 
   const baseHeaders = [
+    "Empresa",
     "Código",
     "Status do Link",
     "Aplicador do Link",
@@ -291,6 +334,7 @@ export async function GET() {
     }
 
     const baseValues = [
+      organizationNameFromJourney(journey),
       journey.code,
       labelStatus(journey.status),
       applicatorNameFromJourney(journey),

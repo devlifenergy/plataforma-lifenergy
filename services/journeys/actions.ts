@@ -72,20 +72,26 @@ export async function listJourneys() {
 
   const journeyIds = (journeys ?? []).map((item) => item.id);
   const cpfByJourney = new Map<string, string>();
+  const responseIdByJourney = new Map<string, string>();
   const fractalsByJourney = new Map<string, Array<{ position: number; activity: string }>>();
 
   if (journeyIds.length > 0) {
     const { data: responses, error: responsesError } = await supabase
       .from("journey_responses")
-      .select("journey_id, cpf")
-      .in("journey_id", journeyIds);
+      .select("id, journey_id, cpf, created_at")
+      .in("journey_id", journeyIds)
+      .order("created_at", { ascending: false });
 
     if (responsesError) {
       throw new Error(responsesError.message);
     }
 
     for (const response of responses ?? []) {
-      if (response.journey_id && response.cpf) {
+      if (response.journey_id && !responseIdByJourney.has(response.journey_id)) {
+        responseIdByJourney.set(response.journey_id, response.id);
+      }
+
+      if (response.journey_id && response.cpf && !cpfByJourney.has(response.journey_id)) {
         cpfByJourney.set(response.journey_id, response.cpf);
       }
     }
@@ -116,6 +122,7 @@ export async function listJourneys() {
     return {
       ...journey,
       cpf: cpfByJourney.get(journey.id) ?? null,
+      response_id: responseIdByJourney.get(journey.id) ?? null,
       fractals,
       fractal_count: fractals.length,
     };

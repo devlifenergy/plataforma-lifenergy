@@ -5,14 +5,15 @@ type MenuItem = {
   label: string;
   href: string;
   superAdminOnly?: boolean;
+  hiddenForSuperAdmin?: boolean;
 };
 
 const menuItems: MenuItem[] = [
   { label: "Painel", href: "/painel" },
   { label: "Empresas", href: "/painel/empresas", superAdminOnly: true },
-  { label: "Aplicadores", href: "/painel/aplicadores" },
-  { label: "Avaliados", href: "/painel/entrevistados" },
-  { label: "Laudos", href: "/painel/exportacoes" },
+  { label: "Aplicadores", href: "/painel/aplicadores", hiddenForSuperAdmin: true },
+  { label: "Avaliados", href: "/painel/entrevistados", hiddenForSuperAdmin: true },
+  { label: "Laudos", href: "/painel/exportacoes", superAdminOnly: true },
 ];
 
 type CompanyShellProps = {
@@ -28,12 +29,12 @@ export function CompanyShell({
   organizationName,
   role,
 }: CompanyShellProps) {
-  const visibleMenuItems =
-    role === "super_admin"
-      ? menuItems.filter((item) =>
-          ["Painel", "Empresas"].includes(item.label)
-        )
-      : menuItems.filter((item) => !item.superAdminOnly);
+  const isSuperAdmin = role === "super_admin";
+  const visibleMenuItems = menuItems.filter((item) => {
+    if (item.superAdminOnly && !isSuperAdmin) return false;
+    if (item.hiddenForSuperAdmin && isSuperAdmin) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] text-[#1F2933]">

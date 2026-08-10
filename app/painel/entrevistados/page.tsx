@@ -1,6 +1,7 @@
 import { CopyLinkButton } from "@/components/application/CopyLinkButton";
 import { CreateJourneyForm } from "@/components/application/CreateJourneyForm";
 import { DeletePendingJourneyButton } from "@/components/application/DeletePendingJourneyButton";
+import { GenerateReportButton } from "@/components/application/GenerateReportButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -162,17 +163,24 @@ export default async function EntrevistadosPage() {
                               {statusLabel(item.status)}
                             </span>
                             <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-                              <a
-                                href={link}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="font-semibold text-[#0F2D4A] underline"
-                              >
-                                Abrir link
-                              </a>
-                              <CopyLinkButton path={link} />
                               {item.status === "created" || item.status === "link_sent" ? (
-                                <DeletePendingJourneyButton journeyId={item.id} />
+                                <>
+                                  <a
+                                    href={link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="font-semibold text-[#0F2D4A] underline"
+                                  >
+                                    Abrir link
+                                  </a>
+                                  <CopyLinkButton path={link} />
+                                  <DeletePendingJourneyButton journeyId={item.id} />
+                                </>
+                              ) : null}
+
+                              {(item.status === "completed" || item.status === "exported") &&
+                              (item as any).response_id ? (
+                                <GenerateReportButton responseId={(item as any).response_id} />
                               ) : null}
                             </div>
                           </div>
