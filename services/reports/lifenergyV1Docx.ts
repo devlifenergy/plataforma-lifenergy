@@ -1,4 +1,9 @@
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "./lifenergyV1Types";
+import {
+  LIFENERGY_REPORT_ENGINE_VERSION,
+  LIFENERGY_REPORT_PROMPT_VERSION,
+  LIFENERGY_REPORT_TEMPLATE_VERSION,
+} from "./lifenergyV1Types";
 
 function cleanXmlText(value: unknown) {
   return String(value ?? "")
@@ -29,7 +34,7 @@ function formatDate(value: unknown) {
 
 function labelApplicationType(value: unknown) {
   const labels: Record<string, string> = {
-    auto_aplicacao: "Assistida",
+    auto_aplicacao: "Auto Aplicação",
     aplicacao_assistida: "Assistida",
     "Auto Aplicação": "Auto Aplicação",
     "Aplicação Assistida": "Assistida",
@@ -70,15 +75,29 @@ export function buildLifenergyReportFileName(data: LifenergyV1ReportData) {
   return `Relatorio_Lifenergy_V1_${fileSafe(data.response.full_name)}.docx`;
 }
 
-function run(text: unknown, options?: { bold?: boolean; italic?: boolean }) {
+function run(text: unknown, options?: { bold?: boolean; italic?: boolean; color?: string; size?: number }) {
   const bold = options?.bold ? "<w:b/>" : "";
   const italic = options?.italic ? "<w:i/>" : "";
-  return `<w:r><w:rPr>${bold}${italic}</w:rPr><w:t xml:space="preserve">${xml(text)}</w:t></w:r>`;
+  const color = options?.color ? `<w:color w:val="${options.color}"/>` : "";
+  const size = options?.size ? `<w:sz w:val="${options.size}"/>` : "";
+  return `<w:r><w:rPr>${bold}${italic}${color}${size}</w:rPr><w:t xml:space="preserve">${xml(text)}</w:t></w:r>`;
 }
 
-function paragraph(text: unknown, options?: { style?: string; bold?: boolean; italic?: boolean }) {
-  const style = options?.style ? `<w:pPr><w:pStyle w:val="${options.style}"/></w:pPr>` : "";
-  return `<w:p>${style}${run(text, { bold: options?.bold, italic: options?.italic })}</w:p>`;
+function paragraph(
+  text: unknown,
+  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean }
+) {
+  const parts: string[] = [];
+  if (options?.style) parts.push(`<w:pStyle w:val="${options.style}"/>`);
+  if (options?.center) parts.push('<w:jc w:val="center"/>');
+  const paragraphProperties = parts.length > 0 ? `<w:pPr>${parts.join("")}</w:pPr>` : "";
+
+  return `<w:p>${paragraphProperties}${run(text, {
+    bold: options?.bold,
+    italic: options?.italic,
+    color: options?.color,
+    size: options?.size,
+  })}</w:p>`;
 }
 
 function bullet(label: string, value: unknown) {
@@ -107,18 +126,25 @@ function heading2(text: unknown) {
   return paragraph(text, { style: "Heading2" });
 }
 
-function tableCell(content: string, options?: { header?: boolean }) {
-  const shade = options?.header ? '<w:shd w:fill="F4F4F4"/>' : "";
-  return `<w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/>${shade}</w:tcPr>${content}</w:tc>`;
+function tableCell(content: string, options?: { header?: boolean; width?: number }) {
+  const shade = options?.header ? '<w:shd w:fill="F2F2F2"/>' : "";
+  const width = options?.width ?? 2400;
+  return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${shade}</w:tcPr>${content}</w:tc>`;
 }
 
-function table(rows: Array<Array<string>>, options?: { headerRows?: number }) {
+function table(rows: Array<Array<string>>, options?: { headerRows?: number; widths?: number[] }) {
   const headerRows = options?.headerRows ?? 1;
+  const widths = options?.widths ?? [];
   const renderedRows = rows
     .map((row, rowIndex) => {
       const isHeader = rowIndex < headerRows;
       const renderedCells = row
-        .map((cell) => tableCell(paragraph(cell, { bold: isHeader }), { header: isHeader }))
+        .map((cell, cellIndex) =>
+          tableCell(paragraph(cell, { bold: isHeader }), {
+            header: isHeader,
+            width: widths[cellIndex],
+          })
+        )
         .join("");
       return `<w:tr>${renderedCells}</w:tr>`;
     })
@@ -128,13 +154,19 @@ function table(rows: Array<Array<string>>, options?: { headerRows?: number }) {
     <w:tblPr>
       <w:tblW w:w="0" w:type="auto"/>
       <w:tblBorders>
-        <w:top w:val="single" w:sz="6" w:space="0" w:color="666666"/>
-        <w:left w:val="single" w:sz="6" w:space="0" w:color="666666"/>
-        <w:bottom w:val="single" w:sz="6" w:space="0" w:color="666666"/>
-        <w:right w:val="single" w:sz="6" w:space="0" w:color="666666"/>
-        <w:insideH w:val="single" w:sz="6" w:space="0" w:color="666666"/>
-        <w:insideV w:val="single" w:sz="6" w:space="0" w:color="666666"/>
+        <w:top w:val="single" w:sz="6" w:space="0" w:color="888888"/>
+        <w:left w:val="single" w:sz="6" w:space="0" w:color="888888"/>
+        <w:bottom w:val="single" w:sz="6" w:space="0" w:color="888888"/>
+        <w:right w:val="single" w:sz="6" w:space="0" w:color="888888"/>
+        <w:insideH w:val="single" w:sz="6" w:space="0" w:color="888888"/>
+        <w:insideV w:val="single" w:sz="6" w:space="0" w:color="888888"/>
       </w:tblBorders>
+      <w:tblCellMar>
+        <w:top w:w="80" w:type="dxa"/>
+        <w:left w:w="80" w:type="dxa"/>
+        <w:bottom w:w="80" w:type="dxa"/>
+        <w:right w:w="80" w:type="dxa"/>
+      </w:tblCellMar>
     </w:tblPr>
     ${renderedRows}
   </w:tbl>`;
@@ -162,7 +194,8 @@ function patternFor(
 
 function quoteActivity(value: string) {
   const activity = cleanXmlText(value);
-  return activity.startsWith("\"") || activity.startsWith("“") ? activity : `“${activity}”`;
+  if (!activity) return "“Fractal de comportamento não informado”";
+  return activity.startsWith('"') || activity.startsWith("“") ? activity : `“${activity}”`;
 }
 
 function fractalBlocks(data: LifenergyV1ReportData, content: LifenergyV1GeneratedContent) {
@@ -182,7 +215,7 @@ function fractalBlocks(data: LifenergyV1ReportData, content: LifenergyV1Generate
 
       return [
         heading2(title),
-        table(rows),
+        table(rows, { widths: [1200, 2800, 1800, 4300] }),
         heading2(`Interpretação do Fractal ${fractal.position}`),
         paragraphs(analysis?.interpretacao ?? "Interpretação não gerada."),
         heading2(`Sugestões de desenvolvimento – Fractal ${fractal.position}`),
@@ -206,6 +239,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
 
   const body = [
     paragraph("RELATÓRIO LIFENERGY – DESENVOLVIMENTO HUMANO E ORGANIZACIONAL", { style: "Title" }),
+    paragraph(`Empresa: ${data.organization.name}`, { center: true, color: "666666", size: 20 }),
     heading1("1. Identificação"),
     bullet("Nome", data.response.full_name),
     bullet("CPF", data.response.cpf),
@@ -228,7 +262,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
     heading1("5. Recomendações para desenvolvimento de habilidades"),
     paragraphs(content.recomendacoes_habilidades),
     heading1("6. Categorização dos padrões de comportamento (0 a 100%)"),
-    table(attributeRows),
+    table(attributeRows, { widths: [5200, 2200] }),
     heading2("Leitura da métrica"),
     paragraphs(content.leitura_metrica),
   ].join("");
@@ -253,8 +287,9 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
     <w:body>
       ${body}
       <w:sectPr>
+        <w:footerReference w:type="default" r:id="rId2"/>
         <w:pgSz w:w="11906" w:h="16838"/>
-        <w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1417" w:header="708" w:footer="708" w:gutter="0"/>
+        <w:pgMar w:top="1417" w:right="1417" w:bottom="1134" w:left="1417" w:header="708" w:footer="708" w:gutter="0"/>
       </w:sectPr>
     </w:body>
   </w:document>`;
@@ -263,14 +298,21 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
 const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:docDefaults>
-    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
-    <w:pPrDefault><w:pPr><w:spacing w:after="160" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault>
+    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
+    <w:pPrDefault><w:pPr><w:spacing w:after="150" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault>
   </w:docDefaults>
-  <w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="44"/></w:rPr><w:pPr><w:jc w:val="center"/></w:pPr></w:style>
-  <w:style w:type="paragraph" w:styleId="Subtitle"><w:name w:val="Subtitle"/><w:rPr><w:color w:val="666666"/><w:sz w:val="28"/></w:rPr><w:pPr><w:jc w:val="center"/></w:pPr></w:style>
-  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="30"/></w:rPr><w:pPr><w:spacing w:before="360" w:after="180"/></w:pPr></w:style>
-  <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:rPr><w:b/><w:color w:val="B8860B"/><w:sz w:val="26"/></w:rPr><w:pPr><w:spacing w:before="240" w:after="120"/></w:pPr></w:style>
+  <w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="34"/></w:rPr><w:pPr><w:jc w:val="center"/><w:spacing w:after="240"/></w:pPr></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="28"/></w:rPr><w:pPr><w:spacing w:before="320" w:after="160"/></w:pPr></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="24"/></w:rPr><w:pPr><w:spacing w:before="220" w:after="110"/></w:pPr></w:style>
 </w:styles>`;
+
+const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:p>
+    <w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · Desenvolvimento Humano e Organizacional</w:t></w:r>
+  </w:p>
+</w:ftr>`;
 
 const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -278,6 +320,7 @@ const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <Default Extension="xml" ContentType="application/xml"/>
   <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
   <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+  <Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
   <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
   <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
 </Types>`;
@@ -292,6 +335,7 @@ const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 const documentRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>
 </Relationships>`;
 
 function coreXml() {
@@ -301,6 +345,7 @@ function coreXml() {
     <dc:title>Relatório Lifenergy V1.0</dc:title>
     <dc:creator>Plataforma Lifenergy</dc:creator>
     <cp:lastModifiedBy>Plataforma Lifenergy</cp:lastModifiedBy>
+    <cp:keywords>Motor ${LIFENERGY_REPORT_ENGINE_VERSION}; Prompt ${LIFENERGY_REPORT_PROMPT_VERSION}; Template ${LIFENERGY_REPORT_TEMPLATE_VERSION}</cp:keywords>
     <dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created>
     <dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified>
   </cp:coreProperties>`;
@@ -421,6 +466,7 @@ export function buildLifenergyV1Docx(
     { name: "docProps/app.xml", data: appXml },
     { name: "word/_rels/document.xml.rels", data: documentRelsXml },
     { name: "word/styles.xml", data: stylesXml },
+    { name: "word/footer1.xml", data: footerXml },
     { name: "word/document.xml", data: buildDocumentXml(data, content) },
   ]);
 }

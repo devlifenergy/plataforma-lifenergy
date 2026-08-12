@@ -10,15 +10,19 @@ import {
 } from "@/services/reports/lifenergyV1Docx";
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "@/services/reports/lifenergyV1Types";
+import {
+  LIFENERGY_REPORT_ENGINE_VERSION,
+  LIFENERGY_REPORT_FORMAT,
+  LIFENERGY_REPORT_PROMPT_VERSION,
+  LIFENERGY_REPORT_TEMPLATE_VERSION,
+  LIFENERGY_REPORT_VERSION,
+} from "@/services/reports/lifenergyV1Types";
 
 type RouteContext = {
   params: Promise<{
     responseId: string;
   }>;
 };
-
-const REPORT_VERSION = "lifenergy_v1_0";
-const REPORT_FORMAT = "docx";
 
 function contentDispositionFileName(fileName: string) {
   const safeFallback = fileName.replace(/[^a-zA-Z0-9_.-]+/g, "_");
@@ -36,10 +40,12 @@ async function findStoredReport(responseId: string) {
 
   const { data, error } = await admin
     .from("generated_reports")
-    .select("id, source_snapshot_json, generated_content_json, file_name")
+    .select(
+      "id, source_snapshot_json, generated_content_json, file_name, engine_version, prompt_version, template_version"
+    )
     .eq("journey_response_id", responseId)
-    .eq("report_version", REPORT_VERSION)
-    .eq("format", REPORT_FORMAT)
+    .eq("report_version", LIFENERGY_REPORT_VERSION)
+    .eq("format", LIFENERGY_REPORT_FORMAT)
     .eq("status", "generated")
     .maybeSingle();
 
@@ -63,11 +69,14 @@ async function storeReport(params: {
       organization_id: params.data.organization.id,
       journey_id: params.data.journey.id,
       journey_response_id: params.data.response.id,
-      report_version: REPORT_VERSION,
-      format: REPORT_FORMAT,
+      report_version: LIFENERGY_REPORT_VERSION,
+      format: LIFENERGY_REPORT_FORMAT,
       status: "generated",
       generated_by: params.data.profile.id,
       model: params.model,
+      engine_version: LIFENERGY_REPORT_ENGINE_VERSION,
+      prompt_version: LIFENERGY_REPORT_PROMPT_VERSION,
+      template_version: LIFENERGY_REPORT_TEMPLATE_VERSION,
       source_snapshot_json: params.data,
       generated_content_json: params.content,
       file_name: params.fileName,
@@ -94,6 +103,11 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     const reportData = await loadLifenergyV1ReportData(responseId);
+
+    if (shouldRegenerate && reportData.profile.role !== "super_admin") {
+      return jsonError("A regeneração de relatório é restrita ao super usuário.", 403);
+    }
+
     let fileName = buildLifenergyReportFileName(reportData);
     let content: LifenergyV1GeneratedContent;
     let sourceSnapshot: LifenergyV1ReportData = reportData;

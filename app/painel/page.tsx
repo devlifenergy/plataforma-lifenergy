@@ -37,18 +37,27 @@ export default async function PainelPage() {
         </h1>
 
         <p className="mt-4 max-w-3xl text-slate-700">
-          Utilize a área de Empresas para cadastrar, editar e administrar as
-          empresas clientes.
+          Utilize este ambiente para administrar empresas clientes e exportar os dados consolidados de avaliações concluídas.
         </p>
 
-        <div className="mt-10 max-w-md">
+        <div className="mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
           <Link
             href="/painel/empresas"
             className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
           >
             <h2 className="text-lg font-semibold text-[#0F2A43]">Empresas</h2>
             <p className="mt-2 text-sm text-slate-600">
-              Cadastre e gerencie as empresas clientes.
+              Cadastre, edite e gerencie as empresas clientes.
+            </p>
+          </Link>
+
+          <Link
+            href="/painel/exportacoes"
+            className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
+          >
+            <h2 className="text-lg font-semibold text-[#0F2A43]">Laudos</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Exporte os dados para Excel com filtros por empresa, avaliado e período.
             </p>
           </Link>
         </div>
@@ -67,11 +76,10 @@ export default async function PainelPage() {
       </h1>
 
       <p className="mt-4 max-w-3xl text-slate-700">
-        Este é o ambiente de trabalho da sua empresa para gerenciar aplicadores,
-        aplicações e exportações para laudos.
+        Este é o ambiente de trabalho da sua empresa para gerenciar aplicadores, avaliados e relatórios Lifenergy.
       </p>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid gap-6 md:grid-cols-2">
         <Link
           href="/painel/aplicadores"
           className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
@@ -90,32 +98,7 @@ export default async function PainelPage() {
         >
           <h2 className="text-lg font-semibold text-[#0F2A43]">Avaliados</h2>
           <p className="mt-2 text-sm text-slate-600">
-            Crie links únicos para os candidatos preencherem os formulários.
-          </p>
-        </Link>
-
-        <Link
-          href="/painel/exportacoes"
-          className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
-        >
-          <h2 className="text-lg font-semibold text-[#0F2A43]">Laudos</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Exporte os dados para o arquivo, a fim de gerar os laudos.
-          </p>
-        </Link>
-
-        <Link
-          href="/painel/prototipo-multiplos-fractais"
-          className="block rounded-2xl border border-dashed border-[#B98A2E] bg-[#B98A2E]/5 p-6 shadow-sm transition hover:-translate-y-0.5 hover:bg-[#B98A2E]/10 hover:shadow-md"
-        >
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
-            Protótipo 1.2.0
-          </p>
-          <h2 className="text-lg font-semibold text-[#0F2A43]">
-            Múltiplos Fractais
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Valide visualmente a proposta de até 3 fractais por link antes de alterar o banco.
+            Crie links únicos, acompanhe avaliações concluídas e gere relatórios Lifenergy.
           </p>
         </Link>
       </div>
