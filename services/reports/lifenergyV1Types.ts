@@ -1,8 +1,8 @@
-export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_3_2";
+export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_3_5";
 export const LIFENERGY_REPORT_FORMAT = "docx";
-export const LIFENERGY_REPORT_ENGINE_VERSION = "1.3.2";
-export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v2_canonico_2026_08_12";
-export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_2026_08_12";
+export const LIFENERGY_REPORT_ENGINE_VERSION = "1.3.7";
+export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v2_canonico_sem_reflexao_pos_tarefa_2026_08_19";
+export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_item6_texto_apos_tabela_2026_08_19";
 
 export type LifenergyFractalResponse = {
   index: number;
@@ -15,7 +15,6 @@ export type LifenergyFractalData = {
   position: number;
   presentedActivity: string;
   copiedActivity: string;
-  finalFeeling: string;
   responses: LifenergyFractalResponse[];
 };
 

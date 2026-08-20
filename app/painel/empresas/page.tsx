@@ -1,5 +1,5 @@
+import { CompanyCreateForm } from "@/components/application/CompanyCreateForm";
 import {
-  createCompany,
   listCompanies,
   toggleCompanyStatus,
   updateCompany,
@@ -22,41 +22,7 @@ export default async function EmpresasPage() {
           Cadastrar empresa
         </h2>
 
-        <form action={createCompany} className="grid gap-4 md:grid-cols-2">
-          <input
-            name="company_name"
-            required
-            placeholder="Nome da empresa *"
-            className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A]"
-          />
-
-          <input
-            name="admin_name"
-            required
-            placeholder="Nome do administrador *"
-            className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A]"
-          />
-
-          <input
-            name="admin_email"
-            required
-            type="email"
-            placeholder="E-mail do administrador *"
-            className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A]"
-          />
-
-          <input
-            name="password"
-            required
-            type="password"
-            placeholder="Senha inicial *"
-            className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A]"
-          />
-
-          <button className="rounded-xl bg-[#0F2D4A] px-6 py-4 font-semibold text-white transition hover:opacity-90 md:col-span-2">
-            Cadastrar Empresa
-          </button>
-        </form>
+        <CompanyCreateForm />
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">

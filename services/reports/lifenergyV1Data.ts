@@ -22,7 +22,6 @@ function fallbackFractalFromResponse(response: any, journey: any): LifenergyFrac
     position: 1,
     presentedActivity: clean(journey?.activity),
     copiedActivity: clean(response?.behavior_fractal),
-    finalFeeling: clean(response?.final_feeling),
     responses: [
       {
         index: 1,
@@ -51,7 +50,6 @@ function mapResponseFractal(fractal: any): LifenergyFractalData {
     position: Number(fractal.position || 1),
     presentedActivity: clean(fractal.presented_activity),
     copiedActivity: clean(fractal.copied_activity),
-    finalFeeling: clean(fractal.final_feeling),
     responses: [
       {
         index: 1,

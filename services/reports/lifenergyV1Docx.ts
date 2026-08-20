@@ -204,7 +204,7 @@ function fractalBlocks(data: LifenergyV1ReportData, content: LifenergyV1Generate
       const analysis = analysisFor(content, fractal.position);
       const title = `Fractal ${fractal.position} – ${quoteActivity(fractal.presentedActivity)}`;
       const rows = [
-        ["Nº da resposta", "Resposta", "Hierarquia", "Padrão de comportamento psicológico identificado"],
+        ["Nº da resposta", "Resposta", "Hierarquia", "Padrões relacionais identificados"],
         ...fractal.responses.map((response) => [
           String(response.index),
           response.response,
@@ -231,6 +231,18 @@ function appliedFractals(data: LifenergyV1ReportData) {
     .join("");
 }
 
+function attributeExplanationBlock() {
+  const items = [
+    "Socialização: atributo relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho;",
+    "Reflexão: atributo relacionado com a reflexão interior do Usuário sobre as suas questões de vida e aspectos maiores do contexto no qual ele habita;",
+    "Lazer: atributo relacionado com a realização de atividades que promovem o prazer e a felicidade do Usuário, sejam elas ao ar livre ou em casa;",
+    "Propósito: atributo relacionado com a motivação pessoal e os objetivos do Usuário, ditando suas ambições, perspectivas de futuro e conquistas;",
+    "Sentimento: atributo relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos;",
+  ];
+
+  return items.map((item) => paragraph(`● ${item}`)).join("");
+}
+
 function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1GeneratedContent) {
   const attributeRows = [
     ["Atributo", "Percentual"],
@@ -238,7 +250,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
   ];
 
   const body = [
-    paragraph("RELATÓRIO LIFENERGY – DESENVOLVIMENTO HUMANO E ORGANIZACIONAL", { style: "Title" }),
+    paragraph("RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO", { style: "Title" }),
     paragraph(`Empresa: ${data.organization.name}`, { center: true, color: "666666", size: 20 }),
     heading1("1. Identificação"),
     bullet("Nome", data.response.full_name),
@@ -257,12 +269,13 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
     appliedFractals(data),
     heading1("3. Registro de Dados – Resultado"),
     fractalBlocks(data, content),
-    heading1("4. Síntese dos padrões psicológicos de comportamento recorrentes"),
+    heading1("4. Síntese dos padrões relacionais"),
     paragraphs(content.sintese_padroes),
     heading1("5. Recomendações para desenvolvimento de habilidades"),
     paragraphs(content.recomendacoes_habilidades),
     heading1("6. Categorização dos padrões de comportamento (0 a 100%)"),
     table(attributeRows, { widths: [5200, 2200] }),
+    attributeExplanationBlock(),
     heading2("Leitura da métrica"),
     paragraphs(content.leitura_metrica),
   ].join("");
@@ -310,7 +323,7 @@ const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:p>
     <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · Desenvolvimento Humano e Organizacional</w:t></w:r>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · Desenvolvimento Humano</w:t></w:r>
   </w:p>
 </w:ftr>`;
 
@@ -342,7 +355,7 @@ function coreXml() {
   const now = new Date().toISOString();
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title>Relatório Lifenergy V1.0</dc:title>
+    <dc:title>RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO</dc:title>
     <dc:creator>Plataforma Lifenergy</dc:creator>
     <cp:lastModifiedBy>Plataforma Lifenergy</cp:lastModifiedBy>
     <cp:keywords>Motor ${LIFENERGY_REPORT_ENGINE_VERSION}; Prompt ${LIFENERGY_REPORT_PROMPT_VERSION}; Template ${LIFENERGY_REPORT_TEMPLATE_VERSION}</cp:keywords>

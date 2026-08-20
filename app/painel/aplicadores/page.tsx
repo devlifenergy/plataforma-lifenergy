@@ -1,8 +1,8 @@
+import { ApplicatorCreateForm } from "@/components/application/ApplicatorCreateForm";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import {
-  createApplicator,
   listApplicators,
   toggleApplicatorStatus,
   updateApplicator,
@@ -26,17 +26,7 @@ export default async function AplicadoresPage() {
       </div>
 
       <Card>
-        <form action={createApplicator} className="grid gap-4 md:grid-cols-4">
-          <Input name="name" label="Nome *" required />
-          <Input name="email" label="E-mail" type="email" />
-          <Input name="phone" label="Telefone" />
-
-          <div className="flex items-end">
-            <Button type="submit" className="w-full">
-              + Novo Aplicador
-            </Button>
-          </div>
-        </form>
+        <ApplicatorCreateForm />
       </Card>
 
       <Card>

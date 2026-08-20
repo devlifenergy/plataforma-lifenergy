@@ -62,9 +62,9 @@ function normalizeFractalAnalyses(
 
     return {
       position: Number(fractal.position),
-      response_1_pattern: cleanText(found?.response_1_pattern) || "Padrão psicológico não identificado.",
-      response_2_pattern: cleanText(found?.response_2_pattern) || "Padrão psicológico não identificado.",
-      response_3_pattern: cleanText(found?.response_3_pattern) || "Padrão psicológico não identificado.",
+      response_1_pattern: cleanText(found?.response_1_pattern) || "Padrão relacional não identificado.",
+      response_2_pattern: cleanText(found?.response_2_pattern) || "Padrão relacional não identificado.",
+      response_3_pattern: cleanText(found?.response_3_pattern) || "Padrão relacional não identificado.",
       interpretacao: cleanText(found?.interpretacao) || "Interpretação não gerada para este fractal.",
       sugestoes: cleanText(found?.sugestoes) || "Sugestões não geradas para este fractal.",
     };
