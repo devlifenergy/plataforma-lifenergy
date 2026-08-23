@@ -13,7 +13,7 @@ type PdiDownload = {
   fileName: string;
 };
 
-const PDI_BUTTON_VERSION = "1.4.0";
+const PDI_BUTTON_VERSION = "1.4.1";
 
 function getFileNameFromContentDisposition(contentDisposition: string | null) {
   if (!contentDisposition) {

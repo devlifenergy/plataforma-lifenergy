@@ -173,23 +173,69 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
   ];
 
   const competencyRows = [
-    ["Competência", "Tipo", "Nível Atual", "Estratégia de Desenvolvimento"],
+    ["Competência", "Tipo", "Nível Atual", "Competência organizacional relacionada", "Estratégia de Desenvolvimento"],
     ...content.competencias_desenvolver.map((item) => [
       item.competencia,
       item.tipo,
       item.nivel_atual,
+      item.competencia_organizacional_relacionada,
       item.estrategia_desenvolvimento,
     ]),
   ];
 
-  const objectiveRows = [
-    ["Nº", "Objetivo", "Indicador de Sucesso", "Prazo", "Prioridade"],
+  const shortObjectiveRows = [
+    ["Nº", "Objetivo", "Indicador SMART / Indicador de Sucesso", "Prazo", "Prioridade"],
     ...content.objetivos_curto_prazo.map((item) => [
       item.numero,
       item.objetivo,
       item.indicador_sucesso,
       item.prazo,
       item.prioridade,
+    ]),
+  ];
+
+  const mediumObjectiveRows = [
+    ["Nº", "Objetivo", "Indicador SMART / Indicador de Sucesso", "Prazo", "Prioridade"],
+    ...content.objetivos_medio_prazo.map((item) => [
+      item.numero,
+      item.objetivo,
+      item.indicador_sucesso,
+      item.prazo,
+      item.prioridade,
+    ]),
+  ];
+
+  const longTermRows = [
+    ["Foco", "Resultado Esperado", "Evidência de Evolução"],
+    ...content.direcionamento_longo_prazo.map((item) => [
+      item.foco,
+      item.resultado_esperado,
+      item.evidencia_evolucao,
+    ]),
+  ];
+
+  const actionRows = [
+    ["Competência", "70% Experiência prática", "20% Aprendizagem social", "10% Aprendizagem formal", "Frequência", "Responsável", "Recursos", "Evidência de conclusão"],
+    ...content.plano_acao_70_20_10.map((item) => [
+      item.competencia,
+      item.acao_70_experiencia,
+      item.acao_20_social,
+      item.acao_10_formal,
+      item.frequencia,
+      item.responsavel,
+      item.recursos,
+      item.evidencia_conclusao,
+    ]),
+  ];
+
+  const indicatorRows = [
+    ["Indicador", "Critério SMART", "KPI comportamental", "Evidência", "Prazo"],
+    ...content.indicadores_evidencias.map((item) => [
+      item.indicador,
+      item.criterio_smart,
+      item.kpi_comportamental,
+      item.evidencia,
+      item.prazo,
     ]),
   ];
 
@@ -221,45 +267,63 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     bullet("E-mail", response.email),
     bullet("Data de nascimento", formatDate(response.birth_date)),
     bullet("Naturalidade", response.naturalidade),
-    bullet("Objetivo de participação", response.participation_objective),
 
-    heading1("SEÇÃO 2 – DIAGNÓSTICO E ANÁLISE DE PERFIL"),
+    heading1("SEÇÃO 2 – OBJETIVO CENTRAL DO PDI"),
+    paragraphs(content.objetivo_central_pdi),
+    heading2("2.1 – Objetivo de carreira / desenvolvimento profissional"),
+    paragraphs(content.objetivo_carreira_desenvolvimento),
+
+    heading1("SEÇÃO 3 – DIAGNÓSTICO E ANÁLISE DE PERFIL"),
     paragraphs(content.diagnostico_perfil),
     paragraph("O diagnóstico está conectado à síntese dos padrões relacionais do Relatório Lifenergy V1 do avaliado.", {
       italic: true,
       color: "666666",
     }),
 
-    heading2("2.1 – Avaliação do Colaborador"),
-    table(attributeRows, { widths: [1600, 3600, 1700, 3400] }),
+    heading2("3.1 – Avaliação do Colaborador"),
+    table(attributeRows, { widths: [1500, 3400, 1600, 3200] }),
     paragraph(
       "ⓘ Escala de Referência: 0% a 29% = Inferior / 30% a 49% = Média inferior / 50% a 69% = Média / 70% a 89% = Média Superior / 90% a 100% = Superior",
       { italic: true, color: "666666" }
     ),
 
-    heading2("2.2 – Pontos Fortes Identificados"),
+    heading2("3.2 – Pontos Fortes Identificados"),
     list(content.pontos_fortes),
 
-    heading2("2.3 – Oportunidades de Melhoria"),
+    heading2("3.3 – Oportunidades de Melhoria"),
     list(content.oportunidades_melhoria),
 
-    heading1("SEÇÃO 3 – COMPETÊNCIAS A DESENVOLVER"),
-    paragraph("Com base no diagnóstico da Seção 2, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI."),
-    table(competencyRows, { widths: [2600, 1900, 1900, 4200] }),
+    heading1("SEÇÃO 4 – COMPETÊNCIAS A DESENVOLVER"),
+    paragraph("Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI."),
+    table(competencyRows, { widths: [1900, 1400, 1400, 2600, 3300] }),
 
-    heading1("SEÇÃO 4 – OBJETIVOS DE DESENVOLVIMENTO"),
-    heading2("4.1 – Objetivos de Curto Prazo (até 6 meses)"),
-    table(objectiveRows, { widths: [700, 3600, 3300, 1500, 1400] }),
+    heading1("SEÇÃO 5 – OBJETIVOS DE DESENVOLVIMENTO"),
+    heading2("5.1 – Objetivos de Curto Prazo (até 6 meses)"),
+    table(shortObjectiveRows, { widths: [600, 3200, 3600, 1400, 1200] }),
 
-    heading2("4.2 – Apoio e Suporte Necessário"),
+    heading2("5.2 – Objetivos de Médio Prazo (até 12 meses)"),
+    table(mediumObjectiveRows, { widths: [600, 3200, 3600, 1400, 1200] }),
+
+    heading2("5.3 – Direcionamento de Longo Prazo (2 a 3 anos)"),
+    table(longTermRows, { widths: [2800, 3700, 3700] }),
+
+    heading1("SEÇÃO 6 – PLANO DE AÇÃO 70-20-10"),
+    paragraph("As ações estão organizadas em experiência prática, aprendizagem social e aprendizagem formal, para tornar o desenvolvimento mais operacional e acompanhável."),
+    table(actionRows, { widths: [1700, 2300, 2300, 2300, 1200, 1200, 2200, 2400] }),
+
+    heading1("SEÇÃO 7 – INDICADORES E EVIDÊNCIAS DE EVOLUÇÃO"),
+    paragraph("Os indicadores abaixo devem apoiar o acompanhamento do progresso e a verificação objetiva da evolução comportamental."),
+    table(indicatorRows, { widths: [2200, 3000, 2600, 2600, 1200] }),
+
+    heading1("SEÇÃO 8 – APOIO E SUPORTE NECESSÁRIO"),
     paragraphs(content.apoio_suporte_necessario),
 
-    heading1("SEÇÃO 5 – MONITORAMENTO E AVALIAÇÃO"),
-    heading2("5.1 – Cronograma de Acompanhamento"),
+    heading1("SEÇÃO 9 – MONITORAMENTO E AVALIAÇÃO"),
+    heading2("9.1 – Cronograma de Acompanhamento"),
     paragraph("Os checkpoints devem ocorrer com regularidade, preferencialmente a cada trimestre, para revisar objetivos, atualizar status das ações e registrar aprendizados."),
     table(monitoringRows, { widths: [2000, 1600, 2300, 3000, 2500] }),
 
-    heading1("SEÇÃO 6 – ASSINATURAS E APROVAÇÕES"),
+    heading1("SEÇÃO 10 – ASSINATURAS E APROVAÇÕES"),
     paragraph("Todas as partes envolvidas devem assinar este documento, confirmando ciência, concordância e comprometimento com o Plano de Desenvolvimento Individual."),
     table(signatureRows, { widths: [3100, 4800, 2100] }),
     heading2("Declaração de Ciência e Comprometimento"),
@@ -292,8 +356,8 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
       ${body}
       <w:sectPr>
         <w:footerReference w:type="default" r:id="rId2"/>
-        <w:pgSz w:w="11906" w:h="16838"/>
-        <w:pgMar w:top="1417" w:right="1417" w:bottom="1134" w:left="1417" w:header="708" w:footer="708" w:gutter="0"/>
+        <w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>
+        <w:pgMar w:top="1134" w:right="850" w:bottom="1134" w:left="850" w:header="708" w:footer="708" w:gutter="0"/>
       </w:sectPr>
     </w:body>
   </w:document>`;
@@ -302,12 +366,12 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
 const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:docDefaults>
-    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
-    <w:pPrDefault><w:pPr><w:spacing w:after="150" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault>
+    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="21"/></w:rPr></w:rPrDefault>
+    <w:pPrDefault><w:pPr><w:spacing w:after="140" w:line="260" w:lineRule="auto"/></w:pPr></w:pPrDefault>
   </w:docDefaults>
   <w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="34"/></w:rPr><w:pPr><w:jc w:val="center"/><w:spacing w:after="240"/></w:pPr></w:style>
-  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="28"/></w:rPr><w:pPr><w:spacing w:before="320" w:after="160"/></w:pPr></w:style>
-  <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="24"/></w:rPr><w:pPr><w:spacing w:before="220" w:after="110"/></w:pPr></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="27"/></w:rPr><w:pPr><w:spacing w:before="300" w:after="150"/></w:pPr></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="23"/></w:rPr><w:pPr><w:spacing w:before="200" w:after="100"/></w:pPr></w:style>
 </w:styles>`;
 
 const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>

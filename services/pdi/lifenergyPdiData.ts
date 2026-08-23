@@ -41,14 +41,44 @@ async function findStoredReport(responseId: string): Promise<{
   };
 }
 
+function stripPdiExcludedFields(reportData: LifenergyV1ReportData): LifenergyV1ReportData {
+  const response = reportData.response as typeof reportData.response & {
+    participation_objective?: string;
+    participationObjective?: string;
+    "Objetivo de participação"?: string;
+  };
+
+  const {
+    participation_objective: _participationObjective,
+    participationObjective: _participationObjectiveCamel,
+    "Objetivo de participação": _participationObjectiveLabel,
+    ...safeResponse
+  } = response;
+
+  return {
+    ...reportData,
+    response: safeResponse as typeof reportData.response,
+    fractals: reportData.fractals.map((fractal) => {
+      const { finalFeeling: _finalFeeling, final_feeling: _finalFeelingSnake, ...safeFractal } =
+        fractal as typeof fractal & {
+          finalFeeling?: string;
+          final_feeling?: string;
+        };
+
+      return safeFractal;
+    }),
+  };
+}
+
 export async function buildLifenergyPdiDataFromReportData(
   reportData: LifenergyV1ReportData
 ): Promise<LifenergyPdiData> {
+  const safeReportData = stripPdiExcludedFields(reportData);
   const storedReport = await findStoredReport(reportData.response.id);
 
   if (storedReport) {
     return {
-      reportData,
+      reportData: safeReportData,
       reportContent: storedReport.generated_content_json,
       sourceReportId: storedReport.id,
     };
@@ -57,7 +87,7 @@ export async function buildLifenergyPdiDataFromReportData(
   const generated = await generateLifenergyV1Content(reportData);
 
   return {
-    reportData,
+    reportData: safeReportData,
     reportContent: generated.content,
     sourceReportId: null,
   };

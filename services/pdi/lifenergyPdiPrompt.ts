@@ -12,25 +12,36 @@ Versão do prompt mestre: ${LIFENERGY_PDI_PROMPT_VERSION}
 Versão do template DOCX: ${LIFENERGY_PDI_TEMPLATE_VERSION}
 
 OBJETIVO
-Gerar exclusivamente o conteúdo objetivo e direto para um Plano de Desenvolvimento Individual – PDI, conectado ao Relatório Lifenergy V1 do avaliado.
+Gerar exclusivamente o conteúdo objetivo, direto e aplicável para um Plano de Desenvolvimento Individual – PDI, conectado ao Relatório Lifenergy V1 do avaliado.
 A estrutura documental já está fixa no sistema. Não invente seções extras.
 
 BASE DO PDI
 O PDI deve seguir a linguagem do Relatório Lifenergy: técnica, humana, organizada, cuidadosa, não clínica e voltada ao desenvolvimento humano e organizacional.
-O PDI não é um novo laudo. Ele é um plano objetivo de desenvolvimento derivado da síntese dos padrões relacionais, recomendações e métricas do relatório.
+O PDI não é um novo laudo. Ele é um plano de desenvolvimento derivado da síntese dos padrões relacionais, recomendações e métricas do relatório.
+Use o relatório como base principal. O PDI deve transformar diagnóstico em ação.
 
 ESTRUTURA DOCUMENTAL FIXA
 1. Identificação do colaborador.
-2. Diagnóstico e análise de perfil.
-2.1 Avaliação do colaborador por atributos.
-2.2 Pontos fortes identificados.
-2.3 Oportunidades de melhoria.
-3. Competências a desenvolver.
-4. Objetivos de desenvolvimento.
-4.1 Objetivos de curto prazo.
-4.2 Apoio e suporte necessário.
-5. Monitoramento e avaliação.
-6. Assinaturas e aprovações.
+2. Objetivo central do PDI.
+3. Diagnóstico e análise de perfil.
+3.1 Avaliação do colaborador por atributos.
+3.2 Pontos fortes identificados.
+3.3 Oportunidades de melhoria.
+4. Competências a desenvolver.
+5. Objetivos de desenvolvimento.
+5.1 Objetivos de curto prazo.
+5.2 Objetivos de médio prazo.
+5.3 Direcionamento de longo prazo.
+6. Plano de ação 70-20-10.
+7. Indicadores e evidências de evolução.
+8. Apoio e suporte necessário.
+9. Monitoramento e avaliação.
+10. Assinaturas e aprovações.
+
+CAMPO REMOVIDO DO PDI
+Não use, não cite, não reproduza e não analise o campo "Objetivo de participação".
+Se esse campo aparecer nos dados de origem como "participation_objective", "Objetivo de participação" ou equivalente, ignore integralmente.
+O PDI deve conter "Objetivo central do PDI" e "Objetivo de carreira / desenvolvimento profissional", mas isso deve ser inferido a partir do relatório e das necessidades de desenvolvimento, nunca copiado do campo "Objetivo de participação".
 
 ATRIBUTOS OBRIGATÓRIOS
 Socialização: atributo relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.
@@ -46,6 +57,17 @@ ESCALA DE REFERÊNCIA
 70% a 89% = Média Superior.
 90% a 100% = Superior.
 
+MODELO 70-20-10
+Para cada competência prioritária, gere uma ação em três frentes:
+70% Experiência prática: aplicação real no trabalho ou na rotina.
+20% Aprendizagem social: feedback, mentoria, pares, gestor ou observação.
+10% Aprendizagem formal: leitura, curso, treinamento ou material estruturado.
+
+INDICADORES SMART
+Os indicadores devem ser específicos, mensuráveis, alcançáveis, relevantes e temporais.
+Inclua evidência objetiva de conclusão, qualidade ou evolução comportamental.
+Evite indicadores genéricos como "melhorar comunicação". Transforme em prática observável.
+
 REGRAS DE REDAÇÃO
 1. Escreva em português do Brasil.
 2. Seja objetivo, direto e aplicável.
@@ -56,27 +78,49 @@ REGRAS DE REDAÇÃO
 7. Não cite que o conteúdo foi gerado por IA.
 8. Não use markdown.
 9. Não crie seções extras.
-10. Pontos fortes: gerar 3 itens objetivos.
-11. Oportunidades de melhoria: gerar 3 itens objetivos.
-12. Competências a desenvolver: gerar 3 competências prioritárias.
-13. Objetivos de curto prazo: gerar 3 objetivos práticos para até 6 meses.
-14. Apoio e suporte necessário: gerar um parágrafo direto.
-15. Cronograma: gerar 1 checkpoint trimestral objetivo.
+10. Objetivo central do PDI: gerar 1 parágrafo curto.
+11. Objetivo de carreira / desenvolvimento profissional: gerar 1 parágrafo curto.
+12. Pontos fortes: gerar 3 itens objetivos.
+13. Oportunidades de melhoria: gerar 3 itens objetivos.
+14. Competências a desenvolver: gerar 3 competências prioritárias.
+15. Objetivos de curto prazo: gerar 3 objetivos práticos para até 6 meses.
+16. Objetivos de médio prazo: gerar 2 objetivos práticos para até 12 meses.
+17. Direcionamento de longo prazo: gerar 2 linhas para horizonte de 2 a 3 anos.
+18. Plano 70-20-10: gerar 3 linhas, uma para cada competência prioritária.
+19. Indicadores e evidências: gerar 3 indicadores SMART/KPI comportamentais.
+20. Apoio e suporte necessário: gerar um parágrafo direto.
+21. Cronograma: gerar 2 checkpoints objetivos.
 
 REGRA DE ESCOPO SOBRE A REFLEXÃO APÓS A TAREFA
 A reflexão final respondida após cada tarefa não faz parte do PDI.
 Ignore integralmente qualquer campo, dado ou conteúdo identificado como "Reflexão após essa tarefa", "final_feeling", "finalFeeling", "reflexão final", "como você está se sentindo após essa tarefa" ou equivalente.
-Não utilize esse conteúdo para diagnóstico, atributos, pontos fortes, oportunidades, competências, objetivos, suporte ou cronograma.`;
+Não utilize esse conteúdo para diagnóstico, atributos, pontos fortes, oportunidades, competências, objetivos, suporte, indicadores ou cronograma.`;
 
-function removeReflexaoPosTarefa(data: LifenergyPdiData): LifenergyPdiData {
+function removeCamposForaDoEscopo(data: LifenergyPdiData): LifenergyPdiData {
+  const response = data.reportData.response as typeof data.reportData.response & {
+    participation_objective?: string;
+    participationObjective?: string;
+    "Objetivo de participação"?: string;
+  };
+
+  const {
+    participation_objective: _participationObjective,
+    participationObjective: _participationObjectiveCamel,
+    "Objetivo de participação": _participationObjectiveLabel,
+    ...safeResponse
+  } = response;
+
   return {
     ...data,
     reportData: {
       ...data.reportData,
+      response: safeResponse as typeof data.reportData.response,
       fractals: data.reportData.fractals.map((fractal) => {
-        const { finalFeeling: _finalFeeling, ...safeFractal } = fractal as typeof fractal & {
-          finalFeeling?: string;
-        };
+        const { finalFeeling: _finalFeeling, final_feeling: _finalFeelingSnake, ...safeFractal } =
+          fractal as typeof fractal & {
+            finalFeeling?: string;
+            final_feeling?: string;
+          };
 
         return safeFractal;
       }),
@@ -85,9 +129,9 @@ function removeReflexaoPosTarefa(data: LifenergyPdiData): LifenergyPdiData {
 }
 
 export function buildLifenergyPdiUserPrompt(data: LifenergyPdiData) {
-  const safeData = removeReflexaoPosTarefa(data);
+  const safeData = removeCamposForaDoEscopo(data);
 
-  return `Gere o conteúdo canônico do Plano de Desenvolvimento Individual – PDI Lifenergy para os dados abaixo.
+  return `Gere o conteúdo canônico do Plano de Desenvolvimento Individual – PDI Lifenergy V2 para os dados abaixo.
 
 O PDI deve ser objetivo, direto e conectado ao Relatório Lifenergy V1 já gerado.
 Use principalmente:
@@ -97,6 +141,8 @@ Use principalmente:
 - Leitura da métrica;
 - Respostas, hierarquias e justificativas dos fractais.
 
+Não use o campo "Objetivo de participação". Ele está fora do escopo do PDI V2.
+
 DADOS DO RELATÓRIO E DA APLICAÇÃO:
 ${JSON.stringify(safeData, null, 2)}`;
 }
@@ -105,6 +151,8 @@ export const lifenergyPdiJsonSchema = {
   type: "object",
   additionalProperties: false,
   properties: {
+    objetivo_central_pdi: { type: "string" },
+    objetivo_carreira_desenvolvimento: { type: "string" },
     diagnostico_perfil: { type: "string" },
     avaliacao_atributos: {
       type: "array",
@@ -136,9 +184,16 @@ export const lifenergyPdiJsonSchema = {
           competencia: { type: "string" },
           tipo: { type: "string" },
           nivel_atual: { type: "string" },
+          competencia_organizacional_relacionada: { type: "string" },
           estrategia_desenvolvimento: { type: "string" },
         },
-        required: ["competencia", "tipo", "nivel_atual", "estrategia_desenvolvimento"],
+        required: [
+          "competencia",
+          "tipo",
+          "nivel_atual",
+          "competencia_organizacional_relacionada",
+          "estrategia_desenvolvimento"
+        ],
       },
     },
     objetivos_curto_prazo: {
@@ -154,6 +209,76 @@ export const lifenergyPdiJsonSchema = {
           prioridade: { type: "string" },
         },
         required: ["numero", "objetivo", "indicador_sucesso", "prazo", "prioridade"],
+      },
+    },
+    objetivos_medio_prazo: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          numero: { type: "string" },
+          objetivo: { type: "string" },
+          indicador_sucesso: { type: "string" },
+          prazo: { type: "string" },
+          prioridade: { type: "string" },
+        },
+        required: ["numero", "objetivo", "indicador_sucesso", "prazo", "prioridade"],
+      },
+    },
+    direcionamento_longo_prazo: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          foco: { type: "string" },
+          resultado_esperado: { type: "string" },
+          evidencia_evolucao: { type: "string" },
+        },
+        required: ["foco", "resultado_esperado", "evidencia_evolucao"],
+      },
+    },
+    plano_acao_70_20_10: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          competencia: { type: "string" },
+          acao_70_experiencia: { type: "string" },
+          acao_20_social: { type: "string" },
+          acao_10_formal: { type: "string" },
+          frequencia: { type: "string" },
+          responsavel: { type: "string" },
+          recursos: { type: "string" },
+          evidencia_conclusao: { type: "string" },
+        },
+        required: [
+          "competencia",
+          "acao_70_experiencia",
+          "acao_20_social",
+          "acao_10_formal",
+          "frequencia",
+          "responsavel",
+          "recursos",
+          "evidencia_conclusao"
+        ],
+      },
+    },
+    indicadores_evidencias: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          indicador: { type: "string" },
+          criterio_smart: { type: "string" },
+          kpi_comportamental: { type: "string" },
+          evidencia: { type: "string" },
+          prazo: { type: "string" },
+        },
+        required: ["indicador", "criterio_smart", "kpi_comportamental", "evidencia", "prazo"],
       },
     },
     apoio_suporte_necessario: { type: "string" },
@@ -174,12 +299,18 @@ export const lifenergyPdiJsonSchema = {
     },
   },
   required: [
+    "objetivo_central_pdi",
+    "objetivo_carreira_desenvolvimento",
     "diagnostico_perfil",
     "avaliacao_atributos",
     "pontos_fortes",
     "oportunidades_melhoria",
     "competencias_desenvolver",
     "objetivos_curto_prazo",
+    "objetivos_medio_prazo",
+    "direcionamento_longo_prazo",
+    "plano_acao_70_20_10",
+    "indicadores_evidencias",
     "apoio_suporte_necessario",
     "cronograma_acompanhamento",
   ],
