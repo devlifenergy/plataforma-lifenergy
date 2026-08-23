@@ -38,7 +38,7 @@ comment on table public.organization_documents is
   'Documentos da empresa usados pela Biblioteca Corporativa Inteligente para geração de PDI Corporativo.';
 
 comment on column public.organization_documents.content_text is
-  'Conteúdo textual, resumo ou extração do documento que será usado pela IA. Para DOCX/PDF, o usuário deve colar o texto extraído.';
+  'Sumário técnico interno gerado pela IA a partir do documento carregado. Não deve ser exibido ao usuário da empresa.';
 
 create index if not exists organization_documents_organization_id_idx
   on public.organization_documents(organization_id);

@@ -23,7 +23,32 @@ function formatDate(value: string | null) {
   return `${match[3]}/${match[2]}/${match[1]}`;
 }
 
-function TextareaField({ name, label, defaultValue, rows = 3 }: { name: string; label: string; defaultValue?: string | null; rows?: number }) {
+function FieldHelp({ description, example }: { description: string; example: string }) {
+  return (
+    <div className="mt-2 space-y-1 text-xs leading-5 text-slate-500">
+      <p>{description}</p>
+      <p>
+        <span className="font-semibold text-slate-600">Exemplo:</span> {example}
+      </p>
+    </div>
+  );
+}
+
+function TextareaField({
+  name,
+  label,
+  defaultValue,
+  description,
+  example,
+  rows = 3,
+}: {
+  name: string;
+  label: string;
+  defaultValue?: string | null;
+  description: string;
+  example: string;
+  rows?: number;
+}) {
   return (
     <label className="block">
       <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
@@ -35,11 +60,24 @@ function TextareaField({ name, label, defaultValue, rows = 3 }: { name: string; 
         defaultValue={defaultValue ?? ""}
         className="min-h-24 w-full resize-y rounded-xl border border-slate-300 px-4 py-3 text-base leading-7 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
       />
+      <FieldHelp description={description} example={example} />
     </label>
   );
 }
 
-function InputField({ name, label, defaultValue }: { name: string; label: string; defaultValue?: string | null }) {
+function InputField({
+  name,
+  label,
+  defaultValue,
+  description,
+  example,
+}: {
+  name: string;
+  label: string;
+  defaultValue?: string | null;
+  description: string;
+  example: string;
+}) {
   return (
     <label className="block">
       <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
@@ -50,6 +88,7 @@ function InputField({ name, label, defaultValue }: { name: string; label: string
         defaultValue={defaultValue ?? ""}
         className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
       />
+      <FieldHelp description={description} example={example} />
     </label>
   );
 }
@@ -90,7 +129,7 @@ export default async function PdiPage() {
           </h2>
           {libraryStatus.ready ? (
             <p className="mt-2 rounded-xl bg-emerald-50 px-4 py-3 text-[15px] font-medium leading-6 text-emerald-700">
-              Os quatro documentos empresariais mínimos foram cadastrados com conteúdo para uso da IA.
+              Os quatro documentos empresariais mínimos foram cadastrados e tiveram sumário técnico interno gerado pela IA.
             </p>
           ) : (
             <div className="mt-2 rounded-xl bg-amber-50 px-4 py-3 text-[15px] leading-6 text-amber-800">
@@ -129,7 +168,7 @@ export default async function PdiPage() {
                     <th className="px-4 py-3">Categoria</th>
                     <th className="px-4 py-3">Documento</th>
                     <th className="px-4 py-3">Arquivo</th>
-                    <th className="px-4 py-3">Conteúdo IA</th>
+                    <th className="px-4 py-3">Status IA</th>
                     <th className="px-4 py-3">Ação</th>
                   </tr>
                 </thead>
@@ -140,9 +179,9 @@ export default async function PdiPage() {
                         {getCorporateDocumentCategoryLabel(doc.category)}
                       </td>
                       <td className="px-4 py-3 text-slate-700">{doc.title}</td>
-                      <td className="px-4 py-3 text-slate-500">{doc.file_name || "Texto informado"}</td>
+                      <td className="px-4 py-3 text-slate-500">{doc.file_name || "Arquivo informado"}</td>
                       <td className="px-4 py-3 text-slate-500">
-                        {String(doc.content_text || "").length.toLocaleString("pt-BR")} caracteres
+                        "Sumário interno gerado"
                       </td>
                       <td className="px-4 py-3">
                         <form action={archiveOrganizationDocument}>
@@ -199,7 +238,7 @@ export default async function PdiPage() {
                       </p>
                     </div>
 
-                    <div className="flex flex-col gap-3 md:items-end">
+                    <div className="grid w-full gap-3 sm:grid-cols-2 md:max-w-[620px]">
                       <GeneratePdiButton responseId={candidate.responseId} pdiType="relational" />
                       <GeneratePdiButton
                         responseId={candidate.responseId}
@@ -230,6 +269,10 @@ export default async function PdiPage() {
                             <option value="relational">Desenvolvimento Relacional</option>
                             <option value="corporate">Desenvolvimento Corporativo</option>
                           </select>
+                          <FieldHelp
+                            description="Indica qual plano deve orientar o desenvolvimento do avaliado."
+                            example="Use Desenvolvimento Corporativo para empregado da empresa e Desenvolvimento Relacional para avaliado externo."
+                          />
                         </label>
 
                         <label className="block">
@@ -244,21 +287,73 @@ export default async function PdiPage() {
                             <option value="external">Avaliado externo</option>
                             <option value="employee">Empregado da empresa</option>
                           </select>
+                          <FieldHelp
+                            description="Define se o avaliado possui vínculo de emprego com a empresa contratante."
+                            example="Empregado da empresa: analista, líder ou colaborador interno. Avaliado externo: candidato, cliente ou participante externo."
+                          />
                         </label>
 
-                        <InputField name="current_job_title" label="Cargo atual" defaultValue={context?.current_job_title} />
+                        <InputField
+                          name="current_job_title"
+                          label="Cargo atual"
+                          defaultValue={context?.current_job_title}
+                          description="Informe o cargo ou função atual quando o avaliado for empregado da empresa."
+                          example="Analista Financeiro Pleno; Coordenador Comercial; Assistente Administrativo."
+                        />
                       </div>
 
                       <div className="grid gap-4 md:grid-cols-2">
-                        <InputField name="current_area" label="Área" defaultValue={context?.current_area} />
-                        <InputField name="manager_name" label="Gestor imediato" defaultValue={context?.manager_name} />
+                        <InputField
+                          name="current_area"
+                          label="Área"
+                          defaultValue={context?.current_area}
+                          description="Informe a área, setor ou unidade em que o empregado atua."
+                          example="Financeiro; Gente e Gestão; Operações; Comercial."
+                        />
+                        <InputField
+                          name="manager_name"
+                          label="Gestor imediato"
+                          defaultValue={context?.manager_name}
+                          description="Informe quem acompanhará o PDI ou dará feedback sobre a evolução."
+                          example="Maria Oliveira, Gerente Financeira."
+                        />
                       </div>
 
-                      <TextareaField name="context_summary" label="Contexto atual do avaliado" defaultValue={context?.context_summary} />
-                      <TextareaField name="current_situation" label="Situação atual" defaultValue={context?.current_situation} />
-                      <TextareaField name="current_challenges" label="Principais desafios atuais" defaultValue={context?.current_challenges} />
-                      <TextareaField name="development_priorities" label="Prioridades de desenvolvimento percebidas" defaultValue={context?.development_priorities} />
-                      <TextareaField name="career_direction" label="Direcionamento de carreira / desenvolvimento" defaultValue={context?.career_direction} />
+                      <TextareaField
+                        name="context_summary"
+                        label="Contexto atual do avaliado"
+                        defaultValue={context?.context_summary}
+                        description="Descreva o contexto geral que justifica a criação do PDI."
+                        example="Avaliado em processo de desenvolvimento de comunicação, autonomia e maior clareza nas relações de trabalho."
+                      />
+                      <TextareaField
+                        name="current_situation"
+                        label="Situação atual"
+                        defaultValue={context?.current_situation}
+                        description="Descreva o momento atual do avaliado, sem transformar este campo em diagnóstico clínico."
+                        example="Está adaptado às rotinas técnicas, mas precisa ampliar participação em reuniões e registrar melhor os alinhamentos."
+                      />
+                      <TextareaField
+                        name="current_challenges"
+                        label="Principais desafios atuais"
+                        defaultValue={context?.current_challenges}
+                        description="Registre os desafios práticos que o PDI deve ajudar a desenvolver."
+                        example="Comunicar prioridades com mais objetividade, pedir apoio no momento certo e lidar melhor com situações de pressão."
+                      />
+                      <TextareaField
+                        name="development_priorities"
+                        label="Prioridades de desenvolvimento percebidas"
+                        defaultValue={context?.development_priorities}
+                        description="Informe quais competências ou comportamentos devem receber mais atenção no plano."
+                        example="Comunicação assertiva, organização das entregas, protagonismo e relacionamento com pares."
+                      />
+                      <TextareaField
+                        name="career_direction"
+                        label="Direcionamento de carreira / desenvolvimento"
+                        defaultValue={context?.career_direction}
+                        description="Indique o direcionamento desejado para evolução pessoal, profissional ou funcional."
+                        example="Preparar-se para assumir maior autonomia na área e participar de projetos com outras equipes."
+                      />
 
                       <Button type="submit">Salvar contexto do PDI</Button>
                     </form>

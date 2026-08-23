@@ -7,6 +7,10 @@ import {
   getCorporateLibraryStatus,
   type CorporateDocumentCategory,
 } from "./corporateKnowledge";
+import {
+  extractCorporateDocumentText,
+  generateCorporateDocumentSummary,
+} from "./corporateDocumentAI";
 
 async function getCurrentProfile() {
   const supabase = await createClient();
@@ -54,7 +58,6 @@ export async function createOrganizationDocument(formData: FormData) {
 
   const category = assertCategory(clean(formData.get("category")));
   const title = clean(formData.get("title"));
-  const contentText = clean(formData.get("content_text"));
   const uploadedFile = formData.get("file");
   const file = uploadedFile instanceof File && uploadedFile.size > 0 ? uploadedFile : null;
 
@@ -62,20 +65,25 @@ export async function createOrganizationDocument(formData: FormData) {
     throw new Error("Informe o nome do documento.");
   }
 
-  if (!contentText) {
-    throw new Error(
-      "Cole ou extraia o conteúdo textual do documento. A IA precisa do texto para usar a Biblioteca Corporativa."
-    );
+  if (!file) {
+    throw new Error("Carregue o arquivo do documento para que a IA gere o sumário interno.");
   }
+
+  const extractedText = await extractCorporateDocumentText(file);
+  const aiSummary = await generateCorporateDocumentSummary({
+    title,
+    category,
+    extractedText,
+  });
 
   const { error } = await supabase.from("organization_documents").insert({
     organization_id: profile.organization_id,
     category,
     title,
-    file_name: file?.name ?? null,
-    mime_type: file?.type || null,
-    file_size: file?.size ?? null,
-    content_text: contentText,
+    file_name: file.name,
+    mime_type: file.type || null,
+    file_size: file.size,
+    content_text: aiSummary,
     status: "active",
     created_by: profile.id,
     updated_by: profile.id,

@@ -18,7 +18,7 @@ type PdiDownload = {
   fileName: string;
 };
 
-const PDI_BUTTON_VERSION = "1.5.0";
+const PDI_BUTTON_VERSION = "1.5.1";
 
 function getFileNameFromContentDisposition(contentDisposition: string | null) {
   if (!contentDisposition) return "PDI_Lifenergy.docx";
@@ -121,7 +121,7 @@ export function GeneratePdiButton({
 
   return (
     <div
-      className="flex flex-col gap-2"
+      className="flex h-full w-full min-w-[230px] flex-col gap-2"
       data-pdi-button-version={PDI_BUTTON_VERSION}
       data-pdi-type={pdiType}
     >
@@ -130,7 +130,7 @@ export function GeneratePdiButton({
           type="button"
           disabled={isBusy || isBlocked}
           onClick={() => handleAction("generate")}
-          className={`rounded-full border px-4 py-2 text-[14px] font-bold transition ${
+          className={`w-full whitespace-nowrap rounded-full border px-4 py-2 text-center text-[14px] font-bold transition ${
             pdiType === "corporate"
               ? "border-[#B8860B] text-[#0F2D4A] hover:bg-[#B8860B]/10"
               : "border-[#0F2D4A] text-[#0F2D4A] hover:bg-[#0F2D4A]/10"
@@ -144,7 +144,7 @@ export function GeneratePdiButton({
             type="button"
             disabled={isBusy || isBlocked}
             onClick={() => handleAction("regenerate")}
-            className={`rounded-full border border-slate-300 px-4 py-2 text-[14px] font-bold text-slate-700 transition hover:bg-slate-50 ${
+            className={`w-full whitespace-nowrap rounded-full border border-slate-300 px-4 py-2 text-center text-[14px] font-bold text-slate-700 transition hover:bg-slate-50 ${
               isBusy || isBlocked ? "cursor-not-allowed opacity-60" : ""
             }`}
           >
