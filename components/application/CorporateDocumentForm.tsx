@@ -101,9 +101,6 @@ export function CorporateDocumentForm({ categories }: CorporateDocumentFormProps
           accept=".txt,.md,.csv,.json,.docx,text/plain,text/markdown,text/csv,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base leading-6 text-slate-900 outline-none transition file:mr-4 file:rounded-lg file:border-0 file:bg-[#0F2D4A] file:px-4 file:py-2 file:font-semibold file:text-white focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 disabled:bg-slate-100"
         />
-        <span className="mt-2 block text-xs leading-5 text-slate-500">
-          Ao salvar, a IA lê o arquivo, interpreta o conteúdo e grava um sumário técnico interno no banco de dados. Esse sumário não fica visível para o usuário da empresa.
-        </span>
         <span className="mt-1 block text-xs leading-5 text-slate-500">
           Formatos aceitos nesta versão: TXT, MD, CSV, JSON e DOCX.
         </span>
