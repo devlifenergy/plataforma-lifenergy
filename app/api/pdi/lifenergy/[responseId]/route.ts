@@ -9,7 +9,11 @@ import {
   buildLifenergyPdiDocx,
   buildLifenergyPdiFileName,
 } from "@/services/pdi/lifenergyPdiDocx";
-import type { LifenergyPdiData, LifenergyPdiGeneratedContent } from "@/services/pdi/lifenergyPdiTypes";
+import type {
+  LifenergyPdiData,
+  LifenergyPdiGeneratedContent,
+  LifenergyPdiType,
+} from "@/services/pdi/lifenergyPdiTypes";
 import {
   LIFENERGY_PDI_ENGINE_VERSION,
   LIFENERGY_PDI_FORMAT,
@@ -20,23 +24,23 @@ import {
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
 
 type RouteContext = {
-  params: Promise<{
-    responseId: string;
-  }>;
+  params: Promise<{ responseId: string }>;
 };
 
 function contentDispositionFileName(fileName: string) {
   const safeFallback = fileName.replace(/[^a-zA-Z0-9_.-]+/g, "_");
-  return `attachment; filename="${safeFallback}"; filename*=UTF-8''${encodeURIComponent(
-    fileName
-  )}`;
+  return `attachment; filename="${safeFallback}"; filename*=UTF-8''${encodeURIComponent(fileName)}`;
 }
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
 }
 
-async function findStoredPdi(responseId: string) {
+function readPdiType(url: URL): LifenergyPdiType {
+  return url.searchParams.get("type") === "corporate" ? "corporate" : "relational";
+}
+
+async function findStoredPdi(responseId: string, pdiType: LifenergyPdiType) {
   const admin = createAdminClient();
 
   const { data, error } = await admin
@@ -45,14 +49,13 @@ async function findStoredPdi(responseId: string) {
       "id, source_snapshot_json, generated_content_json, file_name, engine_version, prompt_version, template_version"
     )
     .eq("journey_response_id", responseId)
+    .eq("pdi_type", pdiType)
     .eq("pdi_version", LIFENERGY_PDI_VERSION)
     .eq("format", LIFENERGY_PDI_FORMAT)
     .eq("status", "generated")
     .maybeSingle();
 
-  if (error) {
-    throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
 
   return data;
 }
@@ -71,6 +74,7 @@ async function storePdi(params: {
       organization_id: reportData.organization.id,
       journey_id: reportData.journey.id,
       journey_response_id: reportData.response.id,
+      pdi_type: params.data.pdiType,
       pdi_version: LIFENERGY_PDI_VERSION,
       format: LIFENERGY_PDI_FORMAT,
       status: "generated",
@@ -85,25 +89,20 @@ async function storePdi(params: {
       file_name: params.fileName,
       updated_at: new Date().toISOString(),
     },
-    {
-      onConflict: "journey_response_id,pdi_version,format",
-    }
+    { onConflict: "journey_response_id,pdi_version,format,pdi_type" }
   );
 
-  if (error) {
-    throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
 }
 
 export async function GET(request: Request, context: RouteContext) {
   try {
     const { responseId } = await context.params;
     const url = new URL(request.url);
+    const pdiType = readPdiType(url);
     const shouldRegenerate = url.searchParams.get("regenerate") === "1";
 
-    if (!responseId) {
-      return jsonError("Resposta não informada.", 400);
-    }
+    if (!responseId) return jsonError("Resposta não informada.", 400);
 
     const reportData = await loadLifenergyV1ReportData(responseId);
 
@@ -115,7 +114,7 @@ export async function GET(request: Request, context: RouteContext) {
     let content: LifenergyPdiGeneratedContent;
     let fileName = `PDI_Lifenergy_${reportData.response.full_name}.docx`;
 
-    const stored = shouldRegenerate ? null : await findStoredPdi(responseId);
+    const stored = shouldRegenerate ? null : await findStoredPdi(responseId, pdiType);
 
     if (
       stored?.generated_content_json &&
@@ -126,31 +125,26 @@ export async function GET(request: Request, context: RouteContext) {
       content = stored.generated_content_json;
       fileName = stored.file_name || buildLifenergyPdiFileName(pdiData);
     } else {
-      pdiData = await buildLifenergyPdiDataFromReportData(reportData);
+      pdiData = await buildLifenergyPdiDataFromReportData(reportData, { pdiType });
       fileName = buildLifenergyPdiFileName(pdiData);
       const generated = await generateLifenergyPdiContent(pdiData);
       content = generated.content;
 
-      await storePdi({
-        data: pdiData,
-        content,
-        model: generated.model,
-        fileName,
-      });
+      await storePdi({ data: pdiData, content, model: generated.model, fileName });
     }
 
     const docx = buildLifenergyPdiDocx(pdiData, content);
 
     return new Response(docx as unknown as BodyInit, {
       headers: {
-        "Content-Type":
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "Content-Disposition": contentDispositionFileName(fileName),
         "Cache-Control": "no-store",
       },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro ao gerar PDI.";
-    return jsonError(message, 500);
+    const status = message.includes("bloqueado") || message.includes("pendentes") ? 409 : 500;
+    return jsonError(message, status);
   }
 }

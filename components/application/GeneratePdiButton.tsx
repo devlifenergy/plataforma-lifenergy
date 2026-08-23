@@ -3,9 +3,14 @@
 import { useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
+type PdiType = "relational" | "corporate";
+
 type GeneratePdiButtonProps = {
   responseId: string;
+  pdiType?: PdiType;
   allowRegenerate?: boolean;
+  disabledReason?: string | null;
+  label?: string;
 };
 
 type PdiDownload = {
@@ -13,12 +18,10 @@ type PdiDownload = {
   fileName: string;
 };
 
-const PDI_BUTTON_VERSION = "1.4.1";
+const PDI_BUTTON_VERSION = "1.5.0";
 
 function getFileNameFromContentDisposition(contentDisposition: string | null) {
-  if (!contentDisposition) {
-    return "PDI_Lifenergy.docx";
-  }
+  if (!contentDisposition) return "PDI_Lifenergy.docx";
 
   const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
   if (utf8Match?.[1]) {
@@ -30,22 +33,16 @@ function getFileNameFromContentDisposition(contentDisposition: string | null) {
   }
 
   const fallbackMatch = contentDisposition.match(/filename="([^"]+)"/i);
-  if (fallbackMatch?.[1]) {
-    return fallbackMatch[1].trim();
-  }
+  if (fallbackMatch?.[1]) return fallbackMatch[1].trim();
 
   return "PDI_Lifenergy.docx";
 }
 
 async function fetchPdi(url: string): Promise<PdiDownload> {
-  const response = await fetch(url, {
-    method: "GET",
-    cache: "no-store",
-  });
+  const response = await fetch(url, { method: "GET", cache: "no-store" });
 
   if (!response.ok) {
     const contentType = response.headers.get("content-type") || "";
-
     if (contentType.includes("application/json")) {
       const payload = await response.json().catch(() => null);
       throw new Error(payload?.error || "Erro ao gerar PDI.");
@@ -56,16 +53,11 @@ async function fetchPdi(url: string): Promise<PdiDownload> {
   }
 
   const blob = await response.blob();
-
-  if (!blob.size) {
-    throw new Error("O PDI foi gerado sem conteúdo para download.");
-  }
+  if (!blob.size) throw new Error("O PDI foi gerado sem conteúdo para download.");
 
   return {
     blob,
-    fileName: getFileNameFromContentDisposition(
-      response.headers.get("content-disposition")
-    ),
+    fileName: getFileNameFromContentDisposition(response.headers.get("content-disposition")),
   };
 }
 
@@ -82,27 +74,27 @@ function startBrowserDownload(pdi: PdiDownload) {
   anchor.click();
   anchor.remove();
 
-  window.setTimeout(() => {
-    window.URL.revokeObjectURL(objectUrl);
-  }, 1000);
+  window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 1000);
 }
 
 export function GeneratePdiButton({
   responseId,
+  pdiType = "relational",
   allowRegenerate = false,
+  disabledReason = null,
+  label,
 }: GeneratePdiButtonProps) {
-  const [activeAction, setActiveAction] = useState<"generate" | "regenerate" | null>(
-    null
-  );
+  const [activeAction, setActiveAction] = useState<"generate" | "regenerate" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const requestInFlightRef = useRef(false);
 
   const isBusy = Boolean(activeAction);
-  const baseUrl = `/api/pdi/lifenergy/${encodeURIComponent(responseId)}`;
+  const isBlocked = Boolean(disabledReason);
+  const buttonLabel = label ?? (pdiType === "corporate" ? "Gerar PDI Corporativo" : "Gerar PDI Relacional");
+  const baseUrl = `/api/pdi/lifenergy/${encodeURIComponent(responseId)}?type=${pdiType}`;
 
   function releaseButton(nextMessage: string | null) {
     requestInFlightRef.current = false;
-
     flushSync(() => {
       setActiveAction(null);
       setMessage(nextMessage);
@@ -110,23 +102,17 @@ export function GeneratePdiButton({
   }
 
   async function handleAction(action: "generate" | "regenerate") {
-    if (requestInFlightRef.current) {
-      return;
-    }
+    if (requestInFlightRef.current || isBlocked) return;
 
     requestInFlightRef.current = true;
     setActiveAction(action);
     setMessage(null);
 
     try {
-      const url = action === "regenerate" ? `${baseUrl}?regenerate=1` : baseUrl;
+      const url = action === "regenerate" ? `${baseUrl}&regenerate=1` : baseUrl;
       const pdi = await fetchPdi(url);
-
       releaseButton("PDI pronto. Download iniciado.");
-
-      window.setTimeout(() => {
-        startBrowserDownload(pdi);
-      }, 0);
+      window.setTimeout(() => startBrowserDownload(pdi), 0);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Erro ao gerar PDI.";
       releaseButton(errorMessage);
@@ -134,26 +120,32 @@ export function GeneratePdiButton({
   }
 
   return (
-    <div className="flex flex-col gap-2" data-pdi-button-version={PDI_BUTTON_VERSION}>
+    <div
+      className="flex flex-col gap-2"
+      data-pdi-button-version={PDI_BUTTON_VERSION}
+      data-pdi-type={pdiType}
+    >
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          disabled={isBusy}
+          disabled={isBusy || isBlocked}
           onClick={() => handleAction("generate")}
-          className={`rounded-full border border-[#0F2D4A] px-4 py-2 text-[14px] font-bold text-[#0F2D4A] transition hover:bg-[#0F2D4A]/10 ${
-            isBusy ? "cursor-not-allowed opacity-60" : ""
-          }`}
+          className={`rounded-full border px-4 py-2 text-[14px] font-bold transition ${
+            pdiType === "corporate"
+              ? "border-[#B8860B] text-[#0F2D4A] hover:bg-[#B8860B]/10"
+              : "border-[#0F2D4A] text-[#0F2D4A] hover:bg-[#0F2D4A]/10"
+          } ${isBusy || isBlocked ? "cursor-not-allowed opacity-60" : ""}`}
         >
-          {activeAction === "generate" ? "Gerando PDI..." : "Gerar PDI"}
+          {activeAction === "generate" ? "Gerando PDI..." : buttonLabel}
         </button>
 
         {allowRegenerate ? (
           <button
             type="button"
-            disabled={isBusy}
+            disabled={isBusy || isBlocked}
             onClick={() => handleAction("regenerate")}
             className={`rounded-full border border-slate-300 px-4 py-2 text-[14px] font-bold text-slate-700 transition hover:bg-slate-50 ${
-              isBusy ? "cursor-not-allowed opacity-60" : ""
+              isBusy || isBlocked ? "cursor-not-allowed opacity-60" : ""
             }`}
           >
             {activeAction === "regenerate" ? "Regenerando PDI..." : "Regenerar PDI"}
@@ -161,10 +153,18 @@ export function GeneratePdiButton({
         ) : null}
       </div>
 
+      {isBlocked ? (
+        <p className="max-w-xl text-xs font-medium leading-5 text-amber-700" aria-live="polite">
+          {disabledReason}
+        </p>
+      ) : null}
+
       {message ? (
         <p
           className={`text-xs font-medium ${
-            message.toLowerCase().includes("erro") ? "text-red-700" : "text-slate-600"
+            message.toLowerCase().includes("erro") || message.toLowerCase().includes("bloqueado")
+              ? "text-red-700"
+              : "text-slate-600"
           }`}
           aria-live="polite"
         >

@@ -5,43 +5,56 @@ import {
   LIFENERGY_PDI_TEMPLATE_VERSION,
 } from "./lifenergyPdiTypes";
 
-export const LIFENERGY_PDI_SYSTEM_PROMPT = `Você é o Motor Canônico de PDI Lifenergy.
+export const LIFENERGY_PDI_SYSTEM_PROMPT = `Você é o Motor Canônico de PDI Lifenergy com Biblioteca Corporativa Inteligente.
 
 Versão do motor: ${LIFENERGY_PDI_ENGINE_VERSION}
 Versão do prompt mestre: ${LIFENERGY_PDI_PROMPT_VERSION}
 Versão do template DOCX: ${LIFENERGY_PDI_TEMPLATE_VERSION}
 
 OBJETIVO
-Gerar exclusivamente o conteúdo objetivo, direto e aplicável para um Plano de Desenvolvimento Individual – PDI, conectado ao Relatório Lifenergy V1 do avaliado.
-A estrutura documental já está fixa no sistema. Não invente seções extras.
+Gerar exclusivamente o conteúdo objetivo, direto e aplicável para um Plano de Desenvolvimento Individual – PDI, conectado ao Relatório Lifenergy V1 do avaliado e, quando aplicável, aos documentos da empresa carregados na Biblioteca Corporativa.
+
+TIPOS DE PDI
+1. PDI de Desenvolvimento Relacional: voltado a avaliados externos ou pessoas sem vínculo funcional estruturado com a empresa. Não presuma cargo, gestor, metas corporativas, avaliação de desempenho ou trilha de carreira interna.
+2. PDI de Desenvolvimento Corporativo: voltado a empregados da empresa. Deve usar a Biblioteca Corporativa para alinhar o plano à cultura, competências, cargos/funções e prioridades corporativas.
+
+BIBLIOTECA CORPORATIVA
+Os documentos obrigatórios para liberar o PDI Corporativo são documentos da empresa:
+- Cultura, valores ou princípios da empresa;
+- Matriz de competências organizacionais;
+- Descrição de cargos e funções;
+- Estratégia, metas ou prioridades corporativas.
+Não trate documentos individuais do avaliado/empregado como documentos obrigatórios da Biblioteca Corporativa.
+Não exija, não cite e não peça Termo ou Política de uso do PDI.
 
 BASE DO PDI
 O PDI deve seguir a linguagem do Relatório Lifenergy: técnica, humana, organizada, cuidadosa, não clínica e voltada ao desenvolvimento humano e organizacional.
 O PDI não é um novo laudo. Ele é um plano de desenvolvimento derivado da síntese dos padrões relacionais, recomendações e métricas do relatório.
-Use o relatório como base principal. O PDI deve transformar diagnóstico em ação.
+Use o relatório e a Biblioteca Corporativa como base principal. Transforme diagnóstico em ação.
 
 ESTRUTURA DOCUMENTAL FIXA
-1. Identificação do colaborador.
-2. Objetivo central do PDI.
-3. Diagnóstico e análise de perfil.
-3.1 Avaliação do colaborador por atributos.
-3.2 Pontos fortes identificados.
-3.3 Oportunidades de melhoria.
-4. Competências a desenvolver.
-5. Objetivos de desenvolvimento.
-5.1 Objetivos de curto prazo.
-5.2 Objetivos de médio prazo.
-5.3 Direcionamento de longo prazo.
-6. Plano de ação 70-20-10.
-7. Indicadores e evidências de evolução.
-8. Apoio e suporte necessário.
-9. Monitoramento e avaliação.
-10. Assinaturas e aprovações.
+1. Identificação do colaborador/avaliado.
+2. Contexto do PDI.
+3. Objetivo central do PDI.
+4. Diagnóstico e análise de perfil.
+4.1 Avaliação do colaborador/avaliado por atributos.
+4.2 Pontos fortes identificados.
+4.3 Oportunidades de melhoria.
+5. Competências a desenvolver.
+6. Objetivos de desenvolvimento.
+6.1 Objetivos de curto prazo.
+6.2 Objetivos de médio prazo.
+6.3 Direcionamento de longo prazo.
+7. Plano de ação 70-20-10.
+8. Indicadores e evidências de evolução.
+9. Apoio e suporte necessário.
+10. Monitoramento e avaliação.
+11. Assinaturas e aprovações.
 
 CAMPO REMOVIDO DO PDI
 Não use, não cite, não reproduza e não analise o campo "Objetivo de participação".
 Se esse campo aparecer nos dados de origem como "participation_objective", "Objetivo de participação" ou equivalente, ignore integralmente.
-O PDI deve conter "Objetivo central do PDI" e "Objetivo de carreira / desenvolvimento profissional", mas isso deve ser inferido a partir do relatório e das necessidades de desenvolvimento, nunca copiado do campo "Objetivo de participação".
+O PDI pode conter "Objetivo central do PDI" e "Objetivo de carreira / desenvolvimento profissional", mas isso deve ser inferido a partir do relatório, do tipo de PDI, do contexto informado e dos documentos corporativos disponíveis, nunca copiado do campo "Objetivo de participação".
 
 ATRIBUTOS OBRIGATÓRIOS
 Socialização: atributo relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.
@@ -59,14 +72,26 @@ ESCALA DE REFERÊNCIA
 
 MODELO 70-20-10
 Para cada competência prioritária, gere uma ação em três frentes:
-70% Experiência prática: aplicação real no trabalho ou na rotina.
-20% Aprendizagem social: feedback, mentoria, pares, gestor ou observação.
+70% Experiência prática: aplicação real no trabalho, na rotina ou em situações relacionais concretas.
+20% Aprendizagem social: feedback, mentoria, pares, gestor, aplicador ou observação.
 10% Aprendizagem formal: leitura, curso, treinamento ou material estruturado.
 
 INDICADORES SMART
 Os indicadores devem ser específicos, mensuráveis, alcançáveis, relevantes e temporais.
 Inclua evidência objetiva de conclusão, qualidade ou evolução comportamental.
 Evite indicadores genéricos como "melhorar comunicação". Transforme em prática observável.
+
+REGRAS PARA PDI RELACIONAL
+1. Não use linguagem corporativa quando não houver vínculo de empregado.
+2. Não mencione cargo, gestor, área, performance corporativa ou metas da empresa como se fossem dados certos.
+3. Use foco em autopercepção, relações interpessoais, comunicação, autorregulação, clareza de escolhas e propósito.
+4. Use o contexto atual do avaliado apenas se estiver informado.
+
+REGRAS PARA PDI CORPORATIVO
+1. Use documentos da Biblioteca Corporativa para alinhar competências, objetivos, indicadores e ações.
+2. Conecte o desenvolvimento às competências organizacionais, cultura, descrição de cargos/funções e prioridades corporativas.
+3. Use situação atual, cargo, área e gestor apenas se estiverem informados como contexto operacional do PDI.
+4. Não invente avaliação de desempenho, cargo, metas individuais ou gestor.
 
 REGRAS DE REDAÇÃO
 1. Escreva em português do Brasil.
@@ -131,19 +156,26 @@ function removeCamposForaDoEscopo(data: LifenergyPdiData): LifenergyPdiData {
 export function buildLifenergyPdiUserPrompt(data: LifenergyPdiData) {
   const safeData = removeCamposForaDoEscopo(data);
 
-  return `Gere o conteúdo canônico do Plano de Desenvolvimento Individual – PDI Lifenergy V2 para os dados abaixo.
+  return `Gere o conteúdo canônico do Plano de Desenvolvimento Individual – PDI Lifenergy V3 para os dados abaixo.
+
+Tipo de PDI solicitado: ${safeData.pdiType === "corporate" ? "PDI de Desenvolvimento Corporativo" : "PDI de Desenvolvimento Relacional"}.
 
 O PDI deve ser objetivo, direto e conectado ao Relatório Lifenergy V1 já gerado.
+
 Use principalmente:
 - Síntese dos padrões relacionais;
 - Recomendações para desenvolvimento de habilidades;
 - Atributos percentuais;
 - Leitura da métrica;
-- Respostas, hierarquias e justificativas dos fractais.
+- Respostas, hierarquias e justificativas dos fractais;
+- Contexto operacional do PDI, quando informado;
+- Documentos da Biblioteca Corporativa, somente no PDI Corporativo.
 
-Não use o campo "Objetivo de participação". Ele está fora do escopo do PDI V2.
+Não use o campo "Objetivo de participação". Ele está fora do escopo do PDI V3.
+Não use a Reflexão após essa tarefa.
+Não exija Termo ou Política de uso do PDI.
 
-DADOS DO RELATÓRIO E DA APLICAÇÃO:
+DADOS DO RELATÓRIO, CONTEXTO E BIBLIOTECA:
 ${JSON.stringify(safeData, null, 2)}`;
 }
 
@@ -167,14 +199,8 @@ export const lifenergyPdiJsonSchema = {
         required: ["atributo", "avaliacao", "observacoes"],
       },
     },
-    pontos_fortes: {
-      type: "array",
-      items: { type: "string" },
-    },
-    oportunidades_melhoria: {
-      type: "array",
-      items: { type: "string" },
-    },
+    pontos_fortes: { type: "array", items: { type: "string" } },
+    oportunidades_melhoria: { type: "array", items: { type: "string" } },
     competencias_desenvolver: {
       type: "array",
       items: {
@@ -192,7 +218,7 @@ export const lifenergyPdiJsonSchema = {
           "tipo",
           "nivel_atual",
           "competencia_organizacional_relacionada",
-          "estrategia_desenvolvimento"
+          "estrategia_desenvolvimento",
         ],
       },
     },
@@ -262,7 +288,7 @@ export const lifenergyPdiJsonSchema = {
           "frequencia",
           "responsavel",
           "recursos",
-          "evidencia_conclusao"
+          "evidencia_conclusao",
         ],
       },
     },

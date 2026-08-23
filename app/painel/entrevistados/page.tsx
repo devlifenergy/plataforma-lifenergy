@@ -1,7 +1,6 @@
 import { CopyLinkButton } from "@/components/application/CopyLinkButton";
 import { CreateJourneyForm } from "@/components/application/CreateJourneyForm";
 import { DeletePendingJourneyButton } from "@/components/application/DeletePendingJourneyButton";
-import { GeneratePdiButton } from "@/components/application/GeneratePdiButton";
 import { GenerateReportButton } from "@/components/application/GenerateReportButton";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -183,7 +182,6 @@ export default async function EntrevistadosPage() {
                               (item as any).response_id ? (
                                 <>
                                   <GenerateReportButton responseId={(item as any).response_id} />
-                                  <GeneratePdiButton responseId={(item as any).response_id} />
                                 </>
                               ) : null}
                             </div>

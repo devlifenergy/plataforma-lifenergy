@@ -10,7 +10,8 @@ import {
   type LifenergyV1GeneratedContent,
   type LifenergyV1ReportData,
 } from "@/services/reports/lifenergyV1Types";
-import type { LifenergyPdiData } from "./lifenergyPdiTypes";
+import { loadPdiContextAndCorporateKnowledge } from "./corporateKnowledge";
+import type { LifenergyPdiData, LifenergyPdiType } from "./lifenergyPdiTypes";
 
 async function findStoredReport(responseId: string): Promise<{
   id: string;
@@ -71,13 +72,25 @@ function stripPdiExcludedFields(reportData: LifenergyV1ReportData): LifenergyV1R
 }
 
 export async function buildLifenergyPdiDataFromReportData(
-  reportData: LifenergyV1ReportData
+  reportData: LifenergyV1ReportData,
+  options?: { pdiType?: LifenergyPdiType }
 ): Promise<LifenergyPdiData> {
+  const pdiType = options?.pdiType ?? "relational";
   const safeReportData = stripPdiExcludedFields(reportData);
-  const storedReport = await findStoredReport(reportData.response.id);
+  const [storedReport, contextAndKnowledge] = await Promise.all([
+    findStoredReport(reportData.response.id),
+    loadPdiContextAndCorporateKnowledge({
+      organizationId: reportData.organization.id,
+      responseId: reportData.response.id,
+      pdiType,
+    }),
+  ]);
 
   if (storedReport) {
     return {
+      pdiType,
+      pdiContext: contextAndKnowledge.pdiContext,
+      corporateDocuments: contextAndKnowledge.corporateDocuments,
       reportData: safeReportData,
       reportContent: storedReport.generated_content_json,
       sourceReportId: storedReport.id,
@@ -87,13 +100,19 @@ export async function buildLifenergyPdiDataFromReportData(
   const generated = await generateLifenergyV1Content(reportData);
 
   return {
+    pdiType,
+    pdiContext: contextAndKnowledge.pdiContext,
+    corporateDocuments: contextAndKnowledge.corporateDocuments,
     reportData: safeReportData,
     reportContent: generated.content,
     sourceReportId: null,
   };
 }
 
-export async function loadLifenergyPdiData(responseId: string): Promise<LifenergyPdiData> {
+export async function loadLifenergyPdiData(
+  responseId: string,
+  options?: { pdiType?: LifenergyPdiType }
+): Promise<LifenergyPdiData> {
   const reportData = await loadLifenergyV1ReportData(responseId);
-  return buildLifenergyPdiDataFromReportData(reportData);
+  return buildLifenergyPdiDataFromReportData(reportData, options);
 }

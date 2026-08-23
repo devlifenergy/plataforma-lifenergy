@@ -44,7 +44,8 @@ function fileSafe(value: unknown) {
 }
 
 export function buildLifenergyPdiFileName(data: LifenergyPdiData) {
-  return `PDI_Lifenergy_${fileSafe(data.reportData.response.full_name)}.docx`;
+  const tipo = data.pdiType === "corporate" ? "Corporativo" : "Relacional";
+  return `PDI_Lifenergy_${tipo}_${fileSafe(data.reportData.response.full_name)}.docx`;
 }
 
 function run(text: unknown, options?: { bold?: boolean; italic?: boolean; color?: string; size?: number }) {
@@ -157,6 +158,49 @@ const ATTRIBUTE_DESCRIPTIONS: Record<string, string> = {
     "Atributo relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos.",
 };
 
+
+function pdiTypeLabel(data: LifenergyPdiData) {
+  return data.pdiType === "corporate"
+    ? "PDI de Desenvolvimento Corporativo"
+    : "PDI de Desenvolvimento Relacional";
+}
+
+function contextBlock(data: LifenergyPdiData) {
+  const context = data.pdiContext;
+  const rows = [
+    ["Tipo de PDI", pdiTypeLabel(data)],
+    ["Tipo de pessoa", context?.person_type === "employee" ? "Empregado da empresa" : "Avaliado externo"],
+    ["Cargo atual", context?.current_job_title || "-"],
+    ["Área", context?.current_area || "-"],
+    ["Gestor imediato", context?.manager_name || "-"],
+    ["Contexto atual", context?.context_summary || "-"],
+    ["Situação atual", context?.current_situation || "-"],
+    ["Desafios atuais", context?.current_challenges || "-"],
+    ["Prioridades de desenvolvimento", context?.development_priorities || "-"],
+    ["Direcionamento de carreira/desenvolvimento", context?.career_direction || "-"],
+  ];
+
+  return table([["Campo", "Informação"], ...rows], { widths: [3200, 7200] });
+}
+
+function corporateDocumentsBlock(data: LifenergyPdiData) {
+  if (data.pdiType !== "corporate") return "";
+
+  const rows = [
+    ["Categoria", "Documento", "Arquivo"],
+    ...data.corporateDocuments.map((item) => [
+      item.category,
+      item.title,
+      item.file_name || "Texto informado na plataforma",
+    ]),
+  ];
+
+  return [
+    heading2("2.1 – Documentos corporativos utilizados"),
+    table(rows, { widths: [3000, 4200, 3000] }),
+  ].join("");
+}
+
 function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGeneratedContent) {
   const reportData = data.reportData;
   const response = reportData.response;
@@ -258,72 +302,76 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
   ];
 
   const body = [
-    paragraph("PLANO DE DESENVOLVIMENTO INDIVIDUAL – PDI", { style: "Title" }),
+    paragraph(pdiTypeLabel(data).toUpperCase(), { style: "Title" }),
     paragraph(`Empresa: ${reportData.organization.name}`, { center: true, color: "666666", size: 20 }),
 
-    heading1("SEÇÃO 1 – IDENTIFICAÇÃO DO COLABORADOR"),
+    heading1("SEÇÃO 1 – IDENTIFICAÇÃO DO COLABORADOR / AVALIADO"),
     bullet("Nome", response.full_name),
     bullet("CPF", response.cpf),
     bullet("E-mail", response.email),
     bullet("Data de nascimento", formatDate(response.birth_date)),
     bullet("Naturalidade", response.naturalidade),
 
-    heading1("SEÇÃO 2 – OBJETIVO CENTRAL DO PDI"),
+    heading1("SEÇÃO 2 – CONTEXTO DO PDI"),
+    contextBlock(data),
+    corporateDocumentsBlock(data),
+
+    heading1("SEÇÃO 3 – OBJETIVO CENTRAL DO PDI"),
     paragraphs(content.objetivo_central_pdi),
-    heading2("2.1 – Objetivo de carreira / desenvolvimento profissional"),
+    heading2("3.1 – Objetivo de carreira / desenvolvimento profissional"),
     paragraphs(content.objetivo_carreira_desenvolvimento),
 
-    heading1("SEÇÃO 3 – DIAGNÓSTICO E ANÁLISE DE PERFIL"),
+    heading1("SEÇÃO 4 – DIAGNÓSTICO E ANÁLISE DE PERFIL"),
     paragraphs(content.diagnostico_perfil),
     paragraph("O diagnóstico está conectado à síntese dos padrões relacionais do Relatório Lifenergy V1 do avaliado.", {
       italic: true,
       color: "666666",
     }),
 
-    heading2("3.1 – Avaliação do Colaborador"),
+    heading2("4.1 – Avaliação do Colaborador / Avaliado"),
     table(attributeRows, { widths: [1500, 3400, 1600, 3200] }),
     paragraph(
       "ⓘ Escala de Referência: 0% a 29% = Inferior / 30% a 49% = Média inferior / 50% a 69% = Média / 70% a 89% = Média Superior / 90% a 100% = Superior",
       { italic: true, color: "666666" }
     ),
 
-    heading2("3.2 – Pontos Fortes Identificados"),
+    heading2("4.2 – Pontos Fortes Identificados"),
     list(content.pontos_fortes),
 
-    heading2("3.3 – Oportunidades de Melhoria"),
+    heading2("4.3 – Oportunidades de Melhoria"),
     list(content.oportunidades_melhoria),
 
-    heading1("SEÇÃO 4 – COMPETÊNCIAS A DESENVOLVER"),
+    heading1("SEÇÃO 5 – COMPETÊNCIAS A DESENVOLVER"),
     paragraph("Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI."),
     table(competencyRows, { widths: [1900, 1400, 1400, 2600, 3300] }),
 
-    heading1("SEÇÃO 5 – OBJETIVOS DE DESENVOLVIMENTO"),
-    heading2("5.1 – Objetivos de Curto Prazo (até 6 meses)"),
+    heading1("SEÇÃO 6 – OBJETIVOS DE DESENVOLVIMENTO"),
+    heading2("6.1 – Objetivos de Curto Prazo (até 6 meses)"),
     table(shortObjectiveRows, { widths: [600, 3200, 3600, 1400, 1200] }),
 
-    heading2("5.2 – Objetivos de Médio Prazo (até 12 meses)"),
+    heading2("6.2 – Objetivos de Médio Prazo (até 12 meses)"),
     table(mediumObjectiveRows, { widths: [600, 3200, 3600, 1400, 1200] }),
 
-    heading2("5.3 – Direcionamento de Longo Prazo (2 a 3 anos)"),
+    heading2("6.3 – Direcionamento de Longo Prazo (2 a 3 anos)"),
     table(longTermRows, { widths: [2800, 3700, 3700] }),
 
-    heading1("SEÇÃO 6 – PLANO DE AÇÃO 70-20-10"),
+    heading1("SEÇÃO 7 – PLANO DE AÇÃO 70-20-10"),
     paragraph("As ações estão organizadas em experiência prática, aprendizagem social e aprendizagem formal, para tornar o desenvolvimento mais operacional e acompanhável."),
     table(actionRows, { widths: [1700, 2300, 2300, 2300, 1200, 1200, 2200, 2400] }),
 
-    heading1("SEÇÃO 7 – INDICADORES E EVIDÊNCIAS DE EVOLUÇÃO"),
+    heading1("SEÇÃO 8 – INDICADORES E EVIDÊNCIAS DE EVOLUÇÃO"),
     paragraph("Os indicadores abaixo devem apoiar o acompanhamento do progresso e a verificação objetiva da evolução comportamental."),
     table(indicatorRows, { widths: [2200, 3000, 2600, 2600, 1200] }),
 
-    heading1("SEÇÃO 8 – APOIO E SUPORTE NECESSÁRIO"),
+    heading1("SEÇÃO 9 – APOIO E SUPORTE NECESSÁRIO"),
     paragraphs(content.apoio_suporte_necessario),
 
-    heading1("SEÇÃO 9 – MONITORAMENTO E AVALIAÇÃO"),
-    heading2("9.1 – Cronograma de Acompanhamento"),
+    heading1("SEÇÃO 10 – MONITORAMENTO E AVALIAÇÃO"),
+    heading2("10.1 – Cronograma de Acompanhamento"),
     paragraph("Os checkpoints devem ocorrer com regularidade, preferencialmente a cada trimestre, para revisar objetivos, atualizar status das ações e registrar aprendizados."),
     table(monitoringRows, { widths: [2000, 1600, 2300, 3000, 2500] }),
 
-    heading1("SEÇÃO 10 – ASSINATURAS E APROVAÇÕES"),
+    heading1("SEÇÃO 11 – ASSINATURAS E APROVAÇÕES"),
     paragraph("Todas as partes envolvidas devem assinar este documento, confirmando ciência, concordância e comprometimento com o Plano de Desenvolvimento Individual."),
     table(signatureRows, { widths: [3100, 4800, 2100] }),
     heading2("Declaração de Ciência e Comprometimento"),
@@ -378,7 +426,7 @@ const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:p>
     <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · Plano de Desenvolvimento Individual</w:t></w:r>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente</w:t></w:r>
   </w:p>
 </w:ftr>`;
 

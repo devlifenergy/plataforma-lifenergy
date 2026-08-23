@@ -1,12 +1,18 @@
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "@/services/reports/lifenergyV1Types";
+import type { OrganizationDocumentForPdi, PdiContextRecord } from "./corporateKnowledge";
 
-export const LIFENERGY_PDI_VERSION = "lifenergy_pdi_v2_0_1_4_1";
+export const LIFENERGY_PDI_VERSION = "lifenergy_pdi_v3_0_1_5_0";
 export const LIFENERGY_PDI_FORMAT = "docx";
-export const LIFENERGY_PDI_ENGINE_VERSION = "1.4.1";
-export const LIFENERGY_PDI_PROMPT_VERSION = "pdi_lifenergy_v2_0_sem_objetivo_participacao_2026_08_23";
-export const LIFENERGY_PDI_TEMPLATE_VERSION = "docx_pdi_lifenergy_v2_0_sem_objetivo_participacao_2026_08_23";
+export const LIFENERGY_PDI_ENGINE_VERSION = "1.5.0";
+export const LIFENERGY_PDI_PROMPT_VERSION = "pdi_lifenergy_v3_biblioteca_corporativa_2026_08_23";
+export const LIFENERGY_PDI_TEMPLATE_VERSION = "docx_pdi_lifenergy_v3_biblioteca_corporativa_2026_08_23";
+
+export type LifenergyPdiType = "relational" | "corporate";
 
 export type LifenergyPdiData = {
+  pdiType: LifenergyPdiType;
+  pdiContext: PdiContextRecord | null;
+  corporateDocuments: OrganizationDocumentForPdi[];
   reportData: LifenergyV1ReportData;
   reportContent: LifenergyV1GeneratedContent;
   sourceReportId: string | null;
