@@ -35,7 +35,7 @@ O resultado deve se comportar como no relatório de referência:
 - As sugestões devem ser fundamentadas na interpretação daquele fractal.
 - A síntese final deve cruzar todos os fractais, sem repetir mecanicamente cada um.
 - A recomendação final deve ter tom de desenvolvimento humano e organizacional.
-- As métricas devem ser coerentes com a intensidade dos conteúdos identificados.
+- As métricas devem seguir a régua calibrada do projeto Laudos Lifenergy V2, sem reduzir artificialmente percentuais por excesso de conservadorismo.
 
 REGRAS DE HIERARQUIA
 3 = maior importância.
@@ -61,11 +61,41 @@ REGRAS DE REDAÇÃO
 8. Não use markdown.
 9. Não crie seções extras.
 10. Não escreva saudações, conclusões genéricas ou observações fora do JSON.
-11. Cada interpretação de fractal deve ter entre 70 e 130 palavras.
-12. Cada sugestão de fractal deve ter entre 35 e 80 palavras.
-13. A síntese final deve ter entre 80 e 150 palavras.
-14. As recomendações finais devem ter entre 60 e 120 palavras.
-15. A leitura da métrica deve ter entre 45 e 100 palavras.
+11. Cada padrão identificado na tabela deve ser breve e direto, com no máximo 18 palavras.
+12. Cada interpretação de fractal deve ter entre 55 e 110 palavras.
+13. Cada sugestão de fractal deve ter entre 25 e 65 palavras.
+14. A síntese final deve ter entre 70 e 130 palavras.
+15. As recomendações finais devem ter entre 50 e 100 palavras.
+16. A leitura da métrica deve ter entre 45 e 90 palavras.
+
+
+REGRA CANÔNICA DO ITEM 6 – CALIBRAÇÃO LAUDOS LIFENERGY V1/V2
+1. Os percentuais do item 6 são parte crítica do relatório e devem seguir a mesma régua do projeto Laudos Lifenergy V2.
+2. Não gere percentuais “aproximados” por estilo próprio. A métrica deve representar a intensidade metodológica do atributo no conjunto dos fractais, considerando respostas, hierarquias e justificativas.
+3. Use números inteiros exatos entre 0% e 100%.
+4. Não force arredondamento para múltiplos de 5. Os percentuais podem ser 82%, 58%, 87%, 91% ou qualquer outro número inteiro coerente com a régua metodológica.
+5. A hierarquia deve ponderar a intensidade: hierarquia 3 tem peso maior, hierarquia 2 tem peso intermediário e hierarquia 1 confirma presença secundária. Uma resposta em hierarquia 1 não deve ser ignorada.
+6. A métrica mede presença/intensidade do padrão, não quantidade literal de palavras. Um único conteúdo muito forte em hierarquia alta pode elevar bastante um atributo.
+7. Em relatórios com dois fractais, quando um atributo aparece de modo central em ambos, use normalmente faixa de 85% a 100%, com variação exata conforme a força do conteúdo.
+8. Quando um atributo aparece claramente, mas como suporte secundário, use normalmente faixa de 65% a 80%, com variação exata conforme a força do conteúdo.
+9. Quando um atributo aparece apenas de forma indireta ou pouco prioritária, use normalmente faixa de 45% a 60%, com variação exata conforme a força do conteúdo.
+10. Evite percentuais excessivamente baixos quando há evidência clara no conteúdo. O projeto Laudos Lifenergy V1/V2 tende a reconhecer intensidade psicológica e relacional, não apenas frequência literal.
+11. A leitura da métrica deve explicar os percentuais gerados sem contradizê-los.
+
+ÂNCORAS DE CALIBRAÇÃO OBRIGATÓRIAS
+Âncora 1 — Caso Camilla/Camila Aquino:
+- Fractal sobre ganhar na Mega Sena com respostas “Investir em um negócio próprio”, “Comprar uma casa” e “Viagens e lazer”;
+- Fractal sobre comparar empresa conhecida com objetos, com respostas “Livro”, “Notebook” e “Perfume”;
+a métrica canônica do projeto Laudos Lifenergy V2 é:
+Socialização 70%, Reflexão 90%, Lazer 65%, Propósito 95%, Sentimento 75%.
+
+Âncora 2 — Caso Caroline Nery:
+- Fractal sobre ganhar na Mega Sena com respostas “Faria algumas reformas nos meus imóveis”, “Pagaria algumas dívidas” e “Compraria um apartamento maior”;
+- Fractal sobre ideias que os outros têm da vida e sucesso, com respostas “Que eu já alcancei tudo que almejo e tenho obrigação de ajudar os outros”, “Que eu não preciso trabalhar” e “Que eu tenho um padrão de vida maravilhoso”;
+a métrica canônica do projeto Laudos Lifenergy V1 é:
+Socialização 82%, Reflexão 90%, Lazer 58%, Propósito 87%, Sentimento 91%.
+
+Use essas âncoras para calibrar casos iguais e casos semanticamente equivalentes. Não arredonde essas métricas para múltiplos de 5.
 
 REGRAS DE CONSISTÊNCIA
 1. Gere uma análise para cada fractal recebido.
@@ -73,6 +103,7 @@ REGRAS DE CONSISTÊNCIA
 3. Cada fractal deve ter exatamente três padrões relacionais de resposta.
 4. Gere exatamente cinco atributos percentuais.
 5. Os percentuais devem ser strings com o símbolo %, por exemplo: "85%".
+5.1. Os percentuais devem ser números inteiros exatos. Não arredonde para múltiplos de 5; valores como 82%, 58%, 87% e 91% são válidos quando refletirem a régua metodológica.
 6. Os atributos devem aparecer exatamente nesta ordem: Socialização, Reflexão, Lazer, Propósito, Sentimento.
 7. A saída deve ser exclusivamente JSON válido, seguindo o schema solicitado.
 
@@ -118,7 +149,7 @@ RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO
    Atributos obrigatórios: Socialização, Reflexão, Lazer, Propósito e Sentimento.
    Depois, Leitura da métrica.
 
-Use o estilo do projeto Laudos Lifenergy V2: leitura interpretativa clara, humana, organizada, sem excesso de abstração e sem linguagem clínica.
+Use o estilo do projeto Laudos Lifenergy V2: leitura interpretativa clara, humana, organizada, objetiva, com tabelas e métricas calibradas pela régua validada. Priorize síntese e não alongue os padrões de resposta.
 
 DADOS DO AVALIADO E DA APLICAÇÃO:
 ${JSON.stringify(safeData, null, 2)}`;

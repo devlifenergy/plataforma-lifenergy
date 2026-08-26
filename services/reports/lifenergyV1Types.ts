@@ -1,8 +1,8 @@
-export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_3_5";
+export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_5_5";
 export const LIFENERGY_REPORT_FORMAT = "docx";
-export const LIFENERGY_REPORT_ENGINE_VERSION = "1.3.7";
-export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v2_canonico_sem_reflexao_pos_tarefa_2026_08_19";
-export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_item6_texto_apos_tabela_2026_08_19";
+export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.5";
+export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v1_v2_metrica_exata_2026_08_25";
+export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_1_5_5";
 
 export type LifenergyFractalResponse = {
   index: number;
