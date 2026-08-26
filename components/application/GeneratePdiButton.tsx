@@ -11,6 +11,7 @@ type GeneratePdiButtonProps = {
   allowRegenerate?: boolean;
   disabledReason?: string | null;
   label?: string;
+  regenerateLabel?: string;
 };
 
 type PdiDownload = {
@@ -18,7 +19,7 @@ type PdiDownload = {
   fileName: string;
 };
 
-const PDI_BUTTON_VERSION = "1.5.1";
+const PDI_BUTTON_VERSION = "1.5.3";
 
 function getFileNameFromContentDisposition(contentDisposition: string | null) {
   if (!contentDisposition) return "PDI_Lifenergy.docx";
@@ -83,6 +84,7 @@ export function GeneratePdiButton({
   allowRegenerate = false,
   disabledReason = null,
   label,
+  regenerateLabel,
 }: GeneratePdiButtonProps) {
   const [activeAction, setActiveAction] = useState<"generate" | "regenerate" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -91,6 +93,8 @@ export function GeneratePdiButton({
   const isBusy = Boolean(activeAction);
   const isBlocked = Boolean(disabledReason);
   const buttonLabel = label ?? (pdiType === "corporate" ? "Gerar PDI Corporativo" : "Gerar PDI Relacional");
+  const regenerateButtonLabel =
+    regenerateLabel ?? (pdiType === "corporate" ? "Gerar novo PDI Corporativo" : "Regenerar PDI");
   const baseUrl = `/api/pdi/lifenergy/${encodeURIComponent(responseId)}?type=${pdiType}`;
 
   function releaseButton(nextMessage: string | null) {
@@ -148,7 +152,7 @@ export function GeneratePdiButton({
               isBusy || isBlocked ? "cursor-not-allowed opacity-60" : ""
             }`}
           >
-            {activeAction === "regenerate" ? "Regenerando PDI..." : "Regenerar PDI"}
+            {activeAction === "regenerate" ? "Regenerando PDI..." : regenerateButtonLabel}
           </button>
         ) : null}
       </div>

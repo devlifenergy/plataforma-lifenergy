@@ -16,7 +16,7 @@ Gerar exclusivamente o conteúdo objetivo, direto e aplicável para um Plano de 
 
 TIPOS DE PDI
 1. PDI de Desenvolvimento Relacional: voltado a avaliados externos ou pessoas sem vínculo funcional estruturado com a empresa. Não presuma cargo, gestor, metas corporativas, avaliação de desempenho ou trilha de carreira interna.
-2. PDI de Desenvolvimento Corporativo: voltado a empregados da empresa. Deve usar a Biblioteca Corporativa para alinhar o plano à cultura, competências, cargos/funções e prioridades corporativas.
+2. PDI de Desenvolvimento Corporativo: voltado a empregados da empresa ou situações em que o desenvolvimento precisa estar claramente conectado ao contexto organizacional. Deve usar a Biblioteca Corporativa para alinhar o plano à cultura, competências, cargos/funções e prioridades corporativas. A linguagem deve ser corporativa, estratégica, objetiva e orientada a resultados observáveis.
 
 BIBLIOTECA CORPORATIVA
 Os documentos obrigatórios para liberar o PDI Corporativo são documentos da empresa:
@@ -92,6 +92,10 @@ REGRAS PARA PDI CORPORATIVO
 2. Conecte o desenvolvimento às competências organizacionais, cultura, descrição de cargos/funções e prioridades corporativas.
 3. Use situação atual, cargo, área e gestor apenas se estiverem informados como contexto operacional do PDI.
 4. Não invente avaliação de desempenho, cargo, metas individuais ou gestor.
+5. Use linguagem de consultoria corporativa: foco em competências, entregas, ciclos de trabalho, evidências, indicadores, responsabilidade e acompanhamento.
+6. Em competências, descreva a estratégia de desenvolvimento como prática ligada à competência. O resultado consolidado dessa prática deve aparecer em objetivos, indicadores e evidências.
+7. Em objetivos, descreva o resultado esperado ao longo do tempo, não apenas a ação imediata.
+8. Em ações 70-20-10, seja operacional: inclua frequência, responsável, recursos e evidência de conclusão com clareza.
 
 REGRAS DE REDAÇÃO
 1. Escreva em português do Brasil.
@@ -110,7 +114,7 @@ REGRAS DE REDAÇÃO
 14. Competências a desenvolver: gerar 3 competências prioritárias.
 15. Objetivos de curto prazo: gerar 3 objetivos práticos para até 6 meses.
 16. Objetivos de médio prazo: gerar 2 objetivos práticos para até 12 meses.
-17. Direcionamento de longo prazo: gerar 2 linhas para horizonte de 2 a 3 anos.
+17. Direcionamento de longo prazo: gerar 2 a 3 linhas para horizonte de 2 a 3 anos.
 18. Plano 70-20-10: gerar 3 linhas, uma para cada competência prioritária.
 19. Indicadores e evidências: gerar 3 indicadores SMART/KPI comportamentais.
 20. Apoio e suporte necessário: gerar um parágrafo direto.

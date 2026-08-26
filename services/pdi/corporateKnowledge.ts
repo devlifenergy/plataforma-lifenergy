@@ -73,6 +73,7 @@ export type OrganizationDocumentForPdi = {
   file_size: number | null;
   content_text: string;
   created_at: string;
+  updated_at: string | null;
 };
 
 export type PdiContextRecord = {
@@ -134,7 +135,7 @@ export async function loadPdiContextAndCorporateKnowledge(params: {
       .maybeSingle(),
     admin
       .from("organization_documents")
-      .select("id, category, title, file_name, mime_type, file_size, content_text, created_at")
+      .select("id, category, title, file_name, mime_type, file_size, content_text, created_at, updated_at")
       .eq("organization_id", params.organizationId)
       .eq("status", "active")
       .order("created_at", { ascending: false }),

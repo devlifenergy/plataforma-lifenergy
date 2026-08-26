@@ -53,6 +53,11 @@ function assertCategory(value: string): CorporateDocumentCategory {
   return value as CorporateDocumentCategory;
 }
 
+async function fileToBase64(file: File) {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  return buffer.toString("base64");
+}
+
 export async function createOrganizationDocument(formData: FormData) {
   const { supabase, profile } = await getCurrentProfile();
 
@@ -69,7 +74,11 @@ export async function createOrganizationDocument(formData: FormData) {
     throw new Error("Carregue o arquivo do documento para que a IA gere o sumário interno.");
   }
 
-  const extractedText = await extractCorporateDocumentText(file);
+  const [extractedText, fileContentBase64] = await Promise.all([
+    extractCorporateDocumentText(file),
+    fileToBase64(file),
+  ]);
+
   const aiSummary = await generateCorporateDocumentSummary({
     title,
     category,
@@ -83,11 +92,74 @@ export async function createOrganizationDocument(formData: FormData) {
     file_name: file.name,
     mime_type: file.type || null,
     file_size: file.size,
+    file_content_base64: fileContentBase64,
     content_text: aiSummary,
     status: "active",
     created_by: profile.id,
     updated_by: profile.id,
   });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/painel/pdi");
+}
+
+export async function updateOrganizationDocument(formData: FormData) {
+  const { supabase, profile } = await getCurrentProfile();
+
+  const documentId = clean(formData.get("document_id"));
+  const title = clean(formData.get("title"));
+  const categoryValue = clean(formData.get("category"));
+  const uploadedFile = formData.get("file");
+  const file = uploadedFile instanceof File && uploadedFile.size > 0 ? uploadedFile : null;
+
+  if (!documentId) {
+    throw new Error("Documento não informado.");
+  }
+
+  const updatePayload: Record<string, unknown> = {
+    updated_by: profile.id,
+  };
+
+  if (title) {
+    updatePayload.title = title;
+  }
+
+  if (categoryValue) {
+    updatePayload.category = assertCategory(categoryValue);
+  }
+
+  if (file) {
+    const category = assertCategory(categoryValue);
+    const effectiveTitle = title || file.name;
+
+    const [extractedText, fileContentBase64] = await Promise.all([
+      extractCorporateDocumentText(file),
+      fileToBase64(file),
+    ]);
+
+    const aiSummary = await generateCorporateDocumentSummary({
+      title: effectiveTitle,
+      category,
+      extractedText,
+    });
+
+    updatePayload.title = effectiveTitle;
+    updatePayload.category = category;
+    updatePayload.file_name = file.name;
+    updatePayload.mime_type = file.type || null;
+    updatePayload.file_size = file.size;
+    updatePayload.file_content_base64 = fileContentBase64;
+    updatePayload.content_text = aiSummary;
+  }
+
+  const { error } = await supabase
+    .from("organization_documents")
+    .update(updatePayload)
+    .eq("id", documentId)
+    .eq("organization_id", profile.organization_id);
 
   if (error) {
     throw new Error(error.message);
@@ -174,7 +246,7 @@ export async function listPdiPageData() {
     await Promise.all([
       supabase
         .from("organization_documents")
-        .select("id, category, title, file_name, mime_type, file_size, content_text, status, created_at")
+        .select("id, category, title, file_name, mime_type, file_size, content_text, status, created_at, updated_at")
         .eq("organization_id", profile.organization_id)
         .eq("status", "active")
         .order("created_at", { ascending: false }),

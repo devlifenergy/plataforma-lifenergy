@@ -73,8 +73,8 @@ function paragraph(
   })}</w:p>`;
 }
 
-function bullet(label: string, value: unknown) {
-  return paragraph(`• ${label}: ${cleanXmlText(value) || "-"}`);
+function fieldLine(label: string, value: unknown) {
+  return paragraph(`${label}: ${cleanXmlText(value) || "-"}`);
 }
 
 function list(items: unknown[]) {
@@ -183,22 +183,8 @@ function contextBlock(data: LifenergyPdiData) {
   return table([["Campo", "Informação"], ...rows], { widths: [3200, 7200] });
 }
 
-function corporateDocumentsBlock(data: LifenergyPdiData) {
-  if (data.pdiType !== "corporate") return "";
-
-  const rows = [
-    ["Categoria", "Documento", "Arquivo"],
-    ...data.corporateDocuments.map((item) => [
-      item.category,
-      item.title,
-      item.file_name || "Texto informado na plataforma",
-    ]),
-  ];
-
-  return [
-    heading2("2.1 – Documentos corporativos utilizados"),
-    table(rows, { widths: [3000, 4200, 3000] }),
-  ].join("");
+function corporateDocumentsBlock(_data: LifenergyPdiData) {
+  return "";
 }
 
 function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGeneratedContent) {
@@ -207,10 +193,9 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
   const applicationDate = formatDate(response.application_date);
 
   const attributeRows = [
-    ["Atributo", "Descrição", "Avaliação (0% a 100%)", "Observações"],
+    ["Atributo", "Avaliação", "Observações"],
     ...content.avaliacao_atributos.map((item) => [
       item.atributo,
-      ATTRIBUTE_DESCRIPTIONS[item.atributo] || "-",
       item.avaliacao,
       item.observacoes,
     ]),
@@ -255,6 +240,16 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
       item.foco,
       item.resultado_esperado,
       item.evidencia_evolucao,
+    ]),
+  ];
+
+  const strengthsOpportunitiesRows = [
+    ["Pontos Fortes Identificados", "Oportunidades de Melhoria"],
+    ...Array.from({
+      length: Math.max(content.pontos_fortes.length, content.oportunidades_melhoria.length, 3),
+    }).map((_, index) => [
+      content.pontos_fortes[index] || "-",
+      content.oportunidades_melhoria[index] || "-",
     ]),
   ];
 
@@ -306,11 +301,11 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     paragraph(`Empresa: ${reportData.organization.name}`, { center: true, color: "666666", size: 20 }),
 
     heading1("SEÇÃO 1 – IDENTIFICAÇÃO DO COLABORADOR / AVALIADO"),
-    bullet("Nome", response.full_name),
-    bullet("CPF", response.cpf),
-    bullet("E-mail", response.email),
-    bullet("Data de nascimento", formatDate(response.birth_date)),
-    bullet("Naturalidade", response.naturalidade),
+    fieldLine("Nome", response.full_name),
+    fieldLine("CPF", response.cpf),
+    fieldLine("E-mail", response.email),
+    fieldLine("Data de nascimento", formatDate(response.birth_date)),
+    fieldLine("Naturalidade", response.naturalidade),
 
     heading1("SEÇÃO 2 – CONTEXTO DO PDI"),
     contextBlock(data),
@@ -329,23 +324,21 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     }),
 
     heading2("4.1 – Avaliação do Colaborador / Avaliado"),
-    table(attributeRows, { widths: [1500, 3400, 1600, 3200] }),
+    table(attributeRows, { widths: [2200, 1600, 6200] }),
     paragraph(
       "ⓘ Escala de Referência: 0% a 29% = Inferior / 30% a 49% = Média inferior / 50% a 69% = Média / 70% a 89% = Média Superior / 90% a 100% = Superior",
       { italic: true, color: "666666" }
     ),
 
-    heading2("4.2 – Pontos Fortes Identificados"),
-    list(content.pontos_fortes),
-
-    heading2("4.3 – Oportunidades de Melhoria"),
-    list(content.oportunidades_melhoria),
+    heading2("4.2 e 4.3 – Pontos Fortes e Oportunidades de Melhoria"),
+    table(strengthsOpportunitiesRows, { widths: [5000, 5000] }),
 
     heading1("SEÇÃO 5 – COMPETÊNCIAS A DESENVOLVER"),
-    paragraph("Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI."),
+    paragraph("Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI. A estratégia de desenvolvimento descreve a prática ligada à competência; o resultado consolidado dessa prática está descrito na Seção 6."),
     table(competencyRows, { widths: [1900, 1400, 1400, 2600, 3300] }),
 
     heading1("SEÇÃO 6 – OBJETIVOS DE DESENVOLVIMENTO"),
+    paragraph("Cada objetivo expressa o resultado consolidado que a respectiva estratégia da Seção 5 deve produzir ao longo do tempo — não a ação em si."),
     heading2("6.1 – Objetivos de Curto Prazo (até 6 meses)"),
     table(shortObjectiveRows, { widths: [600, 3200, 3600, 1400, 1200] }),
 

@@ -6,6 +6,7 @@ import {
   archiveOrganizationDocument,
   listPdiPageData,
   savePdiContext,
+  updateOrganizationDocument,
 } from "@/services/pdi/actions";
 import { getCorporateDocumentCategoryLabel } from "@/services/pdi/corporateKnowledge";
 
@@ -99,6 +100,12 @@ export default async function PdiPage() {
   const corporateBlockedReason = libraryStatus.ready
     ? null
     : `PDI Corporativo bloqueado. Documentos obrigatórios da empresa pendentes: ${missingLabels.join("; ")}.`;
+  const latestCorporateLibraryUpdate = (documents as any[]).reduce((latest: string | null, doc: any) => {
+    const value = doc.updated_at || doc.created_at;
+    if (!value) return latest;
+    if (!latest) return value;
+    return new Date(value).getTime() > new Date(latest).getTime() ? value : latest;
+  }, null);
 
   return (
     <div className="space-y-6">
@@ -129,7 +136,7 @@ export default async function PdiPage() {
           </h2>
           {libraryStatus.ready ? (
             <p className="mt-2 rounded-xl bg-emerald-50 px-4 py-3 text-[15px] font-medium leading-6 text-emerald-700">
-              Os quatro documentos empresariais mínimos foram cadastrados e tiveram sumário técnico interno gerado pela IA.
+              Os quatro documentos empresariais mínimos foram cadastrados e avaliados para uso no PDI Corporativo.
             </p>
           ) : (
             <div className="mt-2 rounded-xl bg-amber-50 px-4 py-3 text-[15px] leading-6 text-amber-800">
@@ -154,8 +161,12 @@ export default async function PdiPage() {
 
         <CorporateDocumentForm categories={categories} />
 
+        <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium leading-6 text-amber-800">
+          Ao editar ou atualizar documentos corporativos, os PDIs Corporativos já gerados devem ser gerados novamente para se adequar ao novo contexto da empresa.
+        </p>
+
         <div className="mt-8 space-y-3">
-          <h3 className="text-lg font-bold text-[#0F2D4A]">Documentos ativos</h3>
+          <h3 className="text-lg font-bold text-[#0F2D4A]">Documentos corporativos avaliados</h3>
           {documents.length === 0 ? (
             <p className="rounded-xl bg-slate-50 px-4 py-4 text-[15px] text-slate-500">
               Nenhum documento cadastrado.
@@ -168,8 +179,7 @@ export default async function PdiPage() {
                     <th className="px-4 py-3">Categoria</th>
                     <th className="px-4 py-3">Documento</th>
                     <th className="px-4 py-3">Arquivo</th>
-                    <th className="px-4 py-3">Status IA</th>
-                    <th className="px-4 py-3">Ação</th>
+                    <th className="px-4 py-3">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -180,16 +190,74 @@ export default async function PdiPage() {
                       </td>
                       <td className="px-4 py-3 text-slate-700">{doc.title}</td>
                       <td className="px-4 py-3 text-slate-500">{doc.file_name || "Arquivo informado"}</td>
-                      <td className="px-4 py-3 text-slate-500">
-                        "Sumário interno gerado"
-                      </td>
                       <td className="px-4 py-3">
-                        <form action={archiveOrganizationDocument}>
-                          <input type="hidden" name="document_id" value={doc.id} />
-                          <button className="rounded-full border border-red-200 px-3 py-1 text-xs font-bold text-red-700 hover:bg-red-50">
-                            Arquivar
-                          </button>
-                        </form>
+                        <div className="flex min-w-[340px] flex-wrap items-start gap-2">
+                          <a
+                            href={`/api/pdi/documents/${doc.id}/download`}
+                            className="rounded-full border border-slate-300 px-3 py-1 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                          >
+                            Fazer Download
+                          </a>
+
+                          <details className="rounded-xl border border-slate-200 bg-white px-3 py-1">
+                            <summary className="cursor-pointer text-xs font-bold text-[#0F2D4A]">
+                              Editar
+                            </summary>
+                            <form action={updateOrganizationDocument} className="mt-3 grid min-w-[280px] gap-2">
+                              <input type="hidden" name="document_id" value={doc.id} />
+                              <select
+                                name="category"
+                                defaultValue={doc.category}
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                              >
+                                {categories.map((category) => (
+                                  <option key={category.id} value={category.id}>
+                                    {category.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <input
+                                name="title"
+                                defaultValue={doc.title}
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                              />
+                              <button className="rounded-full border border-[#B8860B] px-3 py-1 text-xs font-bold text-[#0F2D4A] hover:bg-[#B8860B]/10">
+                                Salvar edição
+                              </button>
+                            </form>
+                          </details>
+
+                          <details className="rounded-xl border border-slate-200 bg-white px-3 py-1">
+                            <summary className="cursor-pointer text-xs font-bold text-[#0F2D4A]">
+                              Atualizar
+                            </summary>
+                            <form action={updateOrganizationDocument} className="mt-3 grid min-w-[300px] gap-2">
+                              <input type="hidden" name="document_id" value={doc.id} />
+                              <input type="hidden" name="category" value={doc.category} />
+                              <input type="hidden" name="title" value={doc.title} />
+                              <input
+                                type="file"
+                                name="file"
+                                required
+                                accept=".txt,.md,.csv,.json,.docx,text/plain,text/markdown,text/csv,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-xs"
+                              />
+                              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                                Ao atualizar este documento, os PDIs Corporativos já gerados devem ser gerados novamente para refletir o novo contexto.
+                              </p>
+                              <button className="rounded-full border border-[#B8860B] px-3 py-1 text-xs font-bold text-[#0F2D4A] hover:bg-[#B8860B]/10">
+                                Atualizar documento
+                              </button>
+                            </form>
+                          </details>
+
+                          <form action={archiveOrganizationDocument}>
+                            <input type="hidden" name="document_id" value={doc.id} />
+                            <button className="rounded-full border border-red-200 px-3 py-1 text-xs font-bold text-red-700 hover:bg-red-50">
+                              Arquivar
+                            </button>
+                          </form>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -216,8 +284,14 @@ export default async function PdiPage() {
           <div className="space-y-5">
             {candidates.map((candidate: any) => {
               const context = candidate.context;
-              const generatedTypes = new Set(
-                (candidate.generatedPdis ?? []).map((item: any) => item.pdi_type)
+              const generatedPdis = candidate.generatedPdis ?? [];
+              const generatedTypes = new Set(generatedPdis.map((item: any) => item.pdi_type));
+              const corporatePdi = generatedPdis.find((item: any) => item.pdi_type === "corporate");
+              const corporatePdiNeedsRegeneration = Boolean(
+                corporatePdi?.created_at &&
+                  latestCorporateLibraryUpdate &&
+                  new Date(latestCorporateLibraryUpdate).getTime() >
+                    new Date(corporatePdi.created_at).getTime()
               );
 
               return (
@@ -236,6 +310,11 @@ export default async function PdiPage() {
                       <p className="mt-1 text-xs text-slate-500">
                         PDI Relacional: {generatedTypes.has("relational") ? "gerado" : "não gerado"} · PDI Corporativo: {generatedTypes.has("corporate") ? "gerado" : "não gerado"}
                       </p>
+                      {corporatePdiNeedsRegeneration ? (
+                        <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-800">
+                          Documentos corporativos foram atualizados depois da geração deste PDI Corporativo. Use a opção “Gerar novo PDI Corporativo”.
+                        </p>
+                      ) : null}
                     </div>
 
                     <div className="grid w-full gap-3 sm:grid-cols-2 md:max-w-[620px]">
@@ -244,6 +323,8 @@ export default async function PdiPage() {
                         responseId={candidate.responseId}
                         pdiType="corporate"
                         disabledReason={corporateBlockedReason}
+                        allowRegenerate={corporatePdiNeedsRegeneration}
+                        regenerateLabel="Gerar novo PDI Corporativo"
                       />
                     </div>
                   </div>

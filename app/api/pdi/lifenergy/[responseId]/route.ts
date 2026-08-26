@@ -106,10 +106,8 @@ export async function GET(request: Request, context: RouteContext) {
 
     const reportData = await loadLifenergyV1ReportData(responseId);
 
-    if (shouldRegenerate && reportData.profile.role !== "super_admin") {
-      return jsonError("A regeneração de PDI é restrita ao super usuário.", 403);
-    }
-
+    // A regeneração do PDI é permitida ao usuário autorizado da empresa,
+    // especialmente quando documentos corporativos forem atualizados.
     let pdiData: LifenergyPdiData;
     let content: LifenergyPdiGeneratedContent;
     let fileName = `PDI_Lifenergy_${reportData.response.full_name}.docx`;
