@@ -144,10 +144,10 @@ RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO
    - Interpretação do Fractal X
    - Sugestões de desenvolvimento – Fractal X
 4. Síntese dos padrões relacionais
-5. Recomendações para desenvolvimento de habilidades
-6. Categorização dos padrões de comportamento (0 a 100%)
+5. Categorização dos padrões de comportamento (0 a 100%)
    Atributos obrigatórios: Socialização, Reflexão, Lazer, Propósito e Sentimento.
    Depois, Leitura da métrica.
+6. Recomendações para desenvolvimento de habilidades
 
 Use o estilo do projeto Laudos Lifenergy V2: leitura interpretativa clara, humana, organizada, objetiva, com tabelas e métricas calibradas pela régua validada. Priorize síntese e não alongue os padrões de resposta.
 

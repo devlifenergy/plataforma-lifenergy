@@ -11,6 +11,11 @@ import {
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "@/services/reports/lifenergyV1Types";
 import {
+  buildLifenergyMetricSignature,
+  LIFENERGY_METRIC_ENGINE_VERSION,
+  type RuntimeMetricCalibration,
+} from "@/services/reports/lifenergyV1MetricEngine";
+import {
   LIFENERGY_REPORT_ENGINE_VERSION,
   LIFENERGY_REPORT_FORMAT,
   LIFENERGY_REPORT_PROMPT_VERSION,
@@ -54,6 +59,53 @@ async function findStoredReport(responseId: string) {
   }
 
   return data;
+}
+
+
+async function loadMetricCalibrations(organizationId: string): Promise<RuntimeMetricCalibration[]> {
+  const admin = createAdminClient();
+
+  const { data, error } = await admin
+    .from("lifenergy_metric_calibrations")
+    .select("response_signature, attributes_json")
+    .eq("status", "active")
+    .or(`organization_id.eq.${organizationId},organization_id.is.null`)
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    // Permite que a aplicação continue caso o SQL da autocalibração ainda não tenha sido aplicado.
+    return [];
+  }
+
+  return (data ?? []) as RuntimeMetricCalibration[];
+}
+
+async function storeMetricCalibration(params: {
+  data: LifenergyV1ReportData;
+  content: LifenergyV1GeneratedContent;
+}) {
+  const admin = createAdminClient();
+
+  const { error } = await admin.from("lifenergy_metric_calibrations").upsert(
+    {
+      organization_id: params.data.organization.id,
+      journey_response_id: params.data.response.id,
+      response_signature: buildLifenergyMetricSignature(params.data),
+      report_version: LIFENERGY_REPORT_VERSION,
+      metric_engine_version: LIFENERGY_METRIC_ENGINE_VERSION,
+      attributes_json: params.content.atributos_percentuais,
+      evidence_json: params.content.metric_calculation ?? {},
+      status: "active",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "journey_response_id" }
+  );
+
+  if (error) {
+    // A geração do laudo não deve falhar apenas porque a tabela de autocalibração ainda não existe.
+    return;
+  }
 }
 
 async function storeReport(params: {
@@ -103,6 +155,7 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     const reportData = await loadLifenergyV1ReportData(responseId);
+    const runtimeCalibrations = await loadMetricCalibrations(reportData.organization.id);
 
     if (shouldRegenerate && reportData.profile.role !== "super_admin") {
       return jsonError("A regeneração de relatório é restrita ao super usuário.", 403);
@@ -123,8 +176,9 @@ export async function GET(request: Request, context: RouteContext) {
       sourceSnapshot = stored.source_snapshot_json as LifenergyV1ReportData;
       fileName = stored.file_name || buildLifenergyReportFileName(sourceSnapshot);
     } else {
-      const generated = await generateLifenergyV1Content(reportData);
+      const generated = await generateLifenergyV1Content(reportData, runtimeCalibrations);
       content = generated.content;
+      await storeMetricCalibration({ data: reportData, content });
       await storeReport({
         data: reportData,
         content,

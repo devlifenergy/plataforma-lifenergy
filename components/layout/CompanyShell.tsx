@@ -13,6 +13,7 @@ const menuItems: MenuItem[] = [
   { label: "Empresas", href: "/painel/empresas", superAdminOnly: true },
   { label: "Aplicadores", href: "/painel/aplicadores", hiddenForSuperAdmin: true },
   { label: "Avaliados", href: "/painel/entrevistados", hiddenForSuperAdmin: true },
+  { label: "Biblioteca", href: "/painel/biblioteca", hiddenForSuperAdmin: true },
   { label: "PDI", href: "/painel/pdi", hiddenForSuperAdmin: true },
   { label: "Laudos", href: "/painel/exportacoes", superAdminOnly: true },
 ];

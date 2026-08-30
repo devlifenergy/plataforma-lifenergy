@@ -1,8 +1,8 @@
-export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_5_5";
+export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_5_6";
 export const LIFENERGY_REPORT_FORMAT = "docx";
-export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.5";
-export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v1_v2_metrica_exata_2026_08_25";
-export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_1_5_5";
+export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.6";
+export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v1_motor_metrico_canonico_2026_08_30";
+export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_1_5_6";
 
 export type LifenergyFractalResponse = {
   index: number;
@@ -75,4 +75,5 @@ export type LifenergyV1GeneratedContent = {
     percentual: string;
   }>;
   leitura_metrica: string;
+  metric_calculation?: Record<string, unknown>;
 };

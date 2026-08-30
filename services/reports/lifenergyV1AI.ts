@@ -1,5 +1,10 @@
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "./lifenergyV1Types";
 import {
+  buildCanonicalMetricReading,
+  calculateLifenergyV1CanonicalMetric,
+  type RuntimeMetricCalibration,
+} from "./lifenergyV1MetricEngine";
+import {
   buildLifenergyV1UserPrompt,
   lifenergyV1JsonSchema,
   LIFENERGY_V1_SYSTEM_PROMPT,
@@ -144,50 +149,53 @@ function carolineNeryCalibrationAttributes(): LifenergyV1GeneratedContent["atrib
 
 function normalizeAttributes(
   content: LifenergyV1GeneratedContent,
-  data: LifenergyV1ReportData
-): LifenergyV1GeneratedContent["atributos_percentuais"] {
-  if (isCamillaAquinoCalibrationCase(data)) {
-    return camillaAquinoCalibrationAttributes();
-  }
-
-  if (isCarolineNeryCalibrationCase(data)) {
-    return carolineNeryCalibrationAttributes();
-  }
-
-  const byName = new Map(
-    content.atributos_percentuais.map((item) => [cleanText(item.atributo).toLowerCase(), item])
-  );
-
-  return REQUIRED_ATTRIBUTES.map((name) => {
-    const found = byName.get(name.toLowerCase());
-    return {
-      atributo: name,
-      percentual: normalizePercent(found?.percentual ?? "0%"),
-    };
+  data: LifenergyV1ReportData,
+  runtimeCalibrations: RuntimeMetricCalibration[] = []
+): {
+  atributos: LifenergyV1GeneratedContent["atributos_percentuais"];
+  details: Record<string, unknown>;
+} {
+  const calculated = calculateLifenergyV1CanonicalMetric({
+    data,
+    content,
+    runtimeCalibrations,
   });
+
+  return {
+    atributos: calculated.attributes,
+    details: calculated.details,
+  };
 }
 
 function normalizeGeneratedContent(
   content: LifenergyV1GeneratedContent,
-  data: LifenergyV1ReportData
+  data: LifenergyV1ReportData,
+  runtimeCalibrations: RuntimeMetricCalibration[] = []
 ): LifenergyV1GeneratedContent {
+  const metric = normalizeAttributes(content, data, runtimeCalibrations);
+
   return {
     fractal_analyses: normalizeFractalAnalyses(content, data),
     sintese_padroes: cleanText(content.sintese_padroes),
     recomendacoes_habilidades: cleanText(content.recomendacoes_habilidades),
-    atributos_percentuais: normalizeAttributes(content, data),
-    leitura_metrica: cleanText(content.leitura_metrica),
+    atributos_percentuais: metric.atributos,
+    leitura_metrica: buildCanonicalMetricReading(metric.atributos),
+    metric_calculation: metric.details,
   };
 }
 
-function parseGeneratedContent(text: string, data: LifenergyV1ReportData): LifenergyV1GeneratedContent {
+function parseGeneratedContent(
+  text: string,
+  data: LifenergyV1ReportData,
+  runtimeCalibrations: RuntimeMetricCalibration[] = []
+): LifenergyV1GeneratedContent {
   const parsed = JSON.parse(text) as LifenergyV1GeneratedContent;
 
   if (!isLifenergyV1GeneratedContent(parsed)) {
     throw new Error("Resposta da IA fora do modelo Lifenergy V1.0 esperado.");
   }
 
-  const normalized = normalizeGeneratedContent(parsed, data);
+  const normalized = normalizeGeneratedContent(parsed, data, runtimeCalibrations);
 
   if (normalized.fractal_analyses.length !== data.fractals.length) {
     throw new Error("A IA não retornou análise para todos os fractais informados.");
@@ -197,7 +205,8 @@ function parseGeneratedContent(text: string, data: LifenergyV1ReportData): Lifen
 }
 
 export async function generateLifenergyV1Content(
-  data: LifenergyV1ReportData
+  data: LifenergyV1ReportData,
+  runtimeCalibrations: RuntimeMetricCalibration[] = []
 ): Promise<{ content: LifenergyV1GeneratedContent; model: string }> {
   const apiKey = process.env.OPENAI_API_KEY;
   const model = process.env.OPENAI_REPORT_MODEL || "gpt-5.1";
@@ -260,7 +269,7 @@ export async function generateLifenergyV1Content(
   }
 
   return {
-    content: parseGeneratedContent(outputText, data),
+    content: parseGeneratedContent(outputText, data, runtimeCalibrations),
     model,
   };
 }

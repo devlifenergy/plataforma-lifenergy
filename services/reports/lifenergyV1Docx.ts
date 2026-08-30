@@ -271,13 +271,13 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
     fractalBlocks(data, content),
     heading1("4. Síntese dos padrões relacionais"),
     paragraphs(content.sintese_padroes),
-    heading1("5. Recomendações para desenvolvimento de habilidades"),
-    paragraphs(content.recomendacoes_habilidades),
-    heading1("6. Categorização dos padrões de comportamento (0 a 100%)"),
+    heading1("5. Categorização dos padrões de comportamento (0 a 100%)"),
     table(attributeRows, { widths: [5200, 2200] }),
     attributeExplanationBlock(),
     heading2("Leitura da métrica"),
     paragraphs(content.leitura_metrica),
+    heading1("6. Recomendações para desenvolvimento de habilidades"),
+    paragraphs(content.recomendacoes_habilidades),
   ].join("");
 
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>

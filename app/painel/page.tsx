@@ -79,7 +79,7 @@ export default async function PainelPage() {
         Este é o ambiente de trabalho da sua empresa para gerenciar aplicadores, avaliados, relatórios Lifenergy e planos de desenvolvimento.
       </p>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <Link
           href="/painel/aplicadores"
           className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
@@ -103,12 +103,22 @@ export default async function PainelPage() {
         </Link>
 
         <Link
+          href="/painel/biblioteca"
+          className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
+        >
+          <h2 className="text-lg font-semibold text-[#0F2A43]">Biblioteca</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Cadastre documentos corporativos para alimentar a Biblioteca Corporativa Inteligente.
+          </p>
+        </Link>
+
+        <Link
           href="/painel/pdi"
           className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
         >
           <h2 className="text-lg font-semibold text-[#0F2A43]">PDI</h2>
           <p className="mt-2 text-sm text-slate-600">
-            Acesse a Biblioteca Corporativa Inteligente, gere PDIs Relacionais e Corporativos e acompanhe o contexto de desenvolvimento.
+            Gere PDIs Relacionais e Corporativos e acompanhe o contexto de desenvolvimento.
           </p>
         </Link>
       </div>

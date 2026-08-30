@@ -14,6 +14,7 @@ type Props = {
   activity: string;
   applicatorName: string;
   fractals?: FractalConfig[];
+  initialIdentity?: Partial<Pick<IdentificationState, "fullName" | "cpf" | "email" | "naturalidade" | "birthDate" | "objective">>;
 };
 
 type IdentificationState = {
@@ -86,6 +87,18 @@ function dateBrToIso(value: string) {
 
   const [, day, month, year] = match;
   return `${year}-${month}-${day}`;
+}
+
+function isoToDateBr(value: string | undefined) {
+  const match = String(value || "").slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return String(value || "");
+  return `${match[3]}/${match[2]}/${match[1]}`;
+}
+
+function formatElapsedTime(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function localDateToIso(date: Date) {
@@ -197,8 +210,10 @@ export function PublicLifenergyForm({
   activity,
   applicatorName,
   fractals,
+  initialIdentity,
 }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
+  const hasRestoredDraftRef = useRef(false);
   const configuredFractals = useMemo(
     () => normalizedFractals(fractals, activity),
     [activity, fractals]
@@ -206,22 +221,24 @@ export function PublicLifenergyForm({
 
   const [step, setStep] = useState(1);
   const [identity, setIdentity] = useState<IdentificationState>({
-    fullName: "",
-    cpf: "",
-    email: "",
-    naturalidade: "",
-    birthDate: "",
-    objective: "",
+    fullName: initialIdentity?.fullName || "",
+    cpf: formatCpf(initialIdentity?.cpf || ""),
+    email: initialIdentity?.email || "",
+    naturalidade: initialIdentity?.naturalidade || "",
+    birthDate: isoToDateBr(initialIdentity?.birthDate),
+    objective: initialIdentity?.objective || "",
     applicatorName,
   });
   const [fractalStates, setFractalStates] = useState<FractalState[]>(
     configuredFractals.map(() => emptyFractalState())
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   const today = useMemo(() => new Date(), []);
   const applicationDate = localDateToIso(today);
   const initialTime = localTimeToDatabase(today);
+  const draftStorageKey = `lifenergy-public-form-draft-${token}`;
 
   const totalSteps = 3 + configuredFractals.length * STAGES_PER_FRACTAL;
   const progress = Math.max(8, Math.round((step / totalSteps) * 100));
@@ -239,6 +256,69 @@ export function PublicLifenergyForm({
   useEffect(() => {
     scrollToFormTop();
   }, [step]);
+
+  useEffect(() => {
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(draftStorageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.identity) setIdentity(parsed.identity);
+        if (Array.isArray(parsed?.fractalStates)) setFractalStates(parsed.fractalStates);
+        if (typeof parsed?.step === "number") setStep(Math.max(1, Math.min(totalSteps, parsed.step)));
+      }
+    } catch {
+      // Ignora rascunho inválido.
+    } finally {
+      hasRestoredDraftRef.current = true;
+    }
+  }, [draftStorageKey, totalSteps]);
+
+  useEffect(() => {
+    if (!hasRestoredDraftRef.current || isSubmitting) return;
+    window.localStorage.setItem(
+      draftStorageKey,
+      JSON.stringify({ step, identity, fractalStates })
+    );
+  }, [draftStorageKey, step, identity, fractalStates, isSubmitting]);
+
+  useEffect(() => {
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isSubmitting) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [isSubmitting]);
+
+  useEffect(() => {
+    window.history.replaceState({ lifenergyStep: step }, "");
+
+    const handlePopState = () => {
+      setStep((current) => {
+        if (current > 1) {
+          const next = current - 1;
+          window.history.pushState({ lifenergyStep: next }, "");
+          return next;
+        }
+        return current;
+      });
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [step]);
+
 
   const currentFractalIndex =
     step >= 4 ? Math.floor((step - 4) / STAGES_PER_FRACTAL) : 0;
@@ -465,6 +545,7 @@ export function PublicLifenergyForm({
           return;
         }
 
+        window.localStorage.removeItem(draftStorageKey);
         setIsSubmitting(true);
       }}
       onKeyDown={(event) => {
@@ -504,9 +585,12 @@ export function PublicLifenergyForm({
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="mt-3 text-sm font-medium text-slate-600">
-          Acompanhe aqui o seu avanço nessa tarefa.
-        </p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm font-medium text-slate-600">
+          <p>Acompanhe aqui o seu avanço nessa tarefa.</p>
+          <p className="rounded-full bg-[#0F2D4A]/10 px-3 py-1 font-bold text-[#0F2D4A]">
+            Tempo de resposta: {formatElapsedTime(elapsedSeconds)}
+          </p>
+        </div>
       </header>
 
       <main className="mt-10 min-h-[520px]">
@@ -633,7 +717,7 @@ export function PublicLifenergyForm({
               Fractal de Comportamento
             </h2>
             <p className="mt-2 text-slate-600">
-              Copie abaixo a atividade ou Fractal de comportamento apresentado pelo Aplicador:
+              Leia a atividade apresentada e siga a orientação abaixo.
             </p>
             <div
               className="mt-6 select-none rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-6"
@@ -646,7 +730,10 @@ export function PublicLifenergyForm({
                 {currentFractal.activity}
               </p>
             </div>
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+            <p className="mt-6 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
+              Escreva o texto acima no quadro abaixo.
+            </p>
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
               <textarea
                 value={currentState.copiedActivity}
                 onChange={(event) => updateFractal(currentFractalIndex, "copiedActivity", event.target.value)}
@@ -667,7 +754,9 @@ export function PublicLifenergyForm({
               {renderFractalTitle()}
             </p>
             <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Registro das respostas</h2>
-            <p className="mt-2 text-slate-600">Escreva três respostas espontâneas para a tarefa.</p>
+            <p className="mt-2 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
+              Escreva três respostas espontâneas para a tarefa.
+            </p>
             <div className="mt-8 grid gap-5">
               {[1, 2, 3].map((index) => (
                 <label key={index}>
@@ -695,7 +784,7 @@ export function PublicLifenergyForm({
               {renderFractalTitle()}
             </p>
             <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Maior Importância</h2>
-            <p className="mt-2 text-slate-600">
+            <p className="mt-2 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
               Releia suas respostas e clique na que você considera de maior importância.
             </p>
             <div className="mt-8 grid gap-4">{[1, 2, 3].map((index) => renderResponseButton(index, "highest"))}</div>
@@ -744,7 +833,10 @@ export function PublicLifenergyForm({
               {renderFractalTitle()}
             </p>
             <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Justificativas</h2>
-            <p className="mt-2 text-slate-600">
+            <p className="mt-2 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
+              Releia suas respostas e clique na que você considera de maior importância.
+            </p>
+            <p className="mt-3 text-slate-600">
               Para cada resposta, justifique o porquê da resposta apresentada e da hierarquia escolhida.
             </p>
             <div className="mt-8 space-y-6">

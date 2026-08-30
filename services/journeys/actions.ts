@@ -33,6 +33,14 @@ function normalizeOptionalField(value: FormDataEntryValue | null) {
   return normalized || null;
 }
 
+function dateBrToIsoOrNull(value: FormDataEntryValue | null) {
+  const raw = String(value || "").trim();
+  const br = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (br) return `${br[3]}-${br[2]}-${br[1]}`;
+  const iso = raw.match(/^\d{4}-\d{2}-\d{2}$/);
+  return iso ? raw : null;
+}
+
 function readFractalActivities(formData: FormData) {
   const countFromForm = Number(formData.get("fractal_count") || 1);
   const fractalCount = [1, 2, 3].includes(countFromForm) ? countFromForm : 1;
@@ -61,7 +69,7 @@ export async function listJourneys() {
   const { data: journeys, error } = await supabase
     .from("journeys")
     .select(
-      "id, code, token, participant_name, participant_email, activity, status, created_at, applicators(name)"
+      "id, code, token, participant_name, participant_email, participant_cpf, participant_naturalidade, participant_birth_date, participant_objective, activity, status, created_at, applicators(name)"
     )
     .eq("organization_id", profile.organization_id)
     .order("created_at", { ascending: false });
@@ -121,7 +129,7 @@ export async function listJourneys() {
 
     return {
       ...journey,
-      cpf: cpfByJourney.get(journey.id) ?? null,
+      cpf: cpfByJourney.get(journey.id) ?? (journey as any).participant_cpf ?? null,
       response_id: responseIdByJourney.get(journey.id) ?? null,
       fractals,
       fractal_count: fractals.length,
@@ -152,6 +160,10 @@ export async function createJourney(formData: FormData) {
   const applicatorId = String(formData.get("applicator_id") || "").trim();
   const participantName = String(formData.get("participant_name") || "").trim();
   const participantEmail = normalizeOptionalField(formData.get("participant_email"));
+  const participantCpf = normalizeOptionalField(formData.get("participant_cpf"));
+  const participantNaturalidade = normalizeOptionalField(formData.get("participant_naturalidade"));
+  const participantBirthDate = dateBrToIsoOrNull(formData.get("participant_birth_date"));
+  const participantObjective = normalizeOptionalField(formData.get("participant_objective"));
   const activities = readFractalActivities(formData);
   const firstActivity = activities[0]?.activity ?? "";
 
@@ -188,6 +200,10 @@ export async function createJourney(formData: FormData) {
       token,
       participant_name: participantName,
       participant_email: participantEmail,
+      participant_cpf: participantCpf,
+      participant_naturalidade: participantNaturalidade,
+      participant_birth_date: participantBirthDate,
+      participant_objective: participantObjective,
       activity: firstActivity,
       status: "link_sent",
     })
@@ -224,6 +240,10 @@ export async function updateJourneyParticipant(formData: FormData) {
   const journeyId = String(formData.get("journey_id") || "").trim();
   const participantName = String(formData.get("participant_name") || "").trim();
   const participantEmail = normalizeOptionalField(formData.get("participant_email"));
+  const participantCpf = normalizeOptionalField(formData.get("participant_cpf"));
+  const participantNaturalidade = normalizeOptionalField(formData.get("participant_naturalidade"));
+  const participantBirthDate = dateBrToIsoOrNull(formData.get("participant_birth_date"));
+  const participantObjective = normalizeOptionalField(formData.get("participant_objective"));
   const activities = readFractalActivities(formData);
   const firstActivity = activities[0]?.activity ?? "";
 
@@ -251,6 +271,10 @@ export async function updateJourneyParticipant(formData: FormData) {
     .update({
       participant_name: participantName,
       participant_email: participantEmail,
+      participant_cpf: participantCpf,
+      participant_naturalidade: participantNaturalidade,
+      participant_birth_date: participantBirthDate,
+      participant_objective: participantObjective,
       activity: firstActivity,
     })
     .eq("id", journeyId)

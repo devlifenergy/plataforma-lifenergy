@@ -180,9 +180,7 @@ export default async function EntrevistadosPage() {
 
                               {(item.status === "completed" || item.status === "exported") &&
                               (item as any).response_id ? (
-                                <>
-                                  <GenerateReportButton responseId={(item as any).response_id} />
-                                </>
+                                <GenerateReportButton responseId={(item as any).response_id} />
                               ) : null}
                             </div>
                           </div>

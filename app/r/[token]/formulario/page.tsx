@@ -72,6 +72,14 @@ export default async function FormularioPage({ params }: PageProps) {
         activity={fallbackActivity}
         applicatorName={journeyContext.applicator_name || ""}
         fractals={fractals}
+        initialIdentity={{
+          fullName: journeyContext.participant_name || journey.participant_name || "",
+          cpf: journeyContext.participant_cpf || "",
+          email: journeyContext.participant_email || journey.participant_email || "",
+          naturalidade: journeyContext.participant_naturalidade || "",
+          birthDate: journeyContext.participant_birth_date || "",
+          objective: journeyContext.participant_objective || "",
+        }}
       />
     </main>
   );
