@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabaseServer";
 import {
   CORPORATE_DOCUMENT_CATEGORIES,
+  getCorporateDocumentCategoryLabel,
   getCorporateLibraryStatus,
   type CorporateDocumentCategory,
 } from "./corporateKnowledge";
@@ -58,17 +59,22 @@ async function fileToBase64(file: File) {
   return buffer.toString("base64");
 }
 
+function documentTitleForCategory(category: CorporateDocumentCategory) {
+  return getCorporateDocumentCategoryLabel(category);
+}
+
+function revalidatePdiAndLibrary() {
+  revalidatePdiAndLibrary();
+  revalidatePath("/painel/biblioteca");
+}
+
 export async function createOrganizationDocument(formData: FormData) {
   const { supabase, profile } = await getCurrentProfile();
 
   const category = assertCategory(clean(formData.get("category")));
-  const title = clean(formData.get("title"));
+  const title = documentTitleForCategory(category);
   const uploadedFile = formData.get("file");
   const file = uploadedFile instanceof File && uploadedFile.size > 0 ? uploadedFile : null;
-
-  if (!title) {
-    throw new Error("Informe o nome do documento.");
-  }
 
   if (!file) {
     throw new Error("Carregue o arquivo do documento para que a IA gere o sumário interno.");
@@ -103,14 +109,13 @@ export async function createOrganizationDocument(formData: FormData) {
     throw new Error(error.message);
   }
 
-  revalidatePath("/painel/pdi");
+  revalidatePdiAndLibrary();
 }
 
 export async function updateOrganizationDocument(formData: FormData) {
   const { supabase, profile } = await getCurrentProfile();
 
   const documentId = clean(formData.get("document_id"));
-  const title = clean(formData.get("title"));
   const categoryValue = clean(formData.get("category"));
   const uploadedFile = formData.get("file");
   const file = uploadedFile instanceof File && uploadedFile.size > 0 ? uploadedFile : null;
@@ -119,21 +124,22 @@ export async function updateOrganizationDocument(formData: FormData) {
     throw new Error("Documento não informado.");
   }
 
+  const category = categoryValue ? assertCategory(categoryValue) : null;
   const updatePayload: Record<string, unknown> = {
     updated_by: profile.id,
   };
 
-  if (title) {
-    updatePayload.title = title;
-  }
-
-  if (categoryValue) {
-    updatePayload.category = assertCategory(categoryValue);
+  if (category) {
+    updatePayload.category = category;
+    updatePayload.title = documentTitleForCategory(category);
   }
 
   if (file) {
-    const category = assertCategory(categoryValue);
-    const effectiveTitle = title || file.name;
+    if (!category) {
+      throw new Error("Categoria de documento inválida.");
+    }
+
+    const effectiveTitle = documentTitleForCategory(category);
 
     const [extractedText, fileContentBase64] = await Promise.all([
       extractCorporateDocumentText(file),
@@ -165,7 +171,7 @@ export async function updateOrganizationDocument(formData: FormData) {
     throw new Error(error.message);
   }
 
-  revalidatePath("/painel/pdi");
+  revalidatePdiAndLibrary();
 }
 
 export async function archiveOrganizationDocument(formData: FormData) {
@@ -186,7 +192,7 @@ export async function archiveOrganizationDocument(formData: FormData) {
     throw new Error(error.message);
   }
 
-  revalidatePath("/painel/pdi");
+  revalidatePdiAndLibrary();
 }
 
 export async function savePdiContext(formData: FormData) {
@@ -236,7 +242,7 @@ export async function savePdiContext(formData: FormData) {
     throw new Error(error.message);
   }
 
-  revalidatePath("/painel/pdi");
+  revalidatePdiAndLibrary();
 }
 
 export async function listPdiPageData() {

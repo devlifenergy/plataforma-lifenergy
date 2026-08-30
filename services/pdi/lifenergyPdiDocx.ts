@@ -187,6 +187,59 @@ function corporateDocumentsBlock(_data: LifenergyPdiData) {
   return "";
 }
 
+
+function corporateContextNote(data: LifenergyPdiData) {
+  if (data.pdiType !== "corporate") return "";
+
+  return paragraph(
+    "Campos de cargo, área e gestor devem ser preenchidos com base na Descrição de Cargos e Funções e demais documentos da Biblioteca Corporativa, quando disponíveis.",
+    { italic: true, color: "666666" }
+  );
+}
+
+function actionPlanBlock(content: LifenergyPdiGeneratedContent) {
+  return content.plano_acao_70_20_10
+    .map((item, index) =>
+      [
+        heading2(`Competência ${index + 1} – ${item.competencia}`),
+        table(
+          [
+            ["Dimensão", "Ação"],
+            ["70% – Prática", item.acao_70_experiencia],
+            ["20% – Social", item.acao_20_social],
+            ["10% – Formal", item.acao_10_formal],
+          ],
+          { widths: [2100, 8200] }
+        ),
+        paragraph(
+          `Frequência: ${cleanXmlText(item.frequencia) || "-"} · Responsável: ${
+            cleanXmlText(item.responsavel) || "-"
+          } · Recursos: ${cleanXmlText(item.recursos) || "-"}`
+        ),
+        paragraph(`Evidência de conclusão: ${cleanXmlText(item.evidencia_conclusao) || "-"}`),
+      ].join("")
+    )
+    .join("");
+}
+
+function buildHeaderXml(data: LifenergyPdiData) {
+  const response = data.reportData.response;
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:p>
+    <w:pPr><w:jc w:val="right"/></w:pPr>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>${xml(
+      `PDI Lifenergy – ${response.full_name}`
+    )}</w:t></w:r>
+  </w:p>
+  <w:p>
+    <w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente</w:t></w:r>
+  </w:p>
+</w:hdr>`;
+}
+
 function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGeneratedContent) {
   const reportData = data.reportData;
   const response = reportData.response;
@@ -253,19 +306,6 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     ]),
   ];
 
-  const actionRows = [
-    ["Competência", "70% Experiência prática", "20% Aprendizagem social", "10% Aprendizagem formal", "Frequência", "Responsável", "Recursos", "Evidência de conclusão"],
-    ...content.plano_acao_70_20_10.map((item) => [
-      item.competencia,
-      item.acao_70_experiencia,
-      item.acao_20_social,
-      item.acao_10_formal,
-      item.frequencia,
-      item.responsavel,
-      item.recursos,
-      item.evidencia_conclusao,
-    ]),
-  ];
 
   const indicatorRows = [
     ["Indicador", "Critério SMART", "KPI comportamental", "Evidência", "Prazo"],
@@ -309,6 +349,7 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
 
     heading1("SEÇÃO 2 – CONTEXTO DO PDI"),
     contextBlock(data),
+    corporateContextNote(data),
     corporateDocumentsBlock(data),
 
     heading1("SEÇÃO 3 – OBJETIVO CENTRAL DO PDI"),
@@ -349,8 +390,8 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     table(longTermRows, { widths: [2800, 3700, 3700] }),
 
     heading1("SEÇÃO 7 – PLANO DE AÇÃO 70-20-10"),
-    paragraph("As ações estão organizadas em experiência prática, aprendizagem social e aprendizagem formal, para tornar o desenvolvimento mais operacional e acompanhável."),
-    table(actionRows, { widths: [1700, 2300, 2300, 2300, 1200, 1200, 2200, 2400] }),
+    paragraph("As ações abaixo foram adaptadas às atividades reais do cargo e ao contexto de desenvolvimento informado, sempre que esses dados estiverem disponíveis. Cada competência combina experiência prática (70%), aprendizagem social (20%) e aprendizagem formal (10%)."),
+    actionPlanBlock(content),
 
     heading1("SEÇÃO 8 – INDICADORES E EVIDÊNCIAS DE EVOLUÇÃO"),
     paragraph("Os indicadores abaixo devem apoiar o acompanhamento do progresso e a verificação objetiva da evolução comportamental."),
@@ -396,6 +437,7 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     <w:body>
       ${body}
       <w:sectPr>
+        <w:headerReference w:type="default" r:id="rId3"/>
         <w:footerReference w:type="default" r:id="rId2"/>
         <w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>
         <w:pgMar w:top="1134" w:right="850" w:bottom="1134" w:left="850" w:header="708" w:footer="708" w:gutter="0"/>
@@ -430,6 +472,7 @@ const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
   <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
   <Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
+  <Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>
   <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
   <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
 </Types>`;
@@ -445,6 +488,7 @@ const documentRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
   <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>
 </Relationships>`;
 
 function coreXml() {
@@ -576,6 +620,7 @@ export function buildLifenergyPdiDocx(
     { name: "word/_rels/document.xml.rels", data: documentRelsXml },
     { name: "word/styles.xml", data: stylesXml },
     { name: "word/footer1.xml", data: footerXml },
+    { name: "word/header1.xml", data: buildHeaderXml(data) },
     { name: "word/document.xml", data: buildDocumentXml(data, content) },
   ]);
 }

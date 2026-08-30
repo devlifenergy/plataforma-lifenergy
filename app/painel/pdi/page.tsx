@@ -152,7 +152,7 @@ export default async function PdiPage() {
                       </p>
                       {corporatePdiNeedsRegeneration ? (
                         <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-800">
-                          Documentos corporativos foram atualizados depois da geração deste PDI Corporativo. Use a opção “Gerar novo PDI Corporativo”.
+                          Documentos corporativos foram atualizados depois da geração deste PDI Corporativo. Use a opção “Gerar um novo PDI Corporativo”.
                         </p>
                       ) : null}
                     </div>
@@ -164,7 +164,7 @@ export default async function PdiPage() {
                         pdiType="corporate"
                         disabledReason={corporateBlockedReason}
                         allowRegenerate={corporatePdiNeedsRegeneration}
-                        regenerateLabel="Gerar novo PDI Corporativo"
+                        regenerateLabel="Gerar um novo PDI Corporativo"
                       />
                     </div>
                   </div>

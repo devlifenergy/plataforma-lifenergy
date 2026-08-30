@@ -19,7 +19,7 @@ type PdiDownload = {
   fileName: string;
 };
 
-const PDI_BUTTON_VERSION = "1.5.3";
+const PDI_BUTTON_VERSION = "1.5.7";
 
 function getFileNameFromContentDisposition(contentDisposition: string | null) {
   if (!contentDisposition) return "PDI_Lifenergy.docx";
@@ -94,7 +94,7 @@ export function GeneratePdiButton({
   const isBlocked = Boolean(disabledReason);
   const buttonLabel = label ?? (pdiType === "corporate" ? "Gerar PDI Corporativo" : "Gerar PDI Relacional");
   const regenerateButtonLabel =
-    regenerateLabel ?? (pdiType === "corporate" ? "Gerar novo PDI Corporativo" : "Regenerar PDI");
+    regenerateLabel ?? (pdiType === "corporate" ? "Gerar um novo PDI Corporativo" : "Regenerar PDI");
   const baseUrl = `/api/pdi/lifenergy/${encodeURIComponent(responseId)}?type=${pdiType}`;
 
   function releaseButton(nextMessage: string | null) {

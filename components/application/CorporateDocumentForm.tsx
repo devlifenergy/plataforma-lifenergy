@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { createOrganizationDocument } from "@/services/pdi/actions";
@@ -18,8 +18,10 @@ type CorporateDocumentFormProps = {
 
 export function CorporateDocumentForm({ categories }: CorporateDocumentFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
+  const fileInputId = useId();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [selectedFileName, setSelectedFileName] = useState("Nenhum arquivo selecionado");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -27,8 +29,7 @@ export function CorporateDocumentForm({ categories }: CorporateDocumentFormProps
     event.preventDefault();
     if (isPending) return;
 
-    const form = event.currentTarget;
-    const formData = new FormData(form);
+    const formData = new FormData(event.currentTarget);
 
     setError("");
     setSuccess("");
@@ -37,7 +38,8 @@ export function CorporateDocumentForm({ categories }: CorporateDocumentFormProps
       try {
         await createOrganizationDocument(formData);
         formRef.current?.reset();
-        setSuccess("Documento salvo. A IA gerou o sumário técnico para uso interno do PDI.");
+        setSelectedFileName("Nenhum arquivo selecionado");
+        setSuccess("Documento salvo na Biblioteca Corporativa.");
         router.refresh();
       } catch (caught) {
         const message = caught instanceof Error ? caught.message : "Erro ao salvar documento.";
@@ -48,59 +50,63 @@ export function CorporateDocumentForm({ categories }: CorporateDocumentFormProps
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="block">
-          <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
-            Categoria do documento *
-          </span>
-          <select
-            name="category"
-            required
-            disabled={isPending}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 disabled:bg-slate-100"
-          >
-            <option value="">Selecione</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.requiredForCorporatePdi ? "Obrigatório — " : "Opcional — "}
-                {category.label}
-              </option>
-            ))}
-          </select>
-          <span className="mt-2 block text-xs leading-5 text-slate-500">
-            Escolha a categoria para que a IA saiba como usar este documento na geração do PDI Corporativo.
-          </span>
-        </label>
-
-        <label className="block">
-          <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
-            Nome do documento *
-          </span>
-          <input
-            name="title"
-            required
-            disabled={isPending}
-            placeholder="Ex.: Matriz de Competências 2026"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 disabled:bg-slate-100"
-          />
-          <span className="mt-2 block text-xs leading-5 text-slate-500">
-            Use um nome claro para facilitar a gestão da Biblioteca Corporativa.
-          </span>
-        </label>
-      </div>
+      <label className="block">
+        <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
+          Categoria do documento *
+        </span>
+        <select
+          name="category"
+          required
+          disabled={isPending}
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 disabled:bg-slate-100"
+        >
+          <option value="">Selecione</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.requiredForCorporatePdi ? "Obrigatório — " : "Opcional — "}
+              {category.label}
+            </option>
+          ))}
+        </select>
+        <span className="mt-2 block text-xs leading-5 text-slate-500">
+          A categoria será usada como identificação do documento na Biblioteca Corporativa.
+        </span>
+      </label>
 
       <label className="block">
         <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
           Arquivo do documento *
         </span>
+
         <input
+          id={fileInputId}
           type="file"
           name="file"
           required
           disabled={isPending}
           accept=".txt,.md,.csv,.json,.docx,text/plain,text/markdown,text/csv,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base leading-6 text-slate-900 outline-none transition file:mr-4 file:rounded-lg file:border-0 file:bg-[#0F2D4A] file:px-4 file:py-2 file:font-semibold file:text-white focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 disabled:bg-slate-100"
+          className="sr-only"
+          onChange={(event) => {
+            const fileName = event.currentTarget.files?.[0]?.name;
+            setSelectedFileName(fileName || "Nenhum arquivo selecionado");
+          }}
         />
+
+        <div className="flex flex-col gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 sm:flex-row sm:items-center">
+          <label
+            htmlFor={fileInputId}
+            className={`inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#0F2D4A] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0F2D4A]/90 ${
+              isPending ? "pointer-events-none opacity-60" : ""
+            }`}
+          >
+            Selecionar arquivo
+          </label>
+          <span className="text-sm leading-5 text-slate-600">{selectedFileName}</span>
+        </div>
+
+        <span className="mt-2 block text-xs leading-5 text-slate-500">
+          Envie o arquivo corporativo correspondente à categoria selecionada.
+        </span>
         <span className="mt-1 block text-xs leading-5 text-slate-500">
           Formatos aceitos nesta versão: TXT, MD, CSV, JSON e DOCX.
         </span>
@@ -118,9 +124,11 @@ export function CorporateDocumentForm({ categories }: CorporateDocumentFormProps
         </p>
       ) : null}
 
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "Lendo documento com IA..." : "Salvar documento na Biblioteca"}
-      </Button>
+      <div className="flex justify-end">
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Lendo documento..." : "Salvar documento na Biblioteca"}
+        </Button>
+      </div>
     </form>
   );
 }

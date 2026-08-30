@@ -94,6 +94,9 @@ export default async function BibliotecaCorporativaPage() {
                           </summary>
                           <form action={updateOrganizationDocument} className="mt-3 grid min-w-[280px] gap-2">
                             <input type="hidden" name="document_id" value={doc.id} />
+                            <label className="text-xs font-semibold text-slate-600">
+                              Categoria do documento
+                            </label>
                             <select
                               name="category"
                               defaultValue={doc.category}
@@ -105,13 +108,8 @@ export default async function BibliotecaCorporativaPage() {
                                 </option>
                               ))}
                             </select>
-                            <input
-                              name="title"
-                              defaultValue={doc.title}
-                              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                            />
                             <button className="rounded-full border border-[#B8860B] px-3 py-1 text-xs font-bold text-[#0F2D4A] hover:bg-[#B8860B]/10">
-                              Salvar edição
+                              Salvar categoria
                             </button>
                           </form>
                         </details>
@@ -123,14 +121,23 @@ export default async function BibliotecaCorporativaPage() {
                           <form action={updateOrganizationDocument} className="mt-3 grid min-w-[300px] gap-2">
                             <input type="hidden" name="document_id" value={doc.id} />
                             <input type="hidden" name="category" value={doc.category} />
-                            <input type="hidden" name="title" value={doc.title} />
                             <input
+                              id={`update-file-${doc.id}`}
                               type="file"
                               name="file"
                               required
                               accept=".txt,.md,.csv,.json,.docx,text/plain,text/markdown,text/csv,application/json,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                              className="rounded-lg border border-slate-300 px-3 py-2 text-xs"
+                              className="sr-only"
                             />
+                            <label
+                              htmlFor={`update-file-${doc.id}`}
+                              className="inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#0F2D4A] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0F2D4A]/90"
+                            >
+                              Selecionar arquivo atualizado
+                            </label>
+                            <p className="text-xs leading-5 text-slate-500">
+                              Escolha o novo arquivo corporativo que substituirá o documento atual.
+                            </p>
                             <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
                               Ao atualizar este documento, os PDIs Corporativos já gerados devem ser gerados novamente para refletir o novo contexto.
                             </p>

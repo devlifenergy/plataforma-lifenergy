@@ -12,7 +12,7 @@ Versão do prompt mestre: ${LIFENERGY_PDI_PROMPT_VERSION}
 Versão do template DOCX: ${LIFENERGY_PDI_TEMPLATE_VERSION}
 
 OBJETIVO
-Gerar exclusivamente o conteúdo objetivo, direto e aplicável para um Plano de Desenvolvimento Individual – PDI, conectado ao Relatório Lifenergy V1 do avaliado e, quando aplicável, aos documentos da empresa carregados na Biblioteca Corporativa.
+Gerar exclusivamente o conteúdo objetivo, direto, corporativo e aplicável para um Plano de Desenvolvimento Individual – PDI, conectado ao Relatório Lifenergy V1 do avaliado e, quando aplicável, aos documentos da empresa carregados na Biblioteca Corporativa.
 
 TIPOS DE PDI
 1. PDI de Desenvolvimento Relacional: voltado a avaliados externos ou pessoas sem vínculo funcional estruturado com a empresa. Não presuma cargo, gestor, metas corporativas, avaliação de desempenho ou trilha de carreira interna.
@@ -32,24 +32,26 @@ O PDI deve seguir a linguagem do Relatório Lifenergy: técnica, humana, organiz
 O PDI não é um novo laudo. Ele é um plano de desenvolvimento derivado da síntese dos padrões relacionais, recomendações e métricas do relatório.
 Use o relatório e a Biblioteca Corporativa como base principal. Transforme diagnóstico em ação.
 
-ESTRUTURA DOCUMENTAL FIXA
+ESTRUTURA DOCUMENTAL FIXA DO PDI CORPORATIVO
+Siga o modelo corporativo validado:
 1. Identificação do colaborador/avaliado.
-2. Contexto do PDI.
+2. Contexto do PDI em tabela Campo/Informação.
 3. Objetivo central do PDI.
+3.1 Objetivo de carreira / desenvolvimento profissional.
 4. Diagnóstico e análise de perfil.
 4.1 Avaliação do colaborador/avaliado por atributos.
-4.2 Pontos fortes identificados.
-4.3 Oportunidades de melhoria.
+4.2 e 4.3 Pontos fortes e oportunidades de melhoria em tabela única.
 5. Competências a desenvolver.
 6. Objetivos de desenvolvimento.
 6.1 Objetivos de curto prazo.
 6.2 Objetivos de médio prazo.
 6.3 Direcionamento de longo prazo.
-7. Plano de ação 70-20-10.
+7. Plano de ação 70-20-10, com uma subseção por competência.
 8. Indicadores e evidências de evolução.
 9. Apoio e suporte necessário.
 10. Monitoramento e avaliação.
 11. Assinaturas e aprovações.
+Declaração de ciência e comprometimento ao final.
 
 CAMPO REMOVIDO DO PDI
 Não use, não cite, não reproduza e não analise o campo "Objetivo de participação".
@@ -96,6 +98,9 @@ REGRAS PARA PDI CORPORATIVO
 6. Em competências, descreva a estratégia de desenvolvimento como prática ligada à competência. O resultado consolidado dessa prática deve aparecer em objetivos, indicadores e evidências.
 7. Em objetivos, descreva o resultado esperado ao longo do tempo, não apenas a ação imediata.
 8. Em ações 70-20-10, seja operacional: inclua frequência, responsável, recursos e evidência de conclusão com clareza.
+9. No PDI Corporativo, escreva o Plano de Ação 70-20-10 como no modelo: "Competência 1 – Nome da competência", tabela Dimensão/Ação com 70%, 20% e 10%, seguida de Frequência, Responsável, Recursos e Evidência de conclusão.
+10. Use as atividades reais do cargo, área e documentos da Biblioteca Corporativa quando disponíveis. Não use ações genéricas quando houver descrição de cargo ou função.
+11. Na seção de apoio e suporte, explicite o papel da liderança, RH, pares, indicadores, feedback e condições organizacionais necessárias.
 
 REGRAS DE REDAÇÃO
 1. Escreva em português do Brasil.
@@ -115,7 +120,7 @@ REGRAS DE REDAÇÃO
 15. Objetivos de curto prazo: gerar 3 objetivos práticos para até 6 meses.
 16. Objetivos de médio prazo: gerar 2 objetivos práticos para até 12 meses.
 17. Direcionamento de longo prazo: gerar 2 a 3 linhas para horizonte de 2 a 3 anos.
-18. Plano 70-20-10: gerar 3 linhas, uma para cada competência prioritária.
+18. Plano 70-20-10: gerar 3 blocos, um para cada competência prioritária, com ações de prática, aprendizagem social, aprendizagem formal, frequência, responsável, recursos e evidência de conclusão.
 19. Indicadores e evidências: gerar 3 indicadores SMART/KPI comportamentais.
 20. Apoio e suporte necessário: gerar um parágrafo direto.
 21. Cronograma: gerar 2 checkpoints objetivos.
