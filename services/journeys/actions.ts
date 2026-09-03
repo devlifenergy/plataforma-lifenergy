@@ -46,7 +46,7 @@ function readFractalActivities(formData: FormData) {
   const countFromForm = Number(formData.get("fractal_count") || 1);
   const fractalCount = [1, 2, 3].includes(countFromForm) ? countFromForm : 1;
 
-  return Array.from({ length: fractalCount }, (_, index) => {
+  const selections = Array.from({ length: fractalCount }, (_, index) => {
     const position = index + 1;
     const vortex = String(formData.get(`vortex_${position}`) || "").trim();
     const connectionPoint = String(formData.get(`connection_point_${position}`) || "").trim();
@@ -65,6 +65,13 @@ function readFractalActivities(formData: FormData) {
       fractal_code: fractalCode,
     };
   });
+
+  const fractalCodes = selections.map((item) => item.fractal_code);
+  if (new Set(fractalCodes).size !== fractalCodes.length) {
+    throw new Error("Não é permitido selecionar o mesmo Fractal de Comportamento mais de uma vez no mesmo link.");
+  }
+
+  return selections;
 }
 
 export async function listJourneys() {

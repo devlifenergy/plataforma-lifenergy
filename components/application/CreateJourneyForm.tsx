@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { LIFENERGY_FRACTAL_MATRIX, findFractalMatrixItem } from "@/services/fractals/lifenergyFractalMatrix";
+import { LIFENERGY_FRACTAL_MATRIX } from "@/services/fractals/lifenergyFractalMatrix";
 import { createJourney } from "@/services/journeys/actions";
 
 type ApplicatorOption = {
@@ -223,7 +223,6 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
           const selection = selections[index] ?? EMPTY_SELECTION;
           const selectedVortex = LIFENERGY_FRACTAL_MATRIX.find((item) => item.id === selection.vortexId);
           const selectedPoint = selectedVortex?.connectionPoints.find((item) => item.id === selection.connectionPointId);
-          const selectedFractal = findFractalMatrixItem(selection.vortexId, selection.connectionPointId, selection.fractalId)?.fractal;
 
           return (
             <div key={position} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -294,13 +293,21 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                     <div className="grid gap-3">
                       {selectedPoint.fractals.map((fractal) => {
                         const checked = selection.fractalId === fractal.id;
+                        const alreadySelected = selections.some(
+                          (otherSelection, otherIndex) =>
+                            otherIndex !== index && otherSelection.fractalId === fractal.id
+                        );
+                        const disabled = isPending || alreadySelected;
+
                         return (
                           <label
                             key={fractal.id}
-                            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-4 text-[15px] leading-6 transition ${
+                            className={`flex items-start gap-3 rounded-xl border px-4 py-4 text-[15px] leading-6 transition ${
                               checked
                                 ? "border-[#B8860B] bg-[#B8860B]/5 ring-2 ring-[#B8860B]/15"
-                                : "border-slate-300 bg-white hover:border-slate-400"
+                                : alreadySelected
+                                  ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400 opacity-60"
+                                  : "cursor-pointer border-slate-300 bg-white hover:border-slate-400"
                             } ${isPending ? "cursor-not-allowed opacity-60" : ""}`}
                           >
                             <input
@@ -309,11 +316,16 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                               value={fractal.id}
                               checked={checked}
                               required
-                              disabled={isPending}
+                              disabled={disabled}
                               onChange={() => updateSelection(index, { fractalId: fractal.id })}
                               className="mt-1 h-4 w-4 shrink-0 accent-[#B8860B]"
                             />
-                            <span className="text-slate-800">{fractal.title}</span>
+                            <span className={alreadySelected ? "text-slate-400" : "text-slate-800"}>
+                              {fractal.title}
+                              {alreadySelected ? (
+                                <span className="ml-2 font-semibold">(já selecionado neste link)</span>
+                              ) : null}
+                            </span>
                           </label>
                         );
                       })}
@@ -322,14 +334,6 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                 </fieldset>
               </div>
 
-              <input type="hidden" name={`activity_${position}`} value={selectedFractal?.text ?? ""} />
-
-              {selectedFractal ? (
-                <div className="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-[15px] leading-7 text-slate-700">
-                  <p className="font-bold text-[#0F2D4A]">Atividade selecionada</p>
-                  <p className="mt-1">{selectedFractal.text}</p>
-                </div>
-              ) : null}
             </div>
           );
         })}
