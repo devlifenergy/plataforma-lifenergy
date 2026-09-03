@@ -213,7 +213,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
           ))}
         </div>
         <p className="mt-3 text-[15px] leading-6 text-slate-600">
-          O aplicador escolhe cada atividade dentro da matriz Lifenergy: Vórtice, Ponto de Conexão e Fractal.
+          O aplicador escolhe cada atividade dentro da matriz Lifenergy: Vórtice, Ponto de Conexão e Fractal de Comportamento.
         </p>
       </fieldset>
 
@@ -228,7 +228,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
           return (
             <div key={position} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <h3 className="text-lg font-bold text-[#0F2D4A]">Fractal {position}</h3>
-              <div className="mt-4 grid gap-4 md:grid-cols-3">
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
                     Vórtice *
@@ -282,26 +282,44 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                   </select>
                 </label>
 
-                <label className="block">
-                  <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
-                    Fractal *
-                  </span>
-                  <select
-                    name={`fractal_code_${position}`}
-                    required
-                    value={selection.fractalId}
-                    disabled={isPending || !selectedPoint}
-                    onChange={(event) => updateSelection(index, { fractalId: event.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
-                  >
-                    <option value="">Selecione</option>
-                    {selectedPoint?.fractals.map((fractal) => (
-                      <option key={fractal.id} value={fractal.id}>
-                        {fractal.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <fieldset className="md:col-span-2">
+                  <legend className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
+                    Fractal de Comportamento *
+                  </legend>
+                  {!selectedPoint ? (
+                    <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4 text-[15px] leading-6 text-slate-500">
+                      Selecione primeiro o Vórtice e o Ponto de Conexão.
+                    </div>
+                  ) : (
+                    <div className="grid gap-3">
+                      {selectedPoint.fractals.map((fractal) => {
+                        const checked = selection.fractalId === fractal.id;
+                        return (
+                          <label
+                            key={fractal.id}
+                            className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-4 text-[15px] leading-6 transition ${
+                              checked
+                                ? "border-[#B8860B] bg-[#B8860B]/5 ring-2 ring-[#B8860B]/15"
+                                : "border-slate-300 bg-white hover:border-slate-400"
+                            } ${isPending ? "cursor-not-allowed opacity-60" : ""}`}
+                          >
+                            <input
+                              type="radio"
+                              name={`fractal_code_${position}`}
+                              value={fractal.id}
+                              checked={checked}
+                              required
+                              disabled={isPending}
+                              onChange={() => updateSelection(index, { fractalId: fractal.id })}
+                              className="mt-1 h-4 w-4 shrink-0 accent-[#B8860B]"
+                            />
+                            <span className="text-slate-800">{fractal.title}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </fieldset>
               </div>
 
               <input type="hidden" name={`activity_${position}`} value={selectedFractal?.text ?? ""} />

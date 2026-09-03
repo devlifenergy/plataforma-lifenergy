@@ -25,7 +25,7 @@ export const LIFENERGY_FRACTAL_MATRIX: LifenergyFractalMatrixVortex[] = [
     connectionPoints: [
       {
         id: "v1_p1",
-        title: "Fisico  (academia, (academia, esportes, exercício físico)",
+        title: "Físico",
         fractals: [
           {
             id: "v1_p1_f1",
