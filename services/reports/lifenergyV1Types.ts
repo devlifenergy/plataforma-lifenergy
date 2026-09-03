@@ -1,8 +1,8 @@
-export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_5_6";
+export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_5_8";
 export const LIFENERGY_REPORT_FORMAT = "docx";
-export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.6";
+export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.8";
 export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v1_motor_metrico_canonico_2026_08_30";
-export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_1_5_6";
+export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_1_5_8_logo_empresa";
 
 export type LifenergyFractalResponse = {
   index: number;
@@ -29,6 +29,9 @@ export type LifenergyV1ReportData = {
   organization: {
     id: string;
     name: string;
+    logo_file_name?: string | null;
+    logo_mime_type?: string | null;
+    logo_content_base64?: string | null;
   };
   journey: {
     id: string;

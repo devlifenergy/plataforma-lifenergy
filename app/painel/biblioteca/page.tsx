@@ -1,3 +1,4 @@
+import { CompanyLogoForm } from "@/components/application/CompanyLogoForm";
 import { CorporateDocumentForm } from "@/components/application/CorporateDocumentForm";
 import { Card } from "@/components/ui/Card";
 import {
@@ -8,8 +9,12 @@ import {
 import { getCorporateDocumentCategoryLabel } from "@/services/pdi/corporateKnowledge";
 
 export default async function BibliotecaCorporativaPage() {
-  const { documents, libraryStatus, categories } = await listPdiPageData();
+  const { organization, documents, libraryStatus, categories } = await listPdiPageData();
   const missingLabels = libraryStatus.missing.map(getCorporateDocumentCategoryLabel);
+
+  const logoDataUrl = organization?.logo_content_base64 && organization?.logo_mime_type
+    ? `data:${organization.logo_mime_type};base64,${organization.logo_content_base64}`
+    : null;
 
   return (
     <div className="space-y-6">
@@ -19,6 +24,21 @@ export default async function BibliotecaCorporativaPage() {
           Cadastre documentos da empresa para que a IA gere contexto corporativo interno e libere o PDI Corporativo.
         </p>
       </div>
+
+      <Card>
+        <div className="mb-5 border-b border-slate-200 pb-4">
+          <h2 className="text-2xl font-bold text-[#0F2D4A]">Logomarca da empresa</h2>
+          <p className="mt-1 text-[15px] leading-6 text-slate-600">
+            A logomarca cadastrada será usada no cabeçalho dos próximos relatórios gerados pela plataforma.
+          </p>
+        </div>
+
+        <CompanyLogoForm
+          hasLogo={Boolean(organization?.logo_content_base64)}
+          logoFileName={organization?.logo_file_name}
+          logoDataUrl={logoDataUrl}
+        />
+      </Card>
 
       <Card>
         <div className="mb-5 border-b border-slate-200 pb-4">

@@ -6,6 +6,9 @@ type FractalConfig = {
   id: string | null;
   position: number;
   activity: string;
+  vortex?: string;
+  connectionPoint?: string;
+  fractalCode?: string;
 };
 
 type Props = {
@@ -185,23 +188,47 @@ function remainingResponse(fractal: FractalState) {
   );
 }
 
-function normalizedFractals(fractals: FractalConfig[] | undefined, fallbackActivity: string) {
-  const source = fractals?.length
+function normalizedFractals(
+  fractals: FractalConfig[] | undefined,
+  fallbackActivity: string
+): FractalConfig[] {
+  const source: FractalConfig[] = fractals?.length
     ? fractals
-    : [{ id: null, position: 1, activity: fallbackActivity }];
+    : [
+        {
+          id: null,
+          position: 1,
+          activity: fallbackActivity,
+          vortex: "",
+          connectionPoint: "",
+          fractalCode: "",
+        },
+      ];
 
-  const normalized = source
+  const normalized: FractalConfig[] = source
     .filter((item) => item.activity?.trim())
     .slice(0, 3)
     .map((item, index) => ({
       id: item.id ?? null,
       position: item.position || index + 1,
       activity: item.activity,
+      vortex: item.vortex ?? "",
+      connectionPoint: item.connectionPoint ?? "",
+      fractalCode: item.fractalCode ?? "",
     }));
 
   return normalized.length
     ? normalized
-    : [{ id: null, position: 1, activity: "Fractal de Comportamento" }];
+    : [
+        {
+          id: null,
+          position: 1,
+          activity: "Fractal de Comportamento",
+          vortex: "",
+          connectionPoint: "",
+          fractalCode: "",
+        },
+      ];
 }
 
 export function PublicLifenergyForm({
@@ -337,6 +364,9 @@ export function PublicLifenergyForm({
     return {
       fractal_id: fractal.id ?? "",
       position: fractal.position,
+      vortex: fractal.vortex ?? "",
+      connection_point: fractal.connectionPoint ?? "",
+      fractal_code: fractal.fractalCode ?? "",
       presented_activity: fractal.activity,
       copied_activity: state.copiedActivity,
       response_1: state.response1,
@@ -607,7 +637,7 @@ export function PublicLifenergyForm({
                 Este link contém {configuredFractals.length === 1 ? "1 fractal ou atividade" : `${configuredFractals.length} fractais ou atividades`} de comportamento.
               </p>
               <p>
-                O tempo estimado é de aproximadamente 10 minutos por fractal ou atividade.
+                O tempo estimado é de aproximadamente 15 minutos por fractal ou atividade.
               </p>
               <p>
                 Cada tarefa deverá ser realizada em sequência, com atenção e sem interrupções.

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabaseServer";
+import { createAdminClient } from "@/lib/supabaseAdmin";
 import {
   CORPORATE_DOCUMENT_CATEGORIES,
   getCorporateDocumentCategoryLabel,
@@ -64,8 +65,51 @@ function documentTitleForCategory(category: CorporateDocumentCategory) {
 }
 
 function revalidatePdiAndLibrary() {
-  revalidatePdiAndLibrary();
+  revalidatePath("/painel/pdi");
   revalidatePath("/painel/biblioteca");
+}
+
+
+function assertLogoFile(file: File) {
+  const allowed = new Set(["image/png", "image/jpeg"]);
+
+  if (!allowed.has(file.type)) {
+    throw new Error("Formato de logomarca inválido. Envie PNG ou JPG.");
+  }
+
+  if (file.size > 1024 * 1024) {
+    throw new Error("A logomarca deve ter no máximo 1 MB.");
+  }
+}
+
+export async function updateOrganizationLogo(formData: FormData) {
+  const { profile } = await getCurrentProfile();
+  const admin = createAdminClient();
+  const uploadedFile = formData.get("logo_file");
+  const file = uploadedFile instanceof File && uploadedFile.size > 0 ? uploadedFile : null;
+
+  if (!file) {
+    throw new Error("Selecione a logomarca da empresa.");
+  }
+
+  assertLogoFile(file);
+  const logoContentBase64 = await fileToBase64(file);
+
+  const { error } = await admin
+    .from("organizations")
+    .update({
+      logo_file_name: file.name,
+      logo_mime_type: file.type,
+      logo_content_base64: logoContentBase64,
+      logo_updated_at: new Date().toISOString(),
+    })
+    .eq("id", profile.organization_id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePdiAndLibrary();
 }
 
 export async function createOrganizationDocument(formData: FormData) {
@@ -247,9 +291,15 @@ export async function savePdiContext(formData: FormData) {
 
 export async function listPdiPageData() {
   const { supabase, profile } = await getCurrentProfile();
+  const admin = createAdminClient();
 
-  const [{ data: documents, error: documentsError }, { data: journeys, error: journeysError }] =
+  const [{ data: organization, error: organizationError }, { data: documents, error: documentsError }, { data: journeys, error: journeysError }] =
     await Promise.all([
+      admin
+        .from("organizations")
+        .select("id, name, logo_file_name, logo_mime_type, logo_content_base64, logo_updated_at")
+        .eq("id", profile.organization_id)
+        .single(),
       supabase
         .from("organization_documents")
         .select("id, category, title, file_name, mime_type, file_size, content_text, status, created_at, updated_at")
@@ -266,6 +316,10 @@ export async function listPdiPageData() {
         .order("completed_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false }),
     ]);
+
+  if (organizationError) {
+    throw new Error(organizationError.message);
+  }
 
   if (documentsError) {
     throw new Error(documentsError.message);
@@ -360,6 +414,7 @@ export async function listPdiPageData() {
   const activeDocuments = documents ?? [];
 
   return {
+    organization: organization ?? null,
     documents: activeDocuments,
     libraryStatus: getCorporateLibraryStatus(activeDocuments),
     candidates,

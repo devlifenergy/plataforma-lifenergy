@@ -1,14 +1,12 @@
 import { CopyLinkButton } from "@/components/application/CopyLinkButton";
 import { CreateJourneyForm } from "@/components/application/CreateJourneyForm";
+import { EditJourneyForm } from "@/components/application/EditJourneyForm";
 import { DeletePendingJourneyButton } from "@/components/application/DeletePendingJourneyButton";
 import { GenerateReportButton } from "@/components/application/GenerateReportButton";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
 import {
   listActiveApplicators,
   listJourneys,
-  updateJourneyParticipant,
 } from "@/services/journeys/actions";
 
 function statusLabel(status: string) {
@@ -195,57 +193,22 @@ export default async function EntrevistadosPage() {
                               </summary>
 
                               <div className="mt-4 max-w-2xl rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-                                <form
-                                  action={updateJourneyParticipant}
-                                  className="space-y-3"
-                                >
-                                  <input
-                                    type="hidden"
-                                    name="journey_id"
-                                    value={item.id}
-                                  />
-
-                                  <Input
-                                    name="participant_name"
-                                    label="Nome do avaliado *"
-                                    defaultValue={item.participant_name}
-                                    required
-                                  />
-
-                                  <Input
-                                    name="participant_email"
-                                    label="E-mail"
-                                    type="email"
-                                    defaultValue={item.participant_email || ""}
-                                  />
-
-                                  <input
-                                    type="hidden"
-                                    name="fractal_count"
-                                    value={((item as any).fractals ?? []).length || 1}
-                                  />
-
-                                  {(((item as any).fractals ?? [
-                                    { position: 1, activity: item.activity || "" },
-                                  ]) as Array<{ position: number; activity: string }>).map((fractal) => (
-                                    <label key={fractal.position} className="block">
-                                      <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
-                                        Fractal {fractal.position} *
-                                      </span>
-                                      <textarea
-                                        name={`activity_${fractal.position}`}
-                                        required
-                                        rows={4}
-                                        defaultValue={fractal.activity || ""}
-                                        className="min-h-28 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-base leading-7 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
-                                      />
-                                    </label>
-                                  ))}
-
-                                  <Button type="submit" className="w-full">
-                                    Salvar alterações
-                                  </Button>
-                                </form>
+                                <EditJourneyForm
+                                  journeyId={item.id}
+                                  participantName={item.participant_name}
+                                  participantEmail={item.participant_email || ""}
+                                  participantCpf={(item as any).participant_cpf || ""}
+                                  participantNaturalidade={(item as any).participant_naturalidade || ""}
+                                  participantBirthDate={(item as any).participant_birth_date || ""}
+                                  participantObjective={(item as any).participant_objective || ""}
+                                  fractals={((item as any).fractals ?? []).map((fractal: any) => ({
+                                    position: Number(fractal.position),
+                                    activity: String(fractal.activity || ""),
+                                    vortex: String(fractal.vortex || ""),
+                                    connection_point: String(fractal.connection_point || ""),
+                                    fractal_code: String(fractal.fractal_code || ""),
+                                  }))}
+                                />
                               </div>
                             </details>
                           ) : (

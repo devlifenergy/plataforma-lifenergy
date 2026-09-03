@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabaseServer";
+import { findFractalMatrixItem } from "@/services/fractals/lifenergyFractalMatrix";
 
 async function getCurrentProfile() {
   const supabase = await createClient();
@@ -45,22 +46,25 @@ function readFractalActivities(formData: FormData) {
   const countFromForm = Number(formData.get("fractal_count") || 1);
   const fractalCount = [1, 2, 3].includes(countFromForm) ? countFromForm : 1;
 
-  const activities = Array.from({ length: fractalCount }, (_, index) => {
+  return Array.from({ length: fractalCount }, (_, index) => {
     const position = index + 1;
-    const value = String(
-      formData.get(`activity_${position}`) ||
-        (position === 1 ? formData.get("activity") : "") ||
-        ""
-    ).trim();
+    const vortex = String(formData.get(`vortex_${position}`) || "").trim();
+    const connectionPoint = String(formData.get(`connection_point_${position}`) || "").trim();
+    const fractalCode = String(formData.get(`fractal_code_${position}`) || "").trim();
+    const selected = findFractalMatrixItem(vortex, connectionPoint, fractalCode);
 
-    if (!value) {
-      throw new Error(`Atividade do Fractal ${position} obrigatória.`);
+    if (!selected) {
+      throw new Error(`Selecione Vórtice, Ponto de Conexão e Fractal para o Fractal ${position}.`);
     }
 
-    return { position, activity: value };
+    return {
+      position,
+      activity: selected.fractal.text,
+      vortex,
+      connection_point: connectionPoint,
+      fractal_code: fractalCode,
+    };
   });
-
-  return activities;
 }
 
 export async function listJourneys() {
@@ -81,7 +85,14 @@ export async function listJourneys() {
   const journeyIds = (journeys ?? []).map((item) => item.id);
   const cpfByJourney = new Map<string, string>();
   const responseIdByJourney = new Map<string, string>();
-  const fractalsByJourney = new Map<string, Array<{ position: number; activity: string }>>();
+  type JourneyFractalSelection = {
+    position: number;
+    activity: string;
+    vortex: string;
+    connection_point: string;
+    fractal_code: string;
+  };
+  const fractalsByJourney = new Map<string, JourneyFractalSelection[]>();
 
   if (journeyIds.length > 0) {
     const { data: responses, error: responsesError } = await supabase
@@ -106,7 +117,7 @@ export async function listJourneys() {
 
     const { data: fractals, error: fractalsError } = await supabase
       .from("journey_fractals")
-      .select("journey_id, position, activity")
+      .select("journey_id, position, activity, vortex, connection_point, fractal_code")
       .in("journey_id", journeyIds)
       .order("position", { ascending: true });
 
@@ -116,6 +127,9 @@ export async function listJourneys() {
         current.push({
           position: Number(fractal.position),
           activity: String(fractal.activity || ""),
+          vortex: String((fractal as any).vortex || ""),
+          connection_point: String((fractal as any).connection_point || ""),
+          fractal_code: String((fractal as any).fractal_code || ""),
         });
         fractalsByJourney.set(fractal.journey_id, current);
       }
@@ -123,8 +137,14 @@ export async function listJourneys() {
   }
 
   return (journeys ?? []).map((journey) => {
-    const fractals = fractalsByJourney.get(journey.id) ?? [
-      { position: 1, activity: journey.activity || "" },
+    const fractals: JourneyFractalSelection[] = fractalsByJourney.get(journey.id) ?? [
+      {
+        position: 1,
+        activity: journey.activity || "",
+        vortex: "",
+        connection_point: "",
+        fractal_code: "",
+      },
     ];
 
     return {
@@ -219,6 +239,9 @@ export async function createJourney(formData: FormData) {
       journey_id: journey.id,
       position: item.position,
       activity: item.activity,
+      vortex: item.vortex,
+      connection_point: item.connection_point,
+      fractal_code: item.fractal_code,
     }))
   );
 
@@ -298,6 +321,9 @@ export async function updateJourneyParticipant(formData: FormData) {
       journey_id: journeyId,
       position: item.position,
       activity: item.activity,
+      vortex: item.vortex,
+      connection_point: item.connection_point,
+      fractal_code: item.fractal_code,
     }))
   );
 

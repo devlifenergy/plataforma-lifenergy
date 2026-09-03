@@ -1,11 +1,11 @@
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "@/services/reports/lifenergyV1Types";
 import type { OrganizationDocumentForPdi, PdiContextRecord } from "./corporateKnowledge";
 
-export const LIFENERGY_PDI_VERSION = "lifenergy_pdi_v4_0_1_5_7";
+export const LIFENERGY_PDI_VERSION = "lifenergy_pdi_v4_1_1_5_8";
 export const LIFENERGY_PDI_FORMAT = "docx";
-export const LIFENERGY_PDI_ENGINE_VERSION = "1.5.7";
-export const LIFENERGY_PDI_PROMPT_VERSION = "pdi_lifenergy_v4_modelo_corporativo_2026_08_30";
-export const LIFENERGY_PDI_TEMPLATE_VERSION = "docx_pdi_lifenergy_v4_modelo_corporativo_2026_08_30";
+export const LIFENERGY_PDI_ENGINE_VERSION = "1.5.8";
+export const LIFENERGY_PDI_PROMPT_VERSION = "pdi_lifenergy_v4_1_logo_empresa_2026_09_02";
+export const LIFENERGY_PDI_TEMPLATE_VERSION = "docx_pdi_lifenergy_v4_1_logo_empresa_2026_09_02";
 
 export type LifenergyPdiType = "relational" | "corporate";
 

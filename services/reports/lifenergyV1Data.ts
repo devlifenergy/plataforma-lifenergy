@@ -117,7 +117,7 @@ export async function loadLifenergyV1ReportData(
   const [{ data: organization }, { data: journey, error: journeyError }] = await Promise.all([
     admin
       .from("organizations")
-      .select("id, name")
+      .select("id, name, logo_file_name, logo_mime_type, logo_content_base64")
       .eq("id", response.organization_id)
       .single(),
     admin
@@ -159,6 +159,9 @@ export async function loadLifenergyV1ReportData(
     organization: {
       id: organization?.id ?? response.organization_id,
       name: clean(organization?.name) || "Empresa",
+      logo_file_name: clean(organization?.logo_file_name) || null,
+      logo_mime_type: clean(organization?.logo_mime_type) || null,
+      logo_content_base64: clean(organization?.logo_content_base64) || null,
     },
     journey: {
       id: journey.id,

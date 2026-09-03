@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { LIFENERGY_FRACTAL_MATRIX, findFractalMatrixItem } from "@/services/fractals/lifenergyFractalMatrix";
 import { createJourney } from "@/services/journeys/actions";
 
 type ApplicatorOption = {
@@ -15,7 +16,14 @@ type CreateJourneyFormProps = {
   applicators: ApplicatorOption[];
 };
 
+type FractalSelection = {
+  vortexId: string;
+  connectionPointId: string;
+  fractalId: string;
+};
+
 const FRACTAL_OPTIONS = [1, 2, 3];
+const EMPTY_SELECTION: FractalSelection = { vortexId: "", connectionPointId: "", fractalId: "" };
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, "");
@@ -36,25 +44,48 @@ function formatDateBr(value: string) {
     .replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3");
 }
 
+function normalizeSelections(count: number, current: FractalSelection[]) {
+  return Array.from({ length: count }, (_, index) => current[index] ?? { ...EMPTY_SELECTION });
+}
+
 export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const [fractalCount, setFractalCount] = useState(1);
+  const [selections, setSelections] = useState<FractalSelection[]>([{ ...EMPTY_SELECTION }]);
   const [cpf, setCpf] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  function setCount(value: number) {
+    setFractalCount(value);
+    setSelections((current) => normalizeSelections(value, current));
+  }
+
+  function updateSelection(index: number, patch: Partial<FractalSelection>) {
+    setSelections((current) =>
+      normalizeSelections(fractalCount, current).map((item, itemIndex) =>
+        itemIndex === index ? { ...item, ...patch } : item
+      )
+    );
+  }
+
+  function resetFormState() {
+    formRef.current?.reset();
+    setFractalCount(1);
+    setSelections([{ ...EMPTY_SELECTION }]);
+    setCpf("");
+    setBirthDate("");
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (isPending) {
-      return;
-    }
+    if (isPending) return;
 
-    const form = event.currentTarget;
-    const formData = new FormData(form);
+    const formData = new FormData(event.currentTarget);
 
     setError(null);
     setSuccess(false);
@@ -62,10 +93,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
     startTransition(async () => {
       try {
         await createJourney(formData);
-        formRef.current?.reset();
-        setFractalCount(1);
-        setCpf("");
-        setBirthDate("");
+        resetFormState();
         setSuccess(true);
         router.refresh();
       } catch (caughtError) {
@@ -103,19 +131,8 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
           </select>
         </label>
 
-        <Input
-          name="participant_name"
-          label="Nome completo do avaliado *"
-          required
-          disabled={isPending}
-        />
-        <Input
-          name="participant_email"
-          label="E-mail *"
-          type="email"
-          required
-          disabled={isPending}
-        />
+        <Input name="participant_name" label="Nome completo do avaliado *" required disabled={isPending} />
+        <Input name="participant_email" label="E-mail *" type="email" required disabled={isPending} />
         <label className="block">
           <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
             CPF *
@@ -188,7 +205,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                 value={option}
                 checked={fractalCount === option}
                 disabled={isPending}
-                onChange={() => setFractalCount(option)}
+                onChange={() => setCount(option)}
                 className="sr-only"
               />
               {option === 1 ? "1 Fractal" : `${option} Fractais`}
@@ -196,27 +213,106 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
           ))}
         </div>
         <p className="mt-3 text-[15px] leading-6 text-slate-600">
-          O sistema abrirá somente a quantidade escolhida. Todos os campos exibidos serão obrigatórios.
+          O aplicador escolhe cada atividade dentro da matriz Lifenergy: Vórtice, Ponto de Conexão e Fractal.
         </p>
       </fieldset>
 
       <section className="space-y-4">
         {Array.from({ length: fractalCount }, (_, index) => {
           const position = index + 1;
+          const selection = selections[index] ?? EMPTY_SELECTION;
+          const selectedVortex = LIFENERGY_FRACTAL_MATRIX.find((item) => item.id === selection.vortexId);
+          const selectedPoint = selectedVortex?.connectionPoints.find((item) => item.id === selection.connectionPointId);
+          const selectedFractal = findFractalMatrixItem(selection.vortexId, selection.connectionPointId, selection.fractalId)?.fractal;
+
           return (
-            <label key={position} className="block">
-              <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
-                Fractal {position} *
-              </span>
-              <textarea
-                name={`activity_${position}`}
-                required
-                rows={3}
-                disabled={isPending}
-                placeholder="Digite a atividade/fractal que será apresentada ao avaliado."
-                className="min-h-28 w-full resize-y rounded-xl border border-slate-300 px-4 py-3 text-base leading-7 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
-              />
-            </label>
+            <div key={position} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <h3 className="text-lg font-bold text-[#0F2D4A]">Fractal {position}</h3>
+              <div className="mt-4 grid gap-4 md:grid-cols-3">
+                <label className="block">
+                  <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
+                    Vórtice *
+                  </span>
+                  <select
+                    name={`vortex_${position}`}
+                    required
+                    value={selection.vortexId}
+                    disabled={isPending}
+                    onChange={(event) =>
+                      updateSelection(index, {
+                        vortexId: event.target.value,
+                        connectionPointId: "",
+                        fractalId: "",
+                      })
+                    }
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+                  >
+                    <option value="">Selecione</option>
+                    {LIFENERGY_FRACTAL_MATRIX.map((vortex) => (
+                      <option key={vortex.id} value={vortex.id}>
+                        {vortex.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
+                    Ponto de Conexão *
+                  </span>
+                  <select
+                    name={`connection_point_${position}`}
+                    required
+                    value={selection.connectionPointId}
+                    disabled={isPending || !selectedVortex}
+                    onChange={(event) =>
+                      updateSelection(index, {
+                        connectionPointId: event.target.value,
+                        fractalId: "",
+                      })
+                    }
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+                  >
+                    <option value="">Selecione</option>
+                    {selectedVortex?.connectionPoints.map((point) => (
+                      <option key={point.id} value={point.id}>
+                        {point.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
+                    Fractal *
+                  </span>
+                  <select
+                    name={`fractal_code_${position}`}
+                    required
+                    value={selection.fractalId}
+                    disabled={isPending || !selectedPoint}
+                    onChange={(event) => updateSelection(index, { fractalId: event.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+                  >
+                    <option value="">Selecione</option>
+                    {selectedPoint?.fractals.map((fractal) => (
+                      <option key={fractal.id} value={fractal.id}>
+                        {fractal.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <input type="hidden" name={`activity_${position}`} value={selectedFractal?.text ?? ""} />
+
+              {selectedFractal ? (
+                <div className="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-[15px] leading-7 text-slate-700">
+                  <p className="font-bold text-[#0F2D4A]">Atividade selecionada</p>
+                  <p className="mt-1">{selectedFractal.text}</p>
+                </div>
+              ) : null}
+            </div>
           );
         })}
       </section>

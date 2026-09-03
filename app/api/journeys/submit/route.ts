@@ -58,6 +58,9 @@ function asUuidOrNull(value: unknown) {
 type FractalPayload = {
   fractal_id?: string;
   position?: number | string;
+  vortex?: string;
+  connection_point?: string;
+  fractal_code?: string;
   presented_activity?: string;
   copied_activity?: string;
   response_1?: string;
@@ -160,6 +163,9 @@ export async function POST(request: Request) {
         journey_response_id: response.id,
         journey_fractal_id: asUuidOrNull(item.fractal_id),
         position,
+        vortex: clean(item.vortex),
+        connection_point: clean(item.connection_point),
+        fractal_code: clean(item.fractal_code),
         presented_activity: clean(item.presented_activity),
         copied_activity: clean(item.copied_activity),
         response_1: clean(item.response_1),

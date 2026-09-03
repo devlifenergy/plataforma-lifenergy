@@ -10,6 +10,9 @@ type FractalContext = {
   id: string | null;
   position: number;
   activity: string;
+  vortex?: string;
+  connectionPoint?: string;
+  fractalCode?: string;
 };
 
 function parseFractals(value: unknown, fallbackActivity: string): FractalContext[] {
@@ -19,6 +22,9 @@ function parseFractals(value: unknown, fallbackActivity: string): FractalContext
         id: typeof item?.id === "string" ? item.id : null,
         position: Number(item?.position || index + 1),
         activity: String(item?.activity || ""),
+        vortex: String(item?.vortex || ""),
+        connectionPoint: String(item?.connection_point || item?.connectionPoint || ""),
+        fractalCode: String(item?.fractal_code || item?.fractalCode || ""),
       }))
       .filter((item) => item.activity.trim())
       .slice(0, 3);

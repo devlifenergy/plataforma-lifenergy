@@ -145,6 +145,100 @@ function table(rows: Array<Array<string>>, options?: { headerRows?: number; widt
   </w:tbl>`;
 }
 
+
+type OrganizationLogoMedia = {
+  extension: "png" | "jpg";
+  buffer: Buffer;
+};
+
+function getOrganizationLogoMedia(data: { organization?: { logo_mime_type?: string | null; logo_content_base64?: string | null } }) {
+  const mime = cleanXmlText(data.organization?.logo_mime_type).toLowerCase();
+  const rawBase64 = cleanXmlText(data.organization?.logo_content_base64).replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, "");
+
+  if (!rawBase64) return null;
+  if (mime !== "image/png" && mime !== "image/jpeg") return null;
+
+  try {
+    const buffer = Buffer.from(rawBase64, "base64");
+    if (!buffer.length) return null;
+
+    return {
+      extension: mime === "image/png" ? "png" : "jpg",
+      buffer,
+    } satisfies OrganizationLogoMedia;
+  } catch {
+    return null;
+  }
+}
+
+function logoDrawingXml(relId: string) {
+  return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">
+    <wp:extent cx="1500000" cy="650000"/>
+    <wp:effectExtent l="0" t="0" r="0" b="0"/>
+    <wp:docPr id="1" name="Logomarca da empresa"/>
+    <wp:cNvGraphicFramePr>
+      <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+    </wp:cNvGraphicFramePr>
+    <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+      <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+        <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+          <pic:nvPicPr>
+            <pic:cNvPr id="0" name="Logomarca da empresa"/>
+            <pic:cNvPicPr/>
+          </pic:nvPicPr>
+          <pic:blipFill>
+            <a:blip r:embed="${relId}"/>
+            <a:stretch><a:fillRect/></a:stretch>
+          </pic:blipFill>
+          <pic:spPr>
+            <a:xfrm><a:off x="0" y="0"/><a:ext cx="1500000" cy="650000"/></a:xfrm>
+            <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+          </pic:spPr>
+        </pic:pic>
+      </a:graphicData>
+    </a:graphic>
+  </wp:inline></w:drawing></w:r>`;
+}
+
+function buildLogoHeaderXml(
+  data: { organization?: { name?: string | null; logo_mime_type?: string | null; logo_content_base64?: string | null } },
+  title: string,
+  subtitle: string
+) {
+  const logoMedia = getOrganizationLogoMedia(data);
+  const logoXml = logoMedia
+    ? `<w:p><w:pPr><w:jc w:val="center"/></w:pPr>${logoDrawingXml("rIdLogo")}</w:p>`
+    : "";
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+  xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+  ${logoXml}
+  <w:p>
+    <w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="18"/></w:rPr><w:t>${xml(title)}</w:t></w:r>
+  </w:p>
+  <w:p>
+    <w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${xml(subtitle)}</w:t></w:r>
+  </w:p>
+</w:hdr>`;
+}
+
+function buildHeaderRelsXml(logoMedia: OrganizationLogoMedia | null) {
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  ${
+    logoMedia
+      ? `<Relationship Id="rIdLogo" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/company_logo.${logoMedia.extension}"/>`
+      : ""
+  }
+</Relationships>`;
+}
+
 const ATTRIBUTE_DESCRIPTIONS: Record<string, string> = {
   Socialização:
     "Atributo relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.",
@@ -220,24 +314,6 @@ function actionPlanBlock(content: LifenergyPdiGeneratedContent) {
       ].join("")
     )
     .join("");
-}
-
-function buildHeaderXml(data: LifenergyPdiData) {
-  const response = data.reportData.response;
-
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:p>
-    <w:pPr><w:jc w:val="right"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>${xml(
-      `PDI Lifenergy – ${response.full_name}`
-    )}</w:t></w:r>
-  </w:p>
-  <w:p>
-    <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente</w:t></w:r>
-  </w:p>
-</w:hdr>`;
 }
 
 function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGeneratedContent) {
@@ -469,6 +545,8 @@ const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="xml" ContentType="application/xml"/>
+  <Default Extension="png" ContentType="image/png"/>
+  <Default Extension="jpg" ContentType="image/jpeg"/>
   <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
   <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
   <Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
@@ -612,15 +690,30 @@ export function buildLifenergyPdiDocx(
   data: LifenergyPdiData,
   content: LifenergyPdiGeneratedContent
 ) {
-  return createZip([
+  const logoMedia = getOrganizationLogoMedia(data.reportData);
+  const entries: Array<{ name: string; data: string | Buffer }> = [
     { name: "[Content_Types].xml", data: contentTypesXml },
     { name: "_rels/.rels", data: relsXml },
     { name: "docProps/core.xml", data: coreXml() },
     { name: "docProps/app.xml", data: appXml },
     { name: "word/_rels/document.xml.rels", data: documentRelsXml },
+    { name: "word/_rels/header1.xml.rels", data: buildHeaderRelsXml(logoMedia) },
     { name: "word/styles.xml", data: stylesXml },
     { name: "word/footer1.xml", data: footerXml },
-    { name: "word/header1.xml", data: buildHeaderXml(data) },
+    {
+      name: "word/header1.xml",
+      data: buildLogoHeaderXml(
+        data.reportData,
+        `PDI Lifenergy – ${data.reportData.response.full_name}`,
+        "Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente"
+      ),
+    },
     { name: "word/document.xml", data: buildDocumentXml(data, content) },
-  ]);
+  ];
+
+  if (logoMedia) {
+    entries.push({ name: `word/media/company_logo.${logoMedia.extension}`, data: logoMedia.buffer });
+  }
+
+  return createZip(entries);
 }
