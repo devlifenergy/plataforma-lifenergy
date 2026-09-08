@@ -22,6 +22,7 @@ import {
   LIFENERGY_PDI_VERSION,
 } from "@/services/pdi/lifenergyPdiTypes";
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
+import { assertLicenseAvailable } from "@/services/licensing/licenseGuard";
 
 type RouteContext = {
   params: Promise<{ responseId: string }>;
@@ -112,7 +113,15 @@ export async function GET(request: Request, context: RouteContext) {
     let content: LifenergyPdiGeneratedContent;
     let fileName = `PDI_Lifenergy_${reportData.response.full_name}.docx`;
 
-    const stored = shouldRegenerate ? null : await findStoredPdi(responseId, pdiType);
+    const existingStored = await findStoredPdi(responseId, pdiType);
+    if (!existingStored) {
+      await assertLicenseAvailable({
+        organizationId: reportData.organization.id,
+        kind: pdiType === "corporate" ? "pdi_corporate" : "pdi_relational",
+        responseId,
+      });
+    }
+    const stored = shouldRegenerate ? null : existingStored;
 
     if (
       stored?.generated_content_json &&
@@ -142,7 +151,7 @@ export async function GET(request: Request, context: RouteContext) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro ao gerar PDI.";
-    const status = message.includes("bloqueado") || message.includes("pendentes") ? 409 : 500;
+    const status = message.includes("bloqueado") || message.includes("pendentes") || message.includes("Licença") ? 409 : 500;
     return jsonError(message, status);
   }
 }

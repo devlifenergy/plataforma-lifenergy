@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { LIFENERGY_FRACTAL_MATRIX } from "@/services/fractals/lifenergyFractalMatrix";
 import { createJourney } from "@/services/journeys/actions";
+import { BRAZILIAN_STATES } from "@/lib/brazil";
+import { formatCpf, isValidCpf, isValidEmail, onlyDigits } from "@/lib/validation";
 
 type ApplicatorOption = {
   id: string;
@@ -23,19 +25,11 @@ type FractalSelection = {
 };
 
 const FRACTAL_OPTIONS = [1, 2, 3];
+function fractalDisplayText(value: string) {
+  return String(value || "").replace(/^\s*\d+\.\s*/, "").trim();
+}
+
 const EMPTY_SELECTION: FractalSelection = { vortexId: "", connectionPointId: "", fractalId: "" };
-
-function onlyDigits(value: string) {
-  return value.replace(/\D/g, "");
-}
-
-function formatCpf(value: string) {
-  const digits = onlyDigits(value).slice(0, 11);
-  return digits
-    .replace(/^(\d{3})(\d)/, "$1.$2")
-    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
-    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
-}
 
 function formatDateBr(value: string) {
   const digits = onlyDigits(value).slice(0, 8);
@@ -55,6 +49,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
   const [selections, setSelections] = useState<FractalSelection[]>([{ ...EMPTY_SELECTION }]);
   const [cpf, setCpf] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [participantEmail, setParticipantEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -78,6 +73,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
     setSelections([{ ...EMPTY_SELECTION }]);
     setCpf("");
     setBirthDate("");
+    setParticipantEmail("");
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -86,6 +82,15 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
     if (isPending) return;
 
     const formData = new FormData(event.currentTarget);
+
+    if (!isValidCpf(String(formData.get("participant_cpf") || ""))) {
+      setError("Informe um CPF válido.");
+      return;
+    }
+    if (!isValidEmail(String(formData.get("participant_email") || ""))) {
+      setError("Informe um e-mail válido.");
+      return;
+    }
 
     setError(null);
     setSuccess(false);
@@ -132,7 +137,11 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
         </label>
 
         <Input name="participant_name" label="Nome completo do avaliado *" required disabled={isPending} />
-        <Input name="participant_email" label="E-mail *" type="email" required disabled={isPending} />
+        <label className="block">
+          <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">E-mail *</span>
+          <input name="participant_email" type="email" required disabled={isPending} value={participantEmail} onChange={(event) => setParticipantEmail(event.target.value)} aria-invalid={participantEmail ? !isValidEmail(participantEmail) : undefined} className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20" />
+          {participantEmail && !isValidEmail(participantEmail) ? <span className="mt-1 block text-xs font-medium text-red-600">Informe um e-mail válido.</span> : null}
+        </label>
         <label className="block">
           <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
             CPF *
@@ -145,16 +154,24 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
             disabled={isPending}
             inputMode="numeric"
             maxLength={14}
+            aria-invalid={cpf.length === 14 ? !isValidCpf(cpf) : undefined}
             className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
           />
+          {cpf.length === 14 && !isValidCpf(cpf) ? <span className="mt-1 block text-xs font-medium text-red-600">CPF inválido.</span> : null}
         </label>
         <Input
-          name="participant_naturalidade"
-          label="Naturalidade *"
+          name="participant_city"
+          label="Cidade *"
           required
           disabled={isPending}
-          placeholder="Cidade / Estado"
         />
+        <label className="block">
+          <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">Estado *</span>
+          <select name="participant_state" required disabled={isPending} className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20">
+            <option value="">Selecione</option>
+            {BRAZILIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
+          </select>
+        </label>
         <label className="block">
           <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
             Data de nascimento *
@@ -302,7 +319,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                         return (
                           <label
                             key={fractal.id}
-                            className={`flex items-start gap-3 rounded-xl border px-4 py-4 text-[15px] leading-6 transition ${
+                            className={`block rounded-xl border px-4 py-4 text-[15px] leading-6 transition ${
                               checked
                                 ? "border-[#B8860B] bg-[#B8860B]/5 ring-2 ring-[#B8860B]/15"
                                 : alreadySelected
@@ -318,10 +335,10 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                               required
                               disabled={disabled}
                               onChange={() => updateSelection(index, { fractalId: fractal.id })}
-                              className="mt-1 h-4 w-4 shrink-0 accent-[#B8860B]"
+                              className="sr-only"
                             />
                             <span className={alreadySelected ? "text-slate-400" : "text-slate-800"}>
-                              {fractal.title}
+                              {fractalDisplayText(fractal.title)}
                               {alreadySelected ? (
                                 <span className="ml-2 font-semibold">(já selecionado neste link)</span>
                               ) : null}

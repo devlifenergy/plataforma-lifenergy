@@ -10,6 +10,7 @@ import {
 } from "@/services/reports/lifenergyV1Docx";
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "@/services/reports/lifenergyV1Types";
+import { assertLicenseAvailable } from "@/services/licensing/licenseGuard";
 import {
   buildLifenergyMetricSignature,
   LIFENERGY_METRIC_ENGINE_VERSION,
@@ -165,7 +166,15 @@ export async function GET(request: Request, context: RouteContext) {
     let content: LifenergyV1GeneratedContent;
     let sourceSnapshot: LifenergyV1ReportData = reportData;
 
-    const stored = shouldRegenerate ? null : await findStoredReport(responseId);
+    const existingStored = await findStoredReport(responseId);
+    if (!existingStored) {
+      await assertLicenseAvailable({
+        organizationId: reportData.organization.id,
+        kind: "individual_report",
+        responseId,
+      });
+    }
+    const stored = shouldRegenerate ? null : existingStored;
 
     if (
       stored?.generated_content_json &&
@@ -199,6 +208,7 @@ export async function GET(request: Request, context: RouteContext) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro ao gerar relatório.";
-    return jsonError(message, 500);
+    const status = message.includes("Licença") ? 409 : 500;
+    return jsonError(message, status);
   }
 }

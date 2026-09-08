@@ -4,6 +4,8 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabaseServer";
 import { findFractalMatrixItem } from "@/services/fractals/lifenergyFractalMatrix";
+import { isValidCpf, isValidEmail } from "@/lib/validation";
+import { joinNaturalidade } from "@/lib/brazil";
 
 async function getCurrentProfile() {
   const supabase = await createClient();
@@ -188,7 +190,11 @@ export async function createJourney(formData: FormData) {
   const participantName = String(formData.get("participant_name") || "").trim();
   const participantEmail = normalizeOptionalField(formData.get("participant_email"));
   const participantCpf = normalizeOptionalField(formData.get("participant_cpf"));
-  const participantNaturalidade = normalizeOptionalField(formData.get("participant_naturalidade"));
+  const participantCity = String(formData.get("participant_city") || "").trim();
+  const participantState = String(formData.get("participant_state") || "").trim().toUpperCase();
+  const participantNaturalidade = participantCity || participantState
+    ? joinNaturalidade(participantCity, participantState)
+    : normalizeOptionalField(formData.get("participant_naturalidade"));
   const participantBirthDate = dateBrToIsoOrNull(formData.get("participant_birth_date"));
   const participantObjective = normalizeOptionalField(formData.get("participant_objective"));
   const activities = readFractalActivities(formData);
@@ -200,6 +206,15 @@ export async function createJourney(formData: FormData) {
 
   if (!participantName) {
     throw new Error("Nome do avaliado obrigatório.");
+  }
+  if (!participantCpf || !isValidCpf(participantCpf)) {
+    throw new Error("Informe um CPF válido para o avaliado.");
+  }
+  if (!participantEmail || !isValidEmail(participantEmail)) {
+    throw new Error("Informe um e-mail válido para o avaliado.");
+  }
+  if (!participantNaturalidade || !participantCity || !participantState) {
+    throw new Error("Informe Cidade e Estado do avaliado.");
   }
 
   const { data: applicator, error: applicatorError } = await supabase
@@ -279,6 +294,12 @@ export async function updateJourneyParticipant(formData: FormData) {
 
   if (!journeyId || !participantName || !firstActivity) {
     throw new Error("Informe o avaliado, o nome e a atividade.");
+  }
+  if (participantCpf && !isValidCpf(participantCpf)) {
+    throw new Error("Informe um CPF válido.");
+  }
+  if (participantEmail && !isValidEmail(participantEmail)) {
+    throw new Error("Informe um e-mail válido.");
   }
 
   const { data: journey, error: journeyError } = await supabase
@@ -389,4 +410,32 @@ export async function deletePendingJourney(formData: FormData) {
   }
 
   revalidatePath("/painel/entrevistados");
+}
+
+export async function sendJourneyLinkEmail(journeyId: string) {
+  const { supabase, profile } = await getCurrentProfile();
+  const { data: journey, error } = await supabase
+    .from("journeys")
+    .select("id, token, code, participant_name, participant_email")
+    .eq("id", journeyId)
+    .eq("organization_id", profile.organization_id)
+    .single();
+
+  if (error || !journey) throw new Error("Link do avaliado não encontrado.");
+  if (!journey.participant_email || !isValidEmail(journey.participant_email)) {
+    throw new Error("O avaliado não possui um e-mail válido cadastrado.");
+  }
+
+  const { getApplicationBaseUrl, sendLifenergyEmail } = await import("@/services/email/lifenergyEmail");
+  const baseUrl = getApplicationBaseUrl();
+  if (!baseUrl) throw new Error("Configure NEXT_PUBLIC_APP_URL para enviar links por e-mail.");
+  const url = `${baseUrl}/r/${journey.token}`;
+
+  const result = await sendLifenergyEmail({
+    to: journey.participant_email,
+    subject: `Avaliação Lifenergy - ${journey.code}`,
+    html: `<p>Olá, ${journey.participant_name}.</p><p>Você recebeu um convite para realizar sua avaliação na Plataforma Lifenergy.</p><p><a href="${url}">Acessar avaliação Lifenergy</a></p><p>Se o botão não abrir, copie este endereço: ${url}</p>`,
+  });
+  if (!result.sent) throw new Error(result.reason);
+  return { sent: true };
 }

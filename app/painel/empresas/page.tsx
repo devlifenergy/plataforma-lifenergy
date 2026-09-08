@@ -44,6 +44,7 @@ export default async function EmpresasPage() {
                   <th className="px-6 py-3">Empresa</th>
                   <th className="px-6 py-3">Administrador</th>
                   <th className="px-6 py-3">E-mail</th>
+                  <th className="px-6 py-3">Licenças</th>
                   <th className="px-6 py-3">Status</th>
                   <th className="px-6 py-3">Ações</th>
                 </tr>
@@ -65,6 +66,12 @@ export default async function EmpresasPage() {
 
                     <td className="px-6 py-4 text-slate-700">
                       {company.adminEmail || "Não informado"}
+                    </td>
+
+                    <td className="px-6 py-4 text-xs leading-5 text-slate-600">
+                      <div>Individual: {company.licenseIndividualReports ?? "Ilimitado"}</div>
+                      <div>PDI Relacional: {company.licensePdiRelational ?? "Ilimitado"}</div>
+                      <div>PDI Corporativo: {company.licensePdiCorporate ?? "Ilimitado"}</div>
                     </td>
 
                     <td className="px-6 py-4">
@@ -131,6 +138,12 @@ export default async function EmpresasPage() {
                                     defaultValue={company.adminEmail}
                                     className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
                                   />
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-2">
+                                  <label className="text-xs font-medium text-slate-700">Rel. Individual<input name="license_individual_reports" type="number" min="0" required defaultValue={company.licenseIndividualReports ?? 0} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2" /></label>
+                                  <label className="text-xs font-medium text-slate-700">PDI Relacional<input name="license_pdi_relational" type="number" min="0" required defaultValue={company.licensePdiRelational ?? 0} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2" /></label>
+                                  <label className="text-xs font-medium text-slate-700">PDI Corporativo<input name="license_pdi_corporate" type="number" min="0" required defaultValue={company.licensePdiCorporate ?? 0} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2" /></label>
                                 </div>
 
                                 <div>

@@ -71,19 +71,50 @@ function stripPdiExcludedFields(reportData: LifenergyV1ReportData): LifenergyV1R
   };
 }
 
+
+async function loadRelatedEvaluations(reportData: LifenergyV1ReportData, pdiType: LifenergyPdiType) {
+  if (pdiType !== "corporate") return [];
+  const admin = createAdminClient();
+  const { data: relatedResponses, error } = await admin
+    .from("journey_responses")
+    .select("id, application_date")
+    .eq("organization_id", reportData.organization.id)
+    .eq("cpf", reportData.response.cpf)
+    .neq("id", reportData.response.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) throw new Error(error.message);
+  if (!relatedResponses?.length) return [];
+
+  return Promise.all(relatedResponses.map(async (response) => {
+    const relatedReportData = stripPdiExcludedFields(await loadLifenergyV1ReportData(response.id));
+    const stored = await findStoredReport(response.id);
+    return {
+      responseId: response.id,
+      applicationDate: response.application_date || relatedReportData.response.application_date,
+      reportData: {
+        response: relatedReportData.response,
+        fractals: relatedReportData.fractals,
+        journey: relatedReportData.journey,
+      },
+      reportContent: stored?.generated_content_json ?? null,
+    };
+  }));
+}
 export async function buildLifenergyPdiDataFromReportData(
   reportData: LifenergyV1ReportData,
   options?: { pdiType?: LifenergyPdiType }
 ): Promise<LifenergyPdiData> {
   const pdiType = options?.pdiType ?? "relational";
   const safeReportData = stripPdiExcludedFields(reportData);
-  const [storedReport, contextAndKnowledge] = await Promise.all([
+  const [storedReport, contextAndKnowledge, relatedEvaluations] = await Promise.all([
     findStoredReport(reportData.response.id),
     loadPdiContextAndCorporateKnowledge({
       organizationId: reportData.organization.id,
       responseId: reportData.response.id,
       pdiType,
     }),
+    loadRelatedEvaluations(reportData, pdiType),
   ]);
 
   if (storedReport) {
@@ -94,6 +125,7 @@ export async function buildLifenergyPdiDataFromReportData(
       reportData: safeReportData,
       reportContent: storedReport.generated_content_json,
       sourceReportId: storedReport.id,
+      relatedEvaluations,
     };
   }
 
@@ -106,6 +138,7 @@ export async function buildLifenergyPdiDataFromReportData(
     reportData: safeReportData,
     reportContent: generated.content,
     sourceReportId: null,
+    relatedEvaluations,
   };
 }
 

@@ -45,7 +45,10 @@ function fileSafe(value: unknown) {
 
 export function buildLifenergyPdiFileName(data: LifenergyPdiData) {
   const tipo = data.pdiType === "corporate" ? "Corporativo" : "Relacional";
-  return `PDI_Lifenergy_${tipo}_${fileSafe(data.reportData.response.full_name)}.docx`;
+  const cargo = data.pdiType === "corporate" && data.pdiContext?.current_job_title
+    ? `_${fileSafe(data.pdiContext.current_job_title)}`
+    : "";
+  return `PDI_Lifenergy_${tipo}_${fileSafe(data.reportData.response.full_name)}${cargo}.docx`;
 }
 
 function run(text: unknown, options?: { bold?: boolean; italic?: boolean; color?: string; size?: number }) {
@@ -171,9 +174,14 @@ function getOrganizationLogoMedia(data: { organization?: { logo_mime_type?: stri
   }
 }
 
-function logoDrawingXml(relId: string) {
+function logoDrawingXml(relId: string, logoSize: string | null | undefined) {
+  const dimensions = logoSize === "small"
+    ? { cx: 1100000, cy: 480000 }
+    : logoSize === "large"
+      ? { cx: 2100000, cy: 910000 }
+      : { cx: 1500000, cy: 650000 };
   return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">
-    <wp:extent cx="1500000" cy="650000"/>
+    <wp:extent cx="${dimensions.cx}" cy="${dimensions.cy}"/>
     <wp:effectExtent l="0" t="0" r="0" b="0"/>
     <wp:docPr id="1" name="Logomarca da empresa"/>
     <wp:cNvGraphicFramePr>
@@ -191,7 +199,7 @@ function logoDrawingXml(relId: string) {
             <a:stretch><a:fillRect/></a:stretch>
           </pic:blipFill>
           <pic:spPr>
-            <a:xfrm><a:off x="0" y="0"/><a:ext cx="1500000" cy="650000"/></a:xfrm>
+            <a:xfrm><a:off x="0" y="0"/><a:ext cx="${dimensions.cx}" cy="${dimensions.cy}"/></a:xfrm>
             <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
           </pic:spPr>
         </pic:pic>
@@ -201,13 +209,18 @@ function logoDrawingXml(relId: string) {
 }
 
 function buildLogoHeaderXml(
-  data: { organization?: { name?: string | null; logo_mime_type?: string | null; logo_content_base64?: string | null } },
+  data: { organization?: { name?: string | null; logo_mime_type?: string | null; logo_content_base64?: string | null; logo_size?: string | null; logo_position?: string | null } },
   title: string,
   subtitle: string
 ) {
   const logoMedia = getOrganizationLogoMedia(data);
+  const logoAlignment = data.organization?.logo_position === "left"
+    ? "left"
+    : data.organization?.logo_position === "right"
+      ? "right"
+      : "center";
   const logoXml = logoMedia
-    ? `<w:p><w:pPr><w:jc w:val="center"/></w:pPr>${logoDrawingXml("rIdLogo")}</w:p>`
+    ? `<w:p><w:pPr><w:jc w:val="${logoAlignment}"/></w:pPr>${logoDrawingXml("rIdLogo", data.organization?.logo_size)}</w:p>`
     : "";
 
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>

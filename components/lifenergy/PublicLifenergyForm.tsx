@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { BRAZILIAN_STATES, joinNaturalidade, splitNaturalidade } from "@/lib/brazil";
+import { formatCpf, isValidCpf, isValidEmail, onlyDigits } from "@/lib/validation";
 
 type FractalConfig = {
   id: string | null;
@@ -24,7 +26,9 @@ type IdentificationState = {
   fullName: string;
   cpf: string;
   email: string;
-  naturalidade: string;
+  city: string;
+  state: string;
+  naturalidade?: string;
   birthDate: string;
   objective: string;
   applicatorName: string;
@@ -44,18 +48,6 @@ type FractalState = {
 };
 
 const STAGES_PER_FRACTAL = 8;
-
-function onlyDigits(value: string) {
-  return value.replace(/\D/g, "");
-}
-
-function formatCpf(value: string) {
-  const digits = onlyDigits(value).slice(0, 11);
-  return digits
-    .replace(/^(\d{3})(\d)/, "$1.$2")
-    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
-    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
-}
 
 function formatDateBr(value: string) {
   const digits = onlyDigits(value).slice(0, 8);
@@ -126,10 +118,6 @@ function fieldClass(extra = "") {
 
 function labelClass() {
   return "mb-2 block text-base font-semibold leading-7 text-slate-700";
-}
-
-function isEmailValid(email: string) {
-  return /\S+@\S+\.\S+/.test(email);
 }
 
 function hierarchyLabel(value: number) {
@@ -247,11 +235,13 @@ export function PublicLifenergyForm({
   );
 
   const [step, setStep] = useState(1);
+  const initialNaturalidade = splitNaturalidade(initialIdentity?.naturalidade);
   const [identity, setIdentity] = useState<IdentificationState>({
     fullName: initialIdentity?.fullName || "",
     cpf: formatCpf(initialIdentity?.cpf || ""),
     email: initialIdentity?.email || "",
-    naturalidade: initialIdentity?.naturalidade || "",
+    city: initialNaturalidade.city,
+    state: initialNaturalidade.state,
     birthDate: isoToDateBr(initialIdentity?.birthDate),
     objective: initialIdentity?.objective || "",
     applicatorName,
@@ -298,7 +288,15 @@ export function PublicLifenergyForm({
       const saved = window.localStorage.getItem(draftStorageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed?.identity) setIdentity(parsed.identity);
+        if (parsed?.identity) {
+          const restoredNaturalidade = splitNaturalidade(parsed.identity.naturalidade);
+          setIdentity((current) => ({
+            ...current,
+            ...parsed.identity,
+            city: parsed.identity.city ?? restoredNaturalidade.city ?? current.city,
+            state: parsed.identity.state ?? restoredNaturalidade.state ?? current.state,
+          }));
+        }
         if (Array.isArray(parsed?.fractalStates)) setFractalStates(parsed.fractalStates);
         if (typeof parsed?.step === "number") setStep(Math.max(1, Math.min(totalSteps, parsed.step)));
       }
@@ -419,9 +417,10 @@ export function PublicLifenergyForm({
     if (step === 3) {
       return Boolean(
         identity.fullName.trim() &&
-          identity.cpf.trim().length >= 14 &&
-          isEmailValid(identity.email) &&
-          identity.naturalidade.trim() &&
+          isValidCpf(identity.cpf) &&
+          isValidEmail(identity.email) &&
+          identity.city.trim() &&
+          identity.state.trim() &&
           isValidDateBr(identity.birthDate) &&
           identity.objective.trim()
       );
@@ -595,7 +594,7 @@ export function PublicLifenergyForm({
       <input type="hidden" name="nome" value={identity.fullName} />
       <input type="hidden" name="cpf" value={identity.cpf} />
       <input type="hidden" name="email" value={identity.email} />
-      <input type="hidden" name="naturalidade" value={identity.naturalidade} />
+      <input type="hidden" name="naturalidade" value={joinNaturalidade(identity.city, identity.state)} />
       <input type="hidden" name="data_nascimento" value={dateBrToIso(identity.birthDate)} />
       <input type="hidden" name="objetivo" value={identity.objective} />
       <input type="hidden" name="nome_aplicador" value={identity.applicatorName} />
@@ -695,7 +694,9 @@ export function PublicLifenergyForm({
                   className={fieldClass()}
                   inputMode="numeric"
                   maxLength={14}
+                  aria-invalid={identity.cpf.length === 14 ? !isValidCpf(identity.cpf) : undefined}
                 />
+                {identity.cpf.length === 14 && !isValidCpf(identity.cpf) ? <span className="mt-1 block text-sm font-medium text-red-600">CPF inválido.</span> : null}
               </label>
               <label>
                 <span className={labelClass()}>E-mail *</span>
@@ -704,16 +705,28 @@ export function PublicLifenergyForm({
                   onChange={(event) => updateIdentity("email", event.target.value)}
                   type="email"
                   className={fieldClass()}
+                  aria-invalid={identity.email ? !isValidEmail(identity.email) : undefined}
+                />
+                {identity.email && !isValidEmail(identity.email) ? <span className="mt-1 block text-sm font-medium text-red-600">Informe um e-mail válido.</span> : null}
+              </label>
+              <label>
+                <span className={labelClass()}>Cidade *</span>
+                <input
+                  value={identity.city}
+                  onChange={(event) => updateIdentity("city", event.target.value)}
+                  className={fieldClass()}
                 />
               </label>
               <label>
-                <span className={labelClass()}>Naturalidade *</span>
-                <input
-                  value={identity.naturalidade}
-                  onChange={(event) => updateIdentity("naturalidade", event.target.value)}
-                  placeholder="Cidade / Estado"
+                <span className={labelClass()}>Estado *</span>
+                <select
+                  value={identity.state}
+                  onChange={(event) => updateIdentity("state", event.target.value)}
                   className={fieldClass()}
-                />
+                >
+                  <option value="">Selecione</option>
+                  {BRAZILIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
+                </select>
               </label>
               <label>
                 <span className={labelClass()}>Data de Nascimento *</span>

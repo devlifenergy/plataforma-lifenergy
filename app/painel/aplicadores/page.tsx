@@ -1,4 +1,5 @@
 import { ApplicatorCreateForm } from "@/components/application/ApplicatorCreateForm";
+import { BrazilianPhoneInput } from "@/components/application/BrazilianPhoneInput";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -106,7 +107,7 @@ export default async function AplicadoresPage() {
                                 defaultValue={item.email || ""}
                               />
 
-                              <Input
+                              <BrazilianPhoneInput
                                 name="phone"
                                 label="Telefone"
                                 defaultValue={item.phone || ""}

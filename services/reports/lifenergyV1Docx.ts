@@ -231,16 +231,15 @@ function appliedFractals(data: LifenergyV1ReportData) {
     .join("");
 }
 
-function attributeExplanationBlock() {
-  const items = [
-    "Socialização: atributo relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho;",
-    "Reflexão: atributo relacionado com a reflexão interior do Usuário sobre as suas questões de vida e aspectos maiores do contexto no qual ele habita;",
-    "Lazer: atributo relacionado com a realização de atividades que promovem o prazer e a felicidade do Usuário, sejam elas ao ar livre ou em casa;",
-    "Propósito: atributo relacionado com a motivação pessoal e os objetivos do Usuário, ditando suas ambições, perspectivas de futuro e conquistas;",
-    "Sentimento: atributo relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos;",
-  ];
-
-  return items.map((item) => paragraph(`● ${item}`)).join("");
+function attributeMeaning(attribute: string) {
+  const meanings: Record<string, string> = {
+    "socialização": "Atributo relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.",
+    "reflexão": "Atributo relacionado com a reflexão interior do Usuário sobre as suas questões de vida e aspectos maiores do contexto no qual ele habita.",
+    "lazer": "Atributo relacionado com a realização de atividades que promovem o prazer e a felicidade do Usuário, sejam elas ao ar livre ou em casa.",
+    "propósito": "Atributo relacionado com a motivação pessoal e os objetivos do Usuário, ditando suas ambições, perspectivas de futuro e conquistas.",
+    "sentimento": "Atributo relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos;",
+  };
+  return meanings[String(attribute || "").trim().toLowerCase()] || "";
 }
 
 
@@ -269,9 +268,14 @@ function getOrganizationLogoMedia(data: { organization?: { logo_mime_type?: stri
   }
 }
 
-function logoDrawingXml(relId: string) {
+function logoDrawingXml(relId: string, logoSize: string | null | undefined) {
+  const dimensions = logoSize === "small"
+    ? { cx: 1100000, cy: 480000 }
+    : logoSize === "large"
+      ? { cx: 2100000, cy: 910000 }
+      : { cx: 1500000, cy: 650000 };
   return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">
-    <wp:extent cx="1500000" cy="650000"/>
+    <wp:extent cx="${dimensions.cx}" cy="${dimensions.cy}"/>
     <wp:effectExtent l="0" t="0" r="0" b="0"/>
     <wp:docPr id="1" name="Logomarca da empresa"/>
     <wp:cNvGraphicFramePr>
@@ -289,7 +293,7 @@ function logoDrawingXml(relId: string) {
             <a:stretch><a:fillRect/></a:stretch>
           </pic:blipFill>
           <pic:spPr>
-            <a:xfrm><a:off x="0" y="0"/><a:ext cx="1500000" cy="650000"/></a:xfrm>
+            <a:xfrm><a:off x="0" y="0"/><a:ext cx="${dimensions.cx}" cy="${dimensions.cy}"/></a:xfrm>
             <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
           </pic:spPr>
         </pic:pic>
@@ -298,10 +302,15 @@ function logoDrawingXml(relId: string) {
   </wp:inline></w:drawing></w:r>`;
 }
 
-function buildLogoHeaderXml(data: { organization?: { name?: string | null; logo_mime_type?: string | null; logo_content_base64?: string | null } }, title: string, subtitle: string) {
+function buildLogoHeaderXml(data: { organization?: { name?: string | null; logo_mime_type?: string | null; logo_content_base64?: string | null; logo_size?: string | null; logo_position?: string | null } }, title: string, subtitle: string) {
   const logoMedia = getOrganizationLogoMedia(data);
+  const logoAlignment = data.organization?.logo_position === "left"
+    ? "left"
+    : data.organization?.logo_position === "right"
+      ? "right"
+      : "center";
   const logoXml = logoMedia
-    ? `<w:p><w:pPr><w:jc w:val="center"/></w:pPr>${logoDrawingXml("rIdLogo")}</w:p>`
+    ? `<w:p><w:pPr><w:jc w:val="${logoAlignment}"/></w:pPr>${logoDrawingXml("rIdLogo", data.organization?.logo_size)}</w:p>`
     : "";
 
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -334,9 +343,16 @@ function buildHeaderRelsXml(logoMedia: OrganizationLogoMedia | null) {
 }
 
 function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1GeneratedContent) {
+  const attributeOrder = ["Socialização", "Reflexão", "Lazer", "Propósito", "Sentimento"];
+  const attributeByName = new Map(
+    content.atributos_percentuais.map((item) => [item.atributo.trim().toLowerCase(), item])
+  );
   const attributeRows = [
-    ["Atributo", "Percentual"],
-    ...content.atributos_percentuais.map((item) => [item.atributo, item.percentual]),
+    ["Atributo", "Percentual", "Significado"],
+    ...attributeOrder.map((attribute) => {
+      const item = attributeByName.get(attribute.toLowerCase());
+      return [attribute, item?.percentual ?? "0%", attributeMeaning(attribute)];
+    }),
   ];
 
   const body = [
@@ -362,8 +378,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
     heading1("4. Síntese dos padrões relacionais"),
     paragraphs(content.sintese_padroes),
     heading1("5. Categorização dos padrões de comportamento (0 a 100%)"),
-    table(attributeRows, { widths: [5200, 2200] }),
-    attributeExplanationBlock(),
+    table(attributeRows, { widths: [1800, 1400, 5000] }),
     heading2("Leitura da métrica"),
     paragraphs(content.leitura_metrica),
     heading1("6. Recomendações para desenvolvimento de habilidades"),

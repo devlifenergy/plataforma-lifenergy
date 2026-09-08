@@ -87,27 +87,35 @@ export async function updateOrganizationLogo(formData: FormData) {
   const admin = createAdminClient();
   const uploadedFile = formData.get("logo_file");
   const file = uploadedFile instanceof File && uploadedFile.size > 0 ? uploadedFile : null;
+  const logoSize = clean(formData.get("logo_size")) || "medium";
+  const logoPosition = clean(formData.get("logo_position")) || "center";
 
-  if (!file) {
-    throw new Error("Selecione a logomarca da empresa.");
-  }
+  if (!["small", "medium", "large"].includes(logoSize)) throw new Error("Tamanho de logomarca inválido.");
+  if (!["left", "center", "right"].includes(logoPosition)) throw new Error("Posição de logomarca inválida.");
 
-  assertLogoFile(file);
-  const logoContentBase64 = await fileToBase64(file);
-
-  const { error } = await admin
+  const { data: current, error: currentError } = await admin
     .from("organizations")
-    .update({
-      logo_file_name: file.name,
-      logo_mime_type: file.type,
-      logo_content_base64: logoContentBase64,
-      logo_updated_at: new Date().toISOString(),
-    })
-    .eq("id", profile.organization_id);
+    .select("logo_content_base64")
+    .eq("id", profile.organization_id)
+    .single();
+  if (currentError) throw new Error(currentError.message);
+  if (!file && !current?.logo_content_base64) throw new Error("Selecione a logomarca da empresa.");
 
-  if (error) {
-    throw new Error(error.message);
+  const updatePayload: Record<string, unknown> = {
+    logo_size: logoSize,
+    logo_position: logoPosition,
+    logo_updated_at: new Date().toISOString(),
+  };
+
+  if (file) {
+    assertLogoFile(file);
+    updatePayload.logo_file_name = file.name;
+    updatePayload.logo_mime_type = file.type;
+    updatePayload.logo_content_base64 = await fileToBase64(file);
   }
+
+  const { error } = await admin.from("organizations").update(updatePayload).eq("id", profile.organization_id);
+  if (error) throw new Error(error.message);
 
   revalidatePdiAndLibrary();
 }
@@ -297,7 +305,7 @@ export async function listPdiPageData() {
     await Promise.all([
       admin
         .from("organizations")
-        .select("id, name, logo_file_name, logo_mime_type, logo_content_base64, logo_updated_at")
+        .select("id, name, logo_file_name, logo_mime_type, logo_content_base64, logo_updated_at, logo_size, logo_position")
         .eq("id", profile.organization_id)
         .single(),
       supabase

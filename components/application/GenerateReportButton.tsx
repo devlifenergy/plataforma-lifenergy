@@ -137,6 +137,7 @@ export function GenerateReportButton({
 
       window.setTimeout(() => {
         startBrowserDownload(report);
+        window.setTimeout(() => setMessage(null), 2200);
       }, 0);
     } catch (error) {
       const errorMessage =

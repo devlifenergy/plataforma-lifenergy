@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createApplicator } from "@/services/applicators/actions";
+import { BrazilianPhoneInput } from "@/components/application/BrazilianPhoneInput";
 
 export function ApplicatorCreateForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -46,10 +47,7 @@ export function ApplicatorCreateForm() {
         <input name="email" type="email" disabled={isPending} className={inputClass} />
       </label>
 
-      <label className="block">
-        <span className="mb-2 block text-sm font-semibold text-slate-700">Telefone</span>
-        <input name="phone" disabled={isPending} className={inputClass} />
-      </label>
+      <BrazilianPhoneInput name="phone" label="Telefone" disabled={isPending} />
 
       <div className="flex items-end">
         <button

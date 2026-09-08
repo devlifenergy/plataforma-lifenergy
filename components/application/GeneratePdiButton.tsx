@@ -19,7 +19,7 @@ type PdiDownload = {
   fileName: string;
 };
 
-const PDI_BUTTON_VERSION = "1.5.7";
+const PDI_BUTTON_VERSION = "1.5.9";
 
 function getFileNameFromContentDisposition(contentDisposition: string | null) {
   if (!contentDisposition) return "PDI_Lifenergy.docx";
@@ -116,7 +116,10 @@ export function GeneratePdiButton({
       const url = action === "regenerate" ? `${baseUrl}&regenerate=1` : baseUrl;
       const pdi = await fetchPdi(url);
       releaseButton("PDI pronto. Download iniciado.");
-      window.setTimeout(() => startBrowserDownload(pdi), 0);
+      window.setTimeout(() => {
+        startBrowserDownload(pdi);
+        window.setTimeout(() => setMessage(null), 2200);
+      }, 0);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Erro ao gerar PDI.";
       releaseButton(errorMessage);
@@ -136,8 +139,8 @@ export function GeneratePdiButton({
           onClick={() => handleAction("generate")}
           className={`w-full whitespace-nowrap rounded-full border px-4 py-2 text-center text-[14px] font-bold transition ${
             pdiType === "corporate"
-              ? "border-[#B8860B] text-[#0F2D4A] hover:bg-[#B8860B]/10"
-              : "border-[#0F2D4A] text-[#0F2D4A] hover:bg-[#0F2D4A]/10"
+              ? "border-[#B8860B] bg-[#D9B861] text-[#0F2D4A] shadow-sm hover:bg-[#E5C87F]"
+              : "border-[#0F2D4A] bg-[#0F2D4A] text-white shadow-sm hover:bg-[#173E5F]"
           } ${isBusy || isBlocked ? "cursor-not-allowed opacity-60" : ""}`}
         >
           {activeAction === "generate" ? "Gerando PDI..." : buttonLabel}
@@ -148,7 +151,7 @@ export function GeneratePdiButton({
             type="button"
             disabled={isBusy || isBlocked}
             onClick={() => handleAction("regenerate")}
-            className={`w-full whitespace-nowrap rounded-full border border-slate-300 px-4 py-2 text-center text-[14px] font-bold text-slate-700 transition hover:bg-slate-50 ${
+            className={`w-full whitespace-nowrap rounded-full border border-[#B8860B]/40 bg-[#B8860B]/8 px-4 py-2 text-center text-[14px] font-bold text-[#0F2D4A] transition hover:bg-[#B8860B]/15 ${
               isBusy || isBlocked ? "cursor-not-allowed opacity-60" : ""
             }`}
           >

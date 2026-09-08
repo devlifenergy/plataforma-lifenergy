@@ -19,12 +19,15 @@ export default async function PainelLayout({
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("name, email, role, organizations(name)")
+    .select("name, email, role, must_change_password, organizations(name)")
     .eq("auth_user_id", user.id)
     .single();
 
   if (error || !profile) {
     redirect("/login");
+  }
+  if ((profile as any).must_change_password) {
+    redirect("/alterar-senha");
   }
 
   const organizations = (profile as any).organizations;

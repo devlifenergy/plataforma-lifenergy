@@ -47,6 +47,7 @@ export default function Home() {
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link href="/login" className="rounded-full bg-[#d9b861] px-7 py-3.5 text-center text-sm font-bold text-[#102e43] shadow-[0_12px_30px_-12px_rgba(217,184,97,0.7)] transition hover:-translate-y-0.5 hover:bg-[#e7cb83]">Entrar na Plataforma</Link>
               <a href="#metodologia" className="px-5 py-3 text-center text-sm font-semibold text-white/80 transition hover:text-white">Conheça a metodologia →</a>
+              <Link href="/biblioteca-tecnica" className="px-5 py-3 text-center text-sm font-semibold text-[#e5c87f] transition hover:text-white">Biblioteca Técnica →</Link>
             </div>
           </div>
 

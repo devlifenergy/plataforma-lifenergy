@@ -3,6 +3,7 @@ import { CreateJourneyForm } from "@/components/application/CreateJourneyForm";
 import { EditJourneyForm } from "@/components/application/EditJourneyForm";
 import { DeletePendingJourneyButton } from "@/components/application/DeletePendingJourneyButton";
 import { GenerateReportButton } from "@/components/application/GenerateReportButton";
+import { SendJourneyLinkEmailButton } from "@/components/application/SendJourneyLinkEmailButton";
 import { Card } from "@/components/ui/Card";
 import {
   listActiveApplicators,
@@ -172,6 +173,7 @@ export default async function EntrevistadosPage() {
                                     Abrir link
                                   </a>
                                   <CopyLinkButton path={link} />
+                                  <SendJourneyLinkEmailButton journeyId={item.id} disabled={!item.participant_email} />
                                   <DeletePendingJourneyButton journeyId={item.id} />
                                 </>
                               ) : null}

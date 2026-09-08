@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabaseServer";
+import { isValidBrazilianPhone, isValidEmail, formatBrazilianPhone } from "@/lib/validation";
 
 async function getCurrentProfile() {
   const supabase = await createClient();
@@ -58,12 +59,18 @@ export async function createApplicator(formData: FormData) {
   if (!name) {
     throw new Error("Nome do aplicador é obrigatório.");
   }
+  if (email && !isValidEmail(email)) {
+    throw new Error("Informe um e-mail válido para o aplicador.");
+  }
+  if (phone && !isValidBrazilianPhone(phone)) {
+    throw new Error("Informe um telefone brasileiro válido com DDD.");
+  }
 
   const { error } = await supabase.from("applicators").insert({
     organization_id: profile.organization_id,
     name,
     email,
-    phone,
+    phone: phone ? formatBrazilianPhone(phone) : null,
     active: true,
   });
 
@@ -87,13 +94,19 @@ export async function updateApplicator(formData: FormData) {
   if (!applicatorId || !name) {
     throw new Error("Informe o aplicador e o nome.");
   }
+  if (email && !isValidEmail(email)) {
+    throw new Error("Informe um e-mail válido para o aplicador.");
+  }
+  if (phone && !isValidBrazilianPhone(phone)) {
+    throw new Error("Informe um telefone brasileiro válido com DDD.");
+  }
 
   const { error } = await supabase
     .from("applicators")
     .update({
       name,
       email,
-      phone,
+      phone: phone ? formatBrazilianPhone(phone) : null,
     })
     .eq("id", applicatorId)
     .eq("organization_id", profile.organization_id);

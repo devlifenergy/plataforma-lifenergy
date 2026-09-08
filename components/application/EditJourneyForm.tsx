@@ -14,6 +14,10 @@ type JourneyFractal = {
   fractal_code: string;
 };
 
+function fractalDisplayText(value: string) {
+  return String(value || "").replace(/^\s*\d+\.\s*/, "").trim();
+}
+
 type Props = {
   journeyId: string;
   participantName: string;
@@ -55,14 +59,14 @@ export function EditJourneyForm(props: Props) {
                 <span className="mb-2 block text-[15px] font-semibold text-slate-700">Vórtice *</span>
                 <select name={`vortex_${fractal.position}`} required value={fractal.vortex} onChange={(e) => patch(index, { vortex: e.target.value, connection_point: "", fractal_code: "", activity: "" })} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
                   <option value="">Selecione</option>
-                  {LIFENERGY_FRACTAL_MATRIX.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+                  {LIFENERGY_FRACTAL_MATRIX.map((item) => <option key={item.id} value={item.id}>{fractalDisplayText(item.title)}</option>)}
                 </select>
               </label>
               <label className="block">
                 <span className="mb-2 block text-[15px] font-semibold text-slate-700">Ponto de Conexão *</span>
                 <select name={`connection_point_${fractal.position}`} required value={fractal.connection_point} disabled={!vortex} onChange={(e) => patch(index, { connection_point: e.target.value, fractal_code: "", activity: "" })} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-100">
                   <option value="">Selecione</option>
-                  {vortex?.connectionPoints.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+                  {vortex?.connectionPoints.map((item) => <option key={item.id} value={item.id}>{fractalDisplayText(item.title)}</option>)}
                 </select>
               </label>
               <fieldset className="md:col-span-2">
@@ -83,7 +87,7 @@ export function EditJourneyForm(props: Props) {
                       return (
                         <label
                           key={item.id}
-                          className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm leading-6 transition ${
+                          className={`block rounded-xl border px-4 py-3 text-sm leading-6 transition ${
                             checked
                               ? "border-[#B8860B] bg-[#B8860B]/5 ring-2 ring-[#B8860B]/15"
                               : alreadySelected
@@ -99,10 +103,10 @@ export function EditJourneyForm(props: Props) {
                             required
                             disabled={alreadySelected}
                             onChange={() => patch(index, { fractal_code: item.id, activity: item.text })}
-                            className="mt-1 h-4 w-4 shrink-0 accent-[#B8860B]"
+                            className="sr-only"
                           />
                           <span className={alreadySelected ? "text-slate-400" : "text-slate-800"}>
-                            {item.title}
+                            {fractalDisplayText(item.title)}
                             {alreadySelected ? (
                               <span className="ml-2 font-semibold">(já selecionado neste link)</span>
                             ) : null}

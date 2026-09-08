@@ -9,9 +9,11 @@ type CompanyLogoFormProps = {
   hasLogo: boolean;
   logoFileName?: string | null;
   logoDataUrl?: string | null;
+  logoSize?: string | null;
+  logoPosition?: string | null;
 };
 
-export function CompanyLogoForm({ hasLogo, logoFileName, logoDataUrl }: CompanyLogoFormProps) {
+export function CompanyLogoForm({ hasLogo, logoFileName, logoDataUrl, logoSize, logoPosition }: CompanyLogoFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const inputId = useId();
   const router = useRouter();
@@ -72,7 +74,7 @@ export function CompanyLogoForm({ hasLogo, logoFileName, logoDataUrl }: CompanyL
           id={inputId}
           type="file"
           name="logo_file"
-          required
+          required={!hasLogo}
           disabled={isPending}
           accept="image/png,image/jpeg,.png,.jpg,.jpeg"
           className="sr-only"
@@ -93,6 +95,25 @@ export function CompanyLogoForm({ hasLogo, logoFileName, logoDataUrl }: CompanyL
           </label>
           <span className="text-sm leading-5 text-slate-600">{selectedFileName}</span>
         </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block">
+          <span className="mb-2 block text-sm font-semibold text-slate-700">Tamanho no cabeçalho</span>
+          <select name="logo_size" defaultValue={logoSize || "medium"} disabled={isPending} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#B8860B]">
+            <option value="small">Pequeno</option>
+            <option value="medium">Médio</option>
+            <option value="large">Grande</option>
+          </select>
+        </label>
+        <label className="block">
+          <span className="mb-2 block text-sm font-semibold text-slate-700">Posição no cabeçalho</span>
+          <select name="logo_position" defaultValue={logoPosition || "center"} disabled={isPending} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#B8860B]">
+            <option value="left">Esquerda</option>
+            <option value="center">Centro</option>
+            <option value="right">Direita</option>
+          </select>
+        </label>
       </div>
 
       {error ? (

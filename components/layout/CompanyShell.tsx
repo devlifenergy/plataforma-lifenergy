@@ -9,12 +9,14 @@ type MenuItem = {
 };
 
 const menuItems: MenuItem[] = [
-  { label: "Painel", href: "/painel" },
+  { label: "Painel Inicial", href: "/painel" },
   { label: "Empresas", href: "/painel/empresas", superAdminOnly: true },
-  { label: "Aplicadores", href: "/painel/aplicadores", hiddenForSuperAdmin: true },
+  { label: "Aplicadores Autorizados", href: "/painel/aplicadores", hiddenForSuperAdmin: true },
   { label: "Avaliados", href: "/painel/entrevistados", hiddenForSuperAdmin: true },
-  { label: "Biblioteca", href: "/painel/biblioteca", hiddenForSuperAdmin: true },
-  { label: "PDI", href: "/painel/pdi", hiddenForSuperAdmin: true },
+  { label: "PDI Relacional", href: "/painel/pdi", hiddenForSuperAdmin: true },
+  { label: "PDI Corporativo", href: "/painel/pdi-corporativo", hiddenForSuperAdmin: true },
+  { label: "Biblioteca Corporativa", href: "/painel/biblioteca", hiddenForSuperAdmin: true },
+  { label: "Biblioteca Técnica", href: "/painel/biblioteca-tecnica" },
   { label: "Laudos", href: "/painel/exportacoes", superAdminOnly: true },
 ];
 

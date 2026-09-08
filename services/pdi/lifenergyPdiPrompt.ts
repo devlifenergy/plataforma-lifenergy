@@ -101,6 +101,8 @@ REGRAS PARA PDI CORPORATIVO
 9. No PDI Corporativo, escreva o Plano de Ação 70-20-10 como no modelo: "Competência 1 – Nome da competência", tabela Dimensão/Ação com 70%, 20% e 10%, seguida de Frequência, Responsável, Recursos e Evidência de conclusão.
 10. Use as atividades reais do cargo, área e documentos da Biblioteca Corporativa quando disponíveis. Não use ações genéricas quando houver descrição de cargo ou função.
 11. Na seção de apoio e suporte, explicite o papel da liderança, RH, pares, indicadores, feedback e condições organizacionais necessárias.
+12. No PDI Corporativo, trate o CARGO ATUAL como eixo obrigatório da análise. Adeque competências, responsabilidades, ações, indicadores e resultados esperados às atribuições e ao nível do cargo, usando a descrição de cargos da Biblioteca Corporativa quando disponível.
+13. Não proponha competências ou entregas incompatíveis com o cargo informado.
 
 REGRAS DE REDAÇÃO
 1. Escreva em português do Brasil.
@@ -179,7 +181,9 @@ Use principalmente:
 - Respostas, hierarquias e justificativas dos fractais;
 - Contexto operacional do PDI, quando informado;
 - Documentos da Biblioteca Corporativa, somente no PDI Corporativo.
+- Todos os formulários relacionados ao mesmo CPF presentes em relatedEvaluations, no PDI Corporativo.
 
+No PDI Corporativo, consolide os achados recorrentes e complementares de TODOS os formulários do mesmo CPF. Não trate apenas a avaliação mais recente como fonte exclusiva.
 Não use o campo "Objetivo de participação". Ele está fora do escopo do PDI V3.
 Não use a Reflexão após essa tarefa.
 Não exija Termo ou Política de uso do PDI.

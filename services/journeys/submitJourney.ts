@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabaseServer";
 
+import { isValidCpf, isValidEmail } from "@/lib/validation";
 function required(formData: FormData, key: string) {
   const value = String(formData.get(key) || "").trim();
   if (!value) throw new Error(`Campo obrigatorio ausente: ${key}`);
@@ -41,14 +42,19 @@ export async function submitJourney(token: string, formData: FormData) {
     throw new Error("Nome do aplicador e obrigatorio para Aplicacao Assistida.");
   }
 
+  const email = required(formData, "email");
+  const cpf = required(formData, "cpf");
+  if (!isValidEmail(email)) throw new Error("Informe um e-mail válido.");
+  if (!isValidCpf(cpf)) throw new Error("Informe um CPF válido.");
+
   const { error } = await supabase.rpc("submit_public_journey_response", {
     p_token: token,
     p_application_date: normalizeDateForDatabase(required(formData, "application_date")),
     p_initial_time: required(formData, "initial_time"),
     p_full_name: required(formData, "nome"),
-    p_email: required(formData, "email"),
+    p_email: email,
     p_naturalidade: required(formData, "naturalidade"),
-    p_cpf: required(formData, "cpf"),
+    p_cpf: cpf,
     p_birth_date: normalizeDateForDatabase(required(formData, "data_nascimento")),
     p_participation_objective: required(formData, "objetivo"),
     p_application_type: applicationType,

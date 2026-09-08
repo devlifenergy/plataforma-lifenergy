@@ -19,9 +19,11 @@ export function CompanyCreateForm() {
 
     startTransition(async () => {
       try {
-        await createCompany(formData);
+        const result = await createCompany(formData);
         formRef.current?.reset();
-        setSuccess("Empresa cadastrada com sucesso.");
+        setSuccess(result.emailSent
+          ? "Empresa cadastrada e credenciais enviadas por e-mail."
+          : `Empresa cadastrada. ${result.emailWarning || "Configure o e-mail transacional para enviar as credenciais automaticamente."}`);
         router.refresh();
       } catch (caught) {
         const message =
@@ -66,6 +68,10 @@ export function CompanyCreateForm() {
         placeholder="Senha inicial *"
         className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
       />
+
+      <input name="license_individual_reports" required min="0" type="number" disabled={isPending} placeholder="Licenças - Relatório Individual *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:bg-slate-100" />
+      <input name="license_pdi_relational" required min="0" type="number" disabled={isPending} placeholder="Licenças - PDI Relacional *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:bg-slate-100" />
+      <input name="license_pdi_corporate" required min="0" type="number" disabled={isPending} placeholder="Licenças - PDI Corporativo *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:bg-slate-100 md:col-span-2" />
 
       {error ? (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 md:col-span-2">

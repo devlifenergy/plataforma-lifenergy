@@ -72,7 +72,7 @@ export async function signIn(formData: FormData) {
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("role, organization_id")
+    .select("role, organization_id, must_change_password")
     .eq("auth_user_id", signInData.user.id)
     .single();
 
@@ -112,6 +112,10 @@ export async function signIn(formData: FormData) {
     }
   }
 
+  if (profile.must_change_password) {
+    redirect("/alterar-senha");
+  }
+
   redirect("/painel");
 }
 
@@ -119,4 +123,25 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
+}
+
+
+export async function changeInitialPassword(formData: FormData) {
+  const password = String(formData.get("password") || "");
+  const confirmation = String(formData.get("password_confirmation") || "");
+  if (password.length < 8) redirect("/alterar-senha?error=Use%20uma%20senha%20com%20pelo%20menos%208%20caracteres.");
+  if (password !== confirmation) redirect("/alterar-senha?error=As%20senhas%20não%20coincidem.");
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error: passwordError } = await supabase.auth.updateUser({ password });
+  if (passwordError) redirect(`/alterar-senha?error=${encodeURIComponent(passwordError.message)}`);
+
+  const admin = createAdminClient();
+  const { error: profileError } = await admin.from("profiles").update({ must_change_password: false }).eq("auth_user_id", user.id);
+  if (profileError) redirect(`/alterar-senha?error=${encodeURIComponent(profileError.message)}`);
+
+  redirect("/painel");
 }

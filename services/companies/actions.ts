@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
+import { isValidEmail } from "@/lib/validation";
+import { getApplicationBaseUrl, sendLifenergyEmail } from "@/services/email/lifenergyEmail";
 
 type CompanyListItem = {
   id: string;
@@ -13,6 +15,9 @@ type CompanyListItem = {
   authUserId: string | null;
   adminName: string;
   adminEmail: string;
+  licenseIndividualReports: number | null;
+  licensePdiRelational: number | null;
+  licensePdiCorporate: number | null;
 };
 
 async function requireSuperAdmin() {
@@ -62,7 +67,7 @@ export async function listCompanies(): Promise<CompanyListItem[]> {
   ] = await Promise.all([
     admin
       .from("organizations")
-      .select("id, name, status, created_at")
+      .select("id, name, status, created_at, license_individual_reports, license_pdi_relational, license_pdi_corporate")
       .order("created_at", { ascending: false }),
     admin
       .from("profiles")
@@ -111,6 +116,9 @@ export async function listCompanies(): Promise<CompanyListItem[]> {
       authUserId: organizationAdmin?.auth_user_id ?? null,
       adminName: organizationAdmin?.name ?? "",
       adminEmail: organizationAdmin?.email ?? "",
+      licenseIndividualReports: (organization as any).license_individual_reports ?? null,
+      licensePdiRelational: (organization as any).license_pdi_relational ?? null,
+      licensePdiCorporate: (organization as any).license_pdi_corporate ?? null,
     };
   });
 }
@@ -122,9 +130,16 @@ export async function createCompany(formData: FormData) {
   const adminName = String(formData.get("admin_name") || "").trim();
   const adminEmail = normalizeEmail(formData.get("admin_email"));
   const password = String(formData.get("password") || "");
+  const licenseIndividual = Number(formData.get("license_individual_reports"));
+  const licenseRelational = Number(formData.get("license_pdi_relational"));
+  const licenseCorporate = Number(formData.get("license_pdi_corporate"));
 
   if (!companyName || !adminName || !adminEmail || !password) {
     throw new Error("Preencha todos os campos.");
+  }
+  if (!isValidEmail(adminEmail)) throw new Error("Informe um e-mail válido para o administrador.");
+  if (![licenseIndividual, licenseRelational, licenseCorporate].every((value) => Number.isInteger(value) && value >= 0)) {
+    throw new Error("Informe quantidades válidas de licenças.");
   }
 
   if (password.length < 6) {
@@ -186,6 +201,9 @@ export async function createCompany(formData: FormData) {
     .insert({
       name: companyName,
       status: "active",
+      license_individual_reports: licenseIndividual,
+      license_pdi_relational: licenseRelational,
+      license_pdi_corporate: licenseCorporate,
     })
     .select("id")
     .single();
@@ -202,6 +220,7 @@ export async function createCompany(formData: FormData) {
     name: adminName,
     email: adminEmail,
     role: "organization_admin",
+    must_change_password: true,
   });
 
   if (profileError) {
@@ -210,7 +229,23 @@ export async function createCompany(formData: FormData) {
     throw new Error(profileError.message);
   }
 
+  const appUrl = getApplicationBaseUrl();
+  let emailSent = false;
+  let emailWarning: string | null = null;
+  try {
+    const emailResult = await sendLifenergyEmail({
+      to: adminEmail,
+      subject: `Acesso à Plataforma Lifenergy - ${companyName}`,
+      html: `<p>Olá, ${adminName}.</p><p>Sua empresa <strong>${companyName}</strong> foi cadastrada na Plataforma Lifenergy.</p><p><strong>Usuário:</strong> ${adminEmail}<br/><strong>Senha inicial:</strong> ${password}</p><p><a href="${appUrl ? `${appUrl}/login` : "/login"}">Acessar a Plataforma Lifenergy</a></p><p>No primeiro acesso, será obrigatório alterar a senha.</p>`,
+    });
+    emailSent = emailResult.sent;
+    if (!emailResult.sent) emailWarning = emailResult.reason;
+  } catch (error) {
+    emailWarning = error instanceof Error ? error.message : "Não foi possível enviar o e-mail de credenciais.";
+  }
+
   revalidatePath("/painel/empresas");
+  return { emailSent, emailWarning };
 }
 
 export async function updateCompany(formData: FormData) {
@@ -223,6 +258,9 @@ export async function updateCompany(formData: FormData) {
   const adminName = String(formData.get("admin_name") || "").trim();
   const adminEmail = normalizeEmail(formData.get("admin_email"));
   const newPassword = String(formData.get("new_password") || "").trim();
+  const licenseIndividual = Number(formData.get("license_individual_reports"));
+  const licenseRelational = Number(formData.get("license_pdi_relational"));
+  const licenseCorporate = Number(formData.get("license_pdi_corporate"));
 
   if (newPassword && newPassword.length < 6) {
     throw new Error("A nova senha deve ter no mínimo 6 caracteres.");
@@ -230,6 +268,10 @@ export async function updateCompany(formData: FormData) {
 
   if (!companyId || !profileId || !authUserId || !companyName || !adminName || !adminEmail) {
     throw new Error("Preencha todos os campos da edição.");
+  }
+  if (!isValidEmail(adminEmail)) throw new Error("Informe um e-mail válido para o administrador.");
+  if (![licenseIndividual, licenseRelational, licenseCorporate].every((value) => Number.isInteger(value) && value >= 0)) {
+    throw new Error("Informe quantidades válidas de licenças.");
   }
 
   const admin = createAdminClient();
@@ -239,7 +281,7 @@ export async function updateCompany(formData: FormData) {
     { data: currentProfile, error: currentProfileError },
     { data: currentAuthData, error: currentAuthError },
   ] = await Promise.all([
-    admin.from("organizations").select("id, name").eq("id", companyId).single(),
+    admin.from("organizations").select("id, name, license_individual_reports, license_pdi_relational, license_pdi_corporate").eq("id", companyId).single(),
     admin
       .from("profiles")
       .select("id, organization_id, auth_user_id, name, email, role")
@@ -273,7 +315,12 @@ export async function updateCompany(formData: FormData) {
 
   const { error: organizationUpdateError } = await admin
     .from("organizations")
-    .update({ name: companyName })
+    .update({
+      name: companyName,
+      license_individual_reports: licenseIndividual,
+      license_pdi_relational: licenseRelational,
+      license_pdi_corporate: licenseCorporate,
+    })
     .eq("id", companyId);
 
   if (organizationUpdateError) {
@@ -293,7 +340,12 @@ export async function updateCompany(formData: FormData) {
   if (profileUpdateError) {
     await admin
       .from("organizations")
-      .update({ name: previousCompanyName })
+      .update({
+        name: previousCompanyName,
+        license_individual_reports: (currentOrganization as any).license_individual_reports,
+        license_pdi_relational: (currentOrganization as any).license_pdi_relational,
+        license_pdi_corporate: (currentOrganization as any).license_pdi_corporate,
+      })
       .eq("id", companyId);
 
     throw new Error(profileUpdateError.message);
@@ -326,7 +378,12 @@ export async function updateCompany(formData: FormData) {
   if (authUpdateError) {
     await admin
       .from("organizations")
-      .update({ name: previousCompanyName })
+      .update({
+        name: previousCompanyName,
+        license_individual_reports: (currentOrganization as any).license_individual_reports,
+        license_pdi_relational: (currentOrganization as any).license_pdi_relational,
+        license_pdi_corporate: (currentOrganization as any).license_pdi_corporate,
+      })
       .eq("id", companyId);
 
     await admin

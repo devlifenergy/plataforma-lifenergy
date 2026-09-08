@@ -157,6 +157,10 @@ export async function loadPdiContextAndCorporateKnowledge(params: {
     );
   }
 
+  if (params.pdiType === "corporate" && !String((context as any)?.current_job_title ?? "").trim()) {
+    throw new Error("PDI Corporativo bloqueado. Informe o Cargo atual no Contexto Operacional antes da geração.");
+  }
+
   return {
     pdiContext: (context ?? null) as PdiContextRecord | null,
     corporateDocuments: params.pdiType === "corporate" ? activeDocuments : [],

@@ -1,11 +1,11 @@
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "@/services/reports/lifenergyV1Types";
 import type { OrganizationDocumentForPdi, PdiContextRecord } from "./corporateKnowledge";
 
-export const LIFENERGY_PDI_VERSION = "lifenergy_pdi_v4_1_1_5_8";
+export const LIFENERGY_PDI_VERSION = "lifenergy_pdi_v4_2_1_5_9";
 export const LIFENERGY_PDI_FORMAT = "docx";
-export const LIFENERGY_PDI_ENGINE_VERSION = "1.5.8";
-export const LIFENERGY_PDI_PROMPT_VERSION = "pdi_lifenergy_v4_1_logo_empresa_2026_09_02";
-export const LIFENERGY_PDI_TEMPLATE_VERSION = "docx_pdi_lifenergy_v4_1_logo_empresa_2026_09_02";
+export const LIFENERGY_PDI_ENGINE_VERSION = "1.5.9";
+export const LIFENERGY_PDI_PROMPT_VERSION = "pdi_lifenergy_v4_2_cargo_logo_configuravel_2026_09_08";
+export const LIFENERGY_PDI_TEMPLATE_VERSION = "docx_pdi_lifenergy_v4_2_cargo_logo_configuravel_2026_09_08";
 
 export type LifenergyPdiType = "relational" | "corporate";
 
@@ -16,6 +16,12 @@ export type LifenergyPdiData = {
   reportData: LifenergyV1ReportData;
   reportContent: LifenergyV1GeneratedContent;
   sourceReportId: string | null;
+  relatedEvaluations?: Array<{
+    responseId: string;
+    applicationDate: string;
+    reportData: Pick<LifenergyV1ReportData, "response" | "fractals" | "journey">;
+    reportContent: LifenergyV1GeneratedContent | null;
+  }>;
 };
 
 export type LifenergyPdiGeneratedContent = {
