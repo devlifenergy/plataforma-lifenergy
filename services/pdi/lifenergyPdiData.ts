@@ -1,8 +1,5 @@
 import { createAdminClient } from "@/lib/supabaseAdmin";
-import {
-  generateLifenergyV1Content,
-  isLifenergyV1GeneratedContent,
-} from "@/services/reports/lifenergyV1AI";
+import { isLifenergyV1GeneratedContent } from "@/services/reports/lifenergyV1AI";
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
 import {
   LIFENERGY_REPORT_FORMAT,
@@ -72,73 +69,33 @@ function stripPdiExcludedFields(reportData: LifenergyV1ReportData): LifenergyV1R
 }
 
 
-async function loadRelatedEvaluations(reportData: LifenergyV1ReportData, pdiType: LifenergyPdiType) {
-  if (pdiType !== "corporate") return [];
-  const admin = createAdminClient();
-  const { data: relatedResponses, error } = await admin
-    .from("journey_responses")
-    .select("id, application_date")
-    .eq("organization_id", reportData.organization.id)
-    .eq("cpf", reportData.response.cpf)
-    .neq("id", reportData.response.id)
-    .order("created_at", { ascending: false })
-    .limit(20);
-  if (error) throw new Error(error.message);
-  if (!relatedResponses?.length) return [];
-
-  return Promise.all(relatedResponses.map(async (response) => {
-    const relatedReportData = stripPdiExcludedFields(await loadLifenergyV1ReportData(response.id));
-    const stored = await findStoredReport(response.id);
-    return {
-      responseId: response.id,
-      applicationDate: response.application_date || relatedReportData.response.application_date,
-      reportData: {
-        response: relatedReportData.response,
-        fractals: relatedReportData.fractals,
-        journey: relatedReportData.journey,
-      },
-      reportContent: stored?.generated_content_json ?? null,
-    };
-  }));
-}
 export async function buildLifenergyPdiDataFromReportData(
   reportData: LifenergyV1ReportData,
   options?: { pdiType?: LifenergyPdiType }
 ): Promise<LifenergyPdiData> {
   const pdiType = options?.pdiType ?? "relational";
   const safeReportData = stripPdiExcludedFields(reportData);
-  const [storedReport, contextAndKnowledge, relatedEvaluations] = await Promise.all([
+  const [storedReport, contextAndKnowledge] = await Promise.all([
     findStoredReport(reportData.response.id),
     loadPdiContextAndCorporateKnowledge({
       organizationId: reportData.organization.id,
       responseId: reportData.response.id,
       pdiType,
     }),
-    loadRelatedEvaluations(reportData, pdiType),
   ]);
 
-  if (storedReport) {
-    return {
-      pdiType,
-      pdiContext: contextAndKnowledge.pdiContext,
-      corporateDocuments: contextAndKnowledge.corporateDocuments,
-      reportData: safeReportData,
-      reportContent: storedReport.generated_content_json,
-      sourceReportId: storedReport.id,
-      relatedEvaluations,
-    };
+  if (!storedReport) {
+    throw new Error("Gere o Relatório Relacional desta aplicação antes de gerar o PDI.");
   }
-
-  const generated = await generateLifenergyV1Content(reportData);
 
   return {
     pdiType,
     pdiContext: contextAndKnowledge.pdiContext,
     corporateDocuments: contextAndKnowledge.corporateDocuments,
     reportData: safeReportData,
-    reportContent: generated.content,
-    sourceReportId: null,
-    relatedEvaluations,
+    reportContent: storedReport.generated_content_json,
+    sourceReportId: storedReport.id,
+    relatedEvaluations: [],
   };
 }
 

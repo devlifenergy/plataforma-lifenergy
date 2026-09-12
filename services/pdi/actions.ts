@@ -251,7 +251,10 @@ export async function savePdiContext(formData: FormData) {
   const { supabase, profile } = await getCurrentProfile();
   const responseId = clean(formData.get("journey_response_id"));
   const pdiType = clean(formData.get("pdi_type")) === "corporate" ? "corporate" : "relational";
-  const personType = clean(formData.get("person_type")) === "employee" ? "employee" : "external";
+  const personTypeValue = clean(formData.get("person_type"));
+  const personType = personTypeValue === "employee" || personTypeValue === "external"
+    ? personTypeValue
+    : pdiType === "corporate" ? "employee" : "external";
 
   if (!responseId) {
     throw new Error("Resposta do avaliado não informada.");
@@ -361,9 +364,10 @@ export async function listPdiPageData() {
   const responseIds = Array.from(responsesByJourney.values()).map((item: any) => item.id);
   const contextByResponse = new Map<string, any>();
   const pdisByResponse = new Map<string, any[]>();
+  const reportsByResponse = new Map<string, any>();
 
   if (responseIds.length > 0) {
-    const [{ data: contexts, error: contextsError }, { data: pdis, error: pdisError }] =
+    const [{ data: contexts, error: contextsError }, { data: pdis, error: pdisError }, { data: reports, error: reportsError }] =
       await Promise.all([
         supabase
           .from("pdi_contexts")
@@ -377,10 +381,17 @@ export async function listPdiPageData() {
           .in("journey_response_id", responseIds)
           .eq("status", "generated")
           .order("created_at", { ascending: false }),
+        supabase
+          .from("generated_reports")
+          .select("id, journey_response_id, file_name, created_at")
+          .in("journey_response_id", responseIds)
+          .eq("status", "generated")
+          .order("created_at", { ascending: false }),
       ]);
 
     if (contextsError) throw new Error(contextsError.message);
     if (pdisError) throw new Error(pdisError.message);
+    if (reportsError) throw new Error(reportsError.message);
 
     for (const context of contexts ?? []) {
       contextByResponse.set(context.journey_response_id, context);
@@ -390,6 +401,12 @@ export async function listPdiPageData() {
       const current = pdisByResponse.get(pdi.journey_response_id) ?? [];
       current.push(pdi);
       pdisByResponse.set(pdi.journey_response_id, current);
+    }
+
+    for (const report of reports ?? []) {
+      if (!reportsByResponse.has(report.journey_response_id)) {
+        reportsByResponse.set(report.journey_response_id, report);
+      }
     }
   }
 
@@ -414,6 +431,7 @@ export async function listPdiPageData() {
         completedAt: journey.completed_at,
         applicatorName: applicatorName || "-",
         context: contextByResponse.get(response.id) ?? null,
+        generatedReport: reportsByResponse.get(response.id) ?? null,
         generatedPdis: pdisByResponse.get(response.id) ?? [],
       };
     })

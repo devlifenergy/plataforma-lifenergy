@@ -6,6 +6,8 @@ import { flushSync } from "react-dom";
 type GenerateReportButtonProps = {
   responseId: string;
   allowRegenerate?: boolean;
+  disabledReason?: string | null;
+  label?: string;
 };
 
 type ReportDownload = {
@@ -90,6 +92,8 @@ function startBrowserDownload(report: ReportDownload) {
 export function GenerateReportButton({
   responseId,
   allowRegenerate = false,
+  disabledReason = null,
+  label = "Gerar relatório",
 }: GenerateReportButtonProps) {
   const [activeAction, setActiveAction] = useState<"generate" | "regenerate" | null>(
     null
@@ -98,6 +102,7 @@ export function GenerateReportButton({
   const requestInFlightRef = useRef(false);
 
   const isBusy = Boolean(activeAction);
+  const isBlocked = Boolean(disabledReason);
   const baseUrl = `/api/reports/lifenergy-v1/${encodeURIComponent(responseId)}`;
 
   function releaseButton(nextMessage: string | null) {
@@ -115,7 +120,7 @@ export function GenerateReportButton({
   }
 
   async function handleAction(action: "generate" | "regenerate") {
-    if (requestInFlightRef.current) {
+    if (requestInFlightRef.current || isBlocked) {
       return;
     }
 
@@ -154,13 +159,13 @@ export function GenerateReportButton({
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          disabled={isBusy}
+          disabled={isBusy || isBlocked}
           onClick={() => handleAction("generate")}
           className={`rounded-full border border-[#B8860B] px-4 py-2 text-[14px] font-bold text-[#0F2D4A] transition hover:bg-[#B8860B]/10 ${
             isBusy ? "cursor-not-allowed opacity-60" : ""
           }`}
         >
-          {activeAction === "generate" ? "Gerando relatório..." : "Gerar relatório"}
+          {activeAction === "generate" ? "Gerando relatório..." : label}
         </button>
 
         {allowRegenerate ? (
@@ -176,6 +181,12 @@ export function GenerateReportButton({
           </button>
         ) : null}
       </div>
+
+      {isBlocked ? (
+        <p className="text-xs font-medium leading-5 text-amber-700" aria-live="polite">
+          {disabledReason}
+        </p>
+      ) : null}
 
       {message ? (
         <p

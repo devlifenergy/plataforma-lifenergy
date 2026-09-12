@@ -2,7 +2,6 @@ import { CopyLinkButton } from "@/components/application/CopyLinkButton";
 import { CreateJourneyForm } from "@/components/application/CreateJourneyForm";
 import { EditJourneyForm } from "@/components/application/EditJourneyForm";
 import { DeletePendingJourneyButton } from "@/components/application/DeletePendingJourneyButton";
-import { GenerateReportButton } from "@/components/application/GenerateReportButton";
 import { SendJourneyLinkEmailButton } from "@/components/application/SendJourneyLinkEmailButton";
 import { Card } from "@/components/ui/Card";
 import {
@@ -64,7 +63,7 @@ export default async function EntrevistadosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#0F2D4A]">Avaliados</h1>
+        <h1 className="text-3xl font-bold text-[#0F2D4A]">Aplicação on-line</h1>
         <p className="mt-1 text-slate-500">
           {journeys.length === 1
             ? "1 convite cadastrado"
@@ -80,9 +79,9 @@ export default async function EntrevistadosPage() {
         <Card>
           <div className="py-20 text-center">
             <h2 className="text-xl font-semibold text-[#0F2D4A]">
-              Nenhum avaliado convidado
+              Nenhuma aplicação cadastrada
             </h2>
-            <p className="mt-2 text-slate-500">Crie o primeiro convite acima.</p>
+            <p className="mt-2 text-slate-500">Crie a primeira aplicação on-line acima.</p>
           </div>
         </Card>
       ) : (
@@ -178,10 +177,6 @@ export default async function EntrevistadosPage() {
                                 </>
                               ) : null}
 
-                              {(item.status === "completed" || item.status === "exported") &&
-                              (item as any).response_id ? (
-                                <GenerateReportButton responseId={(item as any).response_id} />
-                              ) : null}
                             </div>
                           </div>
                         </div>

@@ -1,8 +1,6 @@
 import { CompanyLogoForm } from "@/components/application/CompanyLogoForm";
 import { CorporateDocumentForm } from "@/components/application/CorporateDocumentForm";
 import { Card } from "@/components/ui/Card";
-import { ParticipantDocumentForm } from "@/components/application/ParticipantDocumentForm";
-import { listParticipantDocuments } from "@/services/library/actions";
 import {
   archiveOrganizationDocument,
   listPdiPageData,
@@ -11,10 +9,7 @@ import {
 import { getCorporateDocumentCategoryLabel } from "@/services/pdi/corporateKnowledge";
 
 export default async function BibliotecaCorporativaPage() {
-  const [{ organization, documents, libraryStatus, categories, candidates }, participantDocuments] = await Promise.all([
-    listPdiPageData(),
-    listParticipantDocuments(),
-  ]);
+  const { organization, documents, libraryStatus, categories } = await listPdiPageData();
   const missingLabels = libraryStatus.missing.map(getCorporateDocumentCategoryLabel);
 
   const logoDataUrl = organization?.logo_content_base64 && organization?.logo_mime_type
@@ -191,22 +186,6 @@ export default async function BibliotecaCorporativaPage() {
         )}
       </Card>
 
-      <Card>
-        <div className="mb-5 border-b border-slate-200 pb-4">
-          <h2 className="text-2xl font-bold text-[#0F2D4A]">Documentos vinculados aos avaliados</h2>
-          <p className="mt-1 text-[15px] leading-6 text-slate-600">Associe documentos diretamente ao registro do avaliado. O vínculo é feito pelo formulário respondido e pelo CPF.</p>
-        </div>
-        <ParticipantDocumentForm candidates={(candidates as any[]).map((item:any)=>({responseId:item.responseId,participantName:item.participantName,cpf:item.cpf || "CPF não informado"}))} />
-        <div className="mt-6 overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-4 py-3">CPF</th><th className="px-4 py-3">Documento</th><th className="px-4 py-3">Categoria</th><th className="px-4 py-3">Ação</th></tr></thead>
-            <tbody className="divide-y divide-slate-100">
-              {(participantDocuments as any[]).map((doc:any)=><tr key={doc.id}><td className="px-4 py-3">{doc.participant_cpf}</td><td className="px-4 py-3 font-semibold text-[#0F2D4A]">{doc.title}</td><td className="px-4 py-3">{doc.category || "-"}</td><td className="px-4 py-3"><a title="Baixar o documento vinculado a este avaliado." href={`/api/biblioteca-participantes/${doc.id}/download`} className="rounded-full border border-slate-300 px-3 py-1 text-xs font-bold text-slate-700">Download</a></td></tr>)}
-            </tbody>
-          </table>
-          {participantDocuments.length===0?<p className="mt-4 text-sm text-slate-500">Nenhum documento vinculado a avaliado.</p>:null}
-        </div>
-      </Card>
     </div>
   );
 }
