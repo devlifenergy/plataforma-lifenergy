@@ -1,4 +1,5 @@
 import mammoth from "mammoth";
+import { extractText, getDocumentProxy } from "unpdf";
 
 export type TechnicalLibraryExtraction = {
   format: "pdf" | "docx";
@@ -7,8 +8,12 @@ export type TechnicalLibraryExtraction = {
 };
 
 function normalizeExtractedText(value: string) {
-  return value.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
-    .replace(/[ \t]+\n/g, "\n").replace(/\n{4,}/g, "\n\n\n").trim();
+  return value
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{4,}/g, "\n\n\n")
+    .trim();
 }
 
 function stripUnsafeHtml(value: string) {
@@ -27,44 +32,74 @@ function stripUnsafeHtml(value: string) {
 }
 
 async function extractPdf(buffer: Buffer): Promise<TechnicalLibraryExtraction> {
-  // Import intencionalmente tardio: evita avaliar pdf.js ao abrir a Biblioteca
-  // em runtimes serverless que não fornecem DOMMatrix.
-  const { PDFParse } = await import("pdf-parse");
-  const parser = new PDFParse({ data: buffer });
-  try {
-    const result = await parser.getText();
-    const text = normalizeExtractedText(result.text ?? "");
-    if (!text) {
-      throw new Error("Não foi possível extrair texto deste PDF. Envie um PDF com texto selecionável; PDFs digitalizados somente como imagem não são suportados.");
-    }
-    return { format: "pdf", text, html: null };
-  } finally {
-    await parser.destroy();
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const result = await extractText(pdf, { mergePages: true });
+  const rawText = Array.isArray(result.text)
+    ? result.text.join("\n\n")
+    : result.text;
+  const text = normalizeExtractedText(rawText ?? "");
+
+  if (!text) {
+    throw new Error(
+      "Não foi possível extrair texto deste PDF. Envie um PDF com texto selecionável; PDFs digitalizados somente como imagem não são suportados."
+    );
   }
+
+  return { format: "pdf", text, html: null };
 }
 
 async function extractDocx(buffer: Buffer): Promise<TechnicalLibraryExtraction> {
   const [htmlResult, textResult] = await Promise.all([
-    mammoth.convertToHtml({ buffer }, {
-      includeDefaultStyleMap: true,
-      includeEmbeddedStyleMap: true,
-      externalFileAccess: false,
-    }),
+    mammoth.convertToHtml(
+      { buffer },
+      {
+        includeDefaultStyleMap: true,
+        includeEmbeddedStyleMap: true,
+        externalFileAccess: false,
+      }
+    ),
     mammoth.extractRawText({ buffer }),
   ]);
+
   const text = normalizeExtractedText(textResult.value ?? "");
-  if (!text) throw new Error("Não foi possível extrair conteúdo textual deste arquivo DOCX.");
+
+  if (!text) {
+    throw new Error(
+      "Não foi possível extrair conteúdo textual deste arquivo DOCX."
+    );
+  }
+
   const html = stripUnsafeHtml(htmlResult.value ?? "").trim();
-  return { format: "docx", text, html: html || null };
+
+  return {
+    format: "docx",
+    text,
+    html: html || null,
+  };
 }
 
-export async function extractTechnicalLibraryDocument(file: File): Promise<TechnicalLibraryExtraction> {
+export async function extractTechnicalLibraryDocument(
+  file: File
+): Promise<TechnicalLibraryExtraction> {
   const buffer = Buffer.from(await file.arrayBuffer());
   const fileName = file.name.toLowerCase();
   const mimeType = (file.type || "").toLowerCase();
 
-  if (mimeType === "application/pdf" || fileName.endsWith(".pdf")) return extractPdf(buffer);
-  if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || fileName.endsWith(".docx")) return extractDocx(buffer);
+  const isPdf =
+    mimeType === "application/pdf" || fileName.endsWith(".pdf");
+
+  const isDocx =
+    mimeType ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    fileName.endsWith(".docx");
+
+  if (isPdf) {
+    return extractPdf(buffer);
+  }
+
+  if (isDocx) {
+    return extractDocx(buffer);
+  }
 
   throw new Error("Formato não suportado. Envie um arquivo PDF ou DOCX.");
 }
