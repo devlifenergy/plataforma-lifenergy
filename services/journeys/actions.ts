@@ -197,6 +197,7 @@ export async function createJourney(formData: FormData) {
     : normalizeOptionalField(formData.get("participant_naturalidade"));
   const participantBirthDate = dateBrToIsoOrNull(formData.get("participant_birth_date"));
   const participantObjective = normalizeOptionalField(formData.get("participant_objective"));
+  const sendInvitationEmail = formData.get("send_invitation_email") === "on";
   const activities = readFractalActivities(formData);
   const firstActivity = activities[0]?.activity ?? "";
 
@@ -276,7 +277,26 @@ export async function createJourney(formData: FormData) {
     throw new Error(fractalsError.message);
   }
 
+  let emailSent = false;
+  let emailWarning: string | null = null;
+  if (sendInvitationEmail) {
+    try {
+      const result = await sendJourneyInvitationEmail({
+        supabase,
+        organizationId: profile.organization_id,
+        participantName,
+        participantEmail,
+        token,
+      });
+      emailSent = result.sent;
+      if (!result.sent) emailWarning = result.reason;
+    } catch (error) {
+      emailWarning = error instanceof Error ? error.message : "Não foi possível enviar o convite por e-mail.";
+    }
+  }
+
   revalidatePath("/painel/entrevistados");
+  return { emailRequested: sendInvitationEmail, emailSent, emailWarning };
 }
 
 export async function updateJourneyParticipant(formData: FormData) {
@@ -412,6 +432,17 @@ export async function deletePendingJourney(formData: FormData) {
   revalidatePath("/painel/entrevistados");
 }
 
+async function sendJourneyInvitationEmail(params: { supabase: any; organizationId: string; participantName: string; participantEmail: string; token: string }) {
+  const { supabase, organizationId, participantName, participantEmail, token } = params;
+  const { data: organization } = await supabase.from("organizations").select("name").eq("id", organizationId).single();
+  const { getApplicationBaseUrl, journeyInvitationEmail, sendLifenergyEmail } = await import("@/services/email/lifenergyEmail");
+  const baseUrl = getApplicationBaseUrl();
+  if (!baseUrl) return { sent: false, reason: "Configure LIFENERGY_APP_URL para enviar links por e-mail." } as const;
+  const url = `${baseUrl}/r/${token}`;
+  const template = journeyInvitationEmail({ participantName, companyName: organization?.name || "sua empresa", invitationUrl: url });
+  return sendLifenergyEmail({ to: participantEmail, ...template });
+}
+
 export async function sendJourneyLinkEmail(journeyId: string) {
   const { supabase, profile } = await getCurrentProfile();
   const { data: journey, error } = await supabase
@@ -426,15 +457,12 @@ export async function sendJourneyLinkEmail(journeyId: string) {
     throw new Error("O avaliado não possui um e-mail válido cadastrado.");
   }
 
-  const { getApplicationBaseUrl, sendLifenergyEmail } = await import("@/services/email/lifenergyEmail");
-  const baseUrl = getApplicationBaseUrl();
-  if (!baseUrl) throw new Error("Configure NEXT_PUBLIC_APP_URL para enviar links por e-mail.");
-  const url = `${baseUrl}/r/${journey.token}`;
-
-  const result = await sendLifenergyEmail({
-    to: journey.participant_email,
-    subject: `Avaliação Lifenergy - ${journey.code}`,
-    html: `<p>Olá, ${journey.participant_name}.</p><p>Você recebeu um convite para realizar sua avaliação na Plataforma Lifenergy.</p><p><a href="${url}">Acessar avaliação Lifenergy</a></p><p>Se o botão não abrir, copie este endereço: ${url}</p>`,
+  const result = await sendJourneyInvitationEmail({
+    supabase,
+    organizationId: profile.organization_id,
+    participantName: journey.participant_name,
+    participantEmail: journey.participant_email,
+    token: journey.token,
   });
   if (!result.sent) throw new Error(result.reason);
   return { sent: true };

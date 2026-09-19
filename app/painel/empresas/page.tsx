@@ -164,6 +164,11 @@ export default async function EmpresasPage() {
                                   </p>
                                 </div>
 
+                                <label className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white p-3">
+                                  <input name="notify_license_addition" type="checkbox" className="mt-1 h-4 w-4" />
+                                  <span className="text-xs leading-5 text-slate-600"><strong className="block text-slate-800">Notificar novas licenças por e-mail</strong>Se houver aumento no saldo contratado, informa ao administrador quantas licenças foram adicionadas.</span>
+                                </label>
+
                                 <button className="w-full rounded-xl bg-[#0F2D4A] px-5 py-3 font-semibold text-white transition hover:opacity-90">
                                   Salvar alterações
                                 </button>

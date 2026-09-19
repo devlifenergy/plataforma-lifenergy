@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
 import { isValidEmail } from "@/lib/validation";
-import { getApplicationBaseUrl, sendLifenergyEmail } from "@/services/email/lifenergyEmail";
+import { companyAccessEmail, getApplicationBaseUrl, licensesAddedEmail, sendLifenergyEmail } from "@/services/email/lifenergyEmail";
 
 type CompanyListItem = {
   id: string;
@@ -133,6 +133,7 @@ export async function createCompany(formData: FormData) {
   const licenseIndividual = Number(formData.get("license_individual_reports"));
   const licenseRelational = Number(formData.get("license_pdi_relational"));
   const licenseCorporate = Number(formData.get("license_pdi_corporate"));
+  const sendAccessEmail = formData.get("send_access_email") === "on";
 
   if (!companyName || !adminName || !adminEmail || !password) {
     throw new Error("Preencha todos os campos.");
@@ -229,23 +230,26 @@ export async function createCompany(formData: FormData) {
     throw new Error(profileError.message);
   }
 
-  const appUrl = getApplicationBaseUrl();
   let emailSent = false;
   let emailWarning: string | null = null;
-  try {
-    const emailResult = await sendLifenergyEmail({
-      to: adminEmail,
-      subject: `Acesso à Plataforma Lifenergy - ${companyName}`,
-      html: `<p>Olá, ${adminName}.</p><p>Sua empresa <strong>${companyName}</strong> foi cadastrada na Plataforma Lifenergy.</p><p><strong>Usuário:</strong> ${adminEmail}<br/><strong>Senha inicial:</strong> ${password}</p><p><a href="${appUrl ? `${appUrl}/login` : "/login"}">Acessar a Plataforma Lifenergy</a></p><p>No primeiro acesso, será obrigatório alterar a senha.</p>`,
-    });
-    emailSent = emailResult.sent;
-    if (!emailResult.sent) emailWarning = emailResult.reason;
-  } catch (error) {
-    emailWarning = error instanceof Error ? error.message : "Não foi possível enviar o e-mail de credenciais.";
+  if (sendAccessEmail) {
+    const appUrl = getApplicationBaseUrl();
+    if (!appUrl) {
+      emailWarning = "Configure LIFENERGY_APP_URL para enviar o e-mail de acesso.";
+    } else {
+      try {
+        const template = companyAccessEmail({ companyName, adminName, email: adminEmail, temporaryPassword: password, loginUrl: `${appUrl}/login` });
+        const emailResult = await sendLifenergyEmail({ to: adminEmail, ...template });
+        emailSent = emailResult.sent;
+        if (!emailResult.sent) emailWarning = emailResult.reason;
+      } catch (error) {
+        emailWarning = error instanceof Error ? error.message : "Não foi possível enviar o e-mail de acesso.";
+      }
+    }
   }
 
   revalidatePath("/painel/empresas");
-  return { emailSent, emailWarning };
+  return { emailSent, emailWarning, emailRequested: sendAccessEmail };
 }
 
 export async function updateCompany(formData: FormData) {
@@ -261,6 +265,7 @@ export async function updateCompany(formData: FormData) {
   const licenseIndividual = Number(formData.get("license_individual_reports"));
   const licenseRelational = Number(formData.get("license_pdi_relational"));
   const licenseCorporate = Number(formData.get("license_pdi_corporate"));
+  const notifyLicenseAddition = formData.get("notify_license_addition") === "on";
 
   if (newPassword && newPassword.length < 6) {
     throw new Error("A nova senha deve ter no mínimo 6 caracteres.");
@@ -397,6 +402,26 @@ export async function updateCompany(formData: FormData) {
       .eq("auth_user_id", authUserId);
 
     throw new Error(authUpdateError.message);
+  }
+
+  if (notifyLicenseAddition) {
+    const additions = [
+      { label: "Relatório Individual/Relacional", quantity: Math.max(0, licenseIndividual - Number((currentOrganization as any).license_individual_reports ?? 0)) },
+      { label: "PDI Relacional", quantity: Math.max(0, licenseRelational - Number((currentOrganization as any).license_pdi_relational ?? 0)) },
+      { label: "PDI Corporativo", quantity: Math.max(0, licenseCorporate - Number((currentOrganization as any).license_pdi_corporate ?? 0)) },
+    ].filter((item) => item.quantity > 0);
+
+    if (additions.length > 0) {
+      const appUrl = getApplicationBaseUrl();
+      if (appUrl) {
+        try {
+          const template = licensesAddedEmail({ companyName, additions, loginUrl: `${appUrl}/login` });
+          await sendLifenergyEmail({ to: adminEmail, ...template });
+        } catch (error) {
+          console.error("Falha ao notificar adição de licenças:", error);
+        }
+      }
+    }
   }
 
   revalidatePath("/painel/empresas");

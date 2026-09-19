@@ -51,7 +51,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
   const [birthDate, setBirthDate] = useState("");
   const [participantEmail, setParticipantEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function setCount(value: number) {
@@ -93,13 +93,15 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
     }
 
     setError(null);
-    setSuccess(false);
+    setSuccess(null);
 
     startTransition(async () => {
       try {
-        await createJourney(formData);
+        const result = await createJourney(formData);
         resetFormState();
-        setSuccess(true);
+        setSuccess(result.emailRequested
+          ? (result.emailSent ? "Convite criado e enviado por e-mail com sucesso." : `Convite criado. ${result.emailWarning || "Não foi possível enviar o e-mail."}`)
+          : "Convite criado com sucesso. Os campos foram limpos para evitar links repetidos.");
         router.refresh();
       } catch (caughtError) {
         const message =
@@ -358,7 +360,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
 
       {success ? (
         <p className="rounded-xl bg-emerald-50 px-4 py-3 text-[15px] font-medium leading-6 text-emerald-700">
-          Convite criado com sucesso. Os campos foram limpos para evitar links repetidos.
+          {success}
         </p>
       ) : null}
 
@@ -367,6 +369,11 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
           {error}
         </p>
       ) : null}
+
+      <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <input name="send_invitation_email" type="checkbox" disabled={isPending} className="mt-1 h-4 w-4" />
+        <span><strong className="block text-sm text-slate-800">Enviar convite por e-mail</strong><span className="text-xs text-slate-500">Envia ao avaliado o link individual e as orientações para responder o formulário.</span></span>
+      </label>
 
       <div className="flex justify-end border-t border-slate-200 pt-4">
         <Button type="submit" disabled={isPending}>
