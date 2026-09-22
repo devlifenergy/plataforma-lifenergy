@@ -176,6 +176,12 @@ function remainingResponse(fractal: FractalState) {
   );
 }
 
+function displayFractalActivity(value: string) {
+  return String(value || "")
+    .replace(/^\s*(?:\d+(?:[.)-]|\s*-\s*)|[IVXLCDM]+[.)-])\s+/i, "")
+    .trim();
+}
+
 function normalizedFractals(
   fractals: FractalConfig[] | undefined,
   fallbackActivity: string
@@ -251,6 +257,8 @@ export function PublicLifenergyForm({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [responseInitialTime, setResponseInitialTime] = useState("");
+  const responseTimerStartedAtRef = useRef<number | null>(null);
 
   const today = useMemo(() => new Date(), []);
   const applicationDate = localDateToIso(today);
@@ -275,13 +283,27 @@ export function PublicLifenergyForm({
   }, [step]);
 
   useEffect(() => {
-    const startedAt = Date.now();
+    if (step >= 3 && responseTimerStartedAtRef.current === null) {
+      const startedAt = new Date();
+      responseTimerStartedAtRef.current = startedAt.getTime();
+      setResponseInitialTime(localTimeToDatabase(startedAt));
+      setElapsedSeconds(0);
+    }
+
+    if (responseTimerStartedAtRef.current === null) {
+      setElapsedSeconds(0);
+      return;
+    }
+
     const timer = window.setInterval(() => {
-      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+      if (responseTimerStartedAtRef.current === null) return;
+      setElapsedSeconds(
+        Math.floor((Date.now() - responseTimerStartedAtRef.current) / 1000)
+      );
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [step]);
 
   useEffect(() => {
     try {
@@ -509,7 +531,7 @@ export function PublicLifenergyForm({
               Atividade apresentada
             </p>
             <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-slate-700">
-              {fractal.activity}
+              {displayFractalActivity(fractal.activity)}
             </p>
           </div>
           <div className="rounded-xl bg-slate-50 p-4">
@@ -588,7 +610,7 @@ export function PublicLifenergyForm({
     >
       <input type="hidden" name="token" value={token} />
       <input type="hidden" name="application_date" value={applicationDate} />
-      <input type="hidden" name="initial_time" value={initialTime} />
+      <input type="hidden" name="initial_time" value={responseInitialTime || initialTime} />
       <input type="hidden" name="tipo_aplicacao" value="aplicacao_assistida" />
       <input type="hidden" name="escolha_atividade" value="aplicador" />
       <input type="hidden" name="nome" value={identity.fullName} />
@@ -640,6 +662,9 @@ export function PublicLifenergyForm({
               </p>
               <p>
                 Cada tarefa deverá ser realizada em sequência, com atenção e sem interrupções.
+              </p>
+              <p className="rounded-xl border border-[#B98A2E]/30 bg-[#B98A2E]/10 px-4 py-3 font-semibold text-[#0F2D4A]">
+                Após clicar em Continuar, você deve seguir todos os passos até o final.
               </p>
             </div>
           </section>
@@ -770,7 +795,7 @@ export function PublicLifenergyForm({
                 Atividade apresentada pelo aplicador
               </p>
               <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-slate-800">
-                {currentFractal.activity}
+                {displayFractalActivity(currentFractal.activity)}
               </p>
             </div>
             <p className="mt-6 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">

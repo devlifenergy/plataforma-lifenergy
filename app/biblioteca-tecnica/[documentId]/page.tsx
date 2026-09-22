@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { createClient } from "@/lib/supabaseServer";
 import { getTechnicalLibraryDocument } from "@/services/library/actions";
 
 function getYouTubeEmbedUrl(value?: string | null) {
@@ -211,6 +212,11 @@ export default async function TechnicalLibraryDocumentPage({
 
   if (!document) notFound();
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const backHref = user ? "/painel" : "/biblioteca-tecnica";
+  const backLabel = user ? "← Voltar ao Painel" : "← Voltar à Biblioteca Técnica";
+
   const youtubeEmbedUrl = getYouTubeEmbedUrl(document.external_url);
   const isDocx = document.source_format === "docx" && document.extracted_html;
 
@@ -218,10 +224,10 @@ export default async function TechnicalLibraryDocumentPage({
     <main className="min-h-screen bg-[#F7F5EF] px-5 py-10 md:px-8">
       <div className="mx-auto max-w-6xl">
         <Link
-          href="/biblioteca-tecnica"
+          href={backHref}
           className="text-sm font-semibold text-[#0F2A43] hover:underline"
         >
-          ← Voltar à Biblioteca Técnica
+          {backLabel}
         </Link>
 
         <header className="mt-8 border-b border-slate-200 pb-8">

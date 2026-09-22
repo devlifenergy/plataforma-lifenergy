@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
+import { isValidEmail } from "@/lib/validation";
+import { getApplicationBaseUrl } from "@/services/email/lifenergyEmail";
 
 function redirectWithError(message: string): never {
   const query = new URLSearchParams({ error: message });
@@ -144,4 +146,30 @@ export async function changeInitialPassword(formData: FormData) {
   if (profileError) redirect(`/alterar-senha?error=${encodeURIComponent(profileError.message)}`);
 
   redirect("/painel");
+}
+
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+
+  if (!email || !isValidEmail(email)) {
+    redirect("/esqueci-senha?error=Informe%20um%20e-mail%20válido.");
+  }
+
+  const appUrl = getApplicationBaseUrl();
+  if (!appUrl) {
+    redirect("/esqueci-senha?error=URL%20do%20sistema%20não%20configurada.");
+  }
+
+  const supabase = await createClient();
+  const redirectTo = `${appUrl}/auth/callback?next=/alterar-senha`;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+
+  if (error) {
+    redirect(`/esqueci-senha?error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect("/login?message=Enviamos%20um%20link%20de%20redefinição%20para%20o%20e-mail%20informado.");
 }

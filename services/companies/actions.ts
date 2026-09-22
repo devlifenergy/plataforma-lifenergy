@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
 import { isValidEmail } from "@/lib/validation";
-import { companyAccessEmail, getApplicationBaseUrl, licensesAddedEmail, sendLifenergyEmail } from "@/services/email/lifenergyEmail";
+import { companyAccessEmail, companyPasswordUpdatedEmail, getApplicationBaseUrl, licensesAddedEmail, sendLifenergyEmail } from "@/services/email/lifenergyEmail";
 
 type CompanyListItem = {
   id: string;
@@ -71,7 +71,7 @@ export async function listCompanies(): Promise<CompanyListItem[]> {
       .order("created_at", { ascending: false }),
     admin
       .from("profiles")
-      .select("id, organization_id, auth_user_id, name, email, role")
+      .select("id, organization_id, auth_user_id, name, email, role, must_change_password")
       .eq("role", "organization_admin"),
   ]);
 
@@ -266,6 +266,7 @@ export async function updateCompany(formData: FormData) {
   const licenseRelational = Number(formData.get("license_pdi_relational"));
   const licenseCorporate = Number(formData.get("license_pdi_corporate"));
   const notifyLicenseAddition = formData.get("notify_license_addition") === "on";
+  const sendPasswordEmail = formData.get("send_password_email") === "on";
 
   if (newPassword && newPassword.length < 6) {
     throw new Error("A nova senha deve ter no mínimo 6 caracteres.");
@@ -289,7 +290,7 @@ export async function updateCompany(formData: FormData) {
     admin.from("organizations").select("id, name, license_individual_reports, license_pdi_relational, license_pdi_corporate").eq("id", companyId).single(),
     admin
       .from("profiles")
-      .select("id, organization_id, auth_user_id, name, email, role")
+      .select("id, organization_id, auth_user_id, name, email, role, must_change_password")
       .eq("id", profileId)
       .single(),
     admin.auth.admin.getUserById(authUserId),
@@ -316,6 +317,7 @@ export async function updateCompany(formData: FormData) {
   const previousCompanyName = currentOrganization.name;
   const previousAdminName = currentProfile.name ?? "";
   const previousAdminEmail = currentProfile.email ?? currentAuthData.user.email ?? "";
+  const previousMustChangePassword = Boolean((currentProfile as any).must_change_password);
   const previousMetadata = currentAuthData.user.user_metadata ?? {};
 
   const { error: organizationUpdateError } = await admin
@@ -332,12 +334,22 @@ export async function updateCompany(formData: FormData) {
     throw new Error(organizationUpdateError.message);
   }
 
+  const profileUpdatePayload: {
+    name: string;
+    email: string;
+    must_change_password?: boolean;
+  } = {
+    name: adminName,
+    email: adminEmail,
+  };
+
+  if (newPassword) {
+    profileUpdatePayload.must_change_password = true;
+  }
+
   const { error: profileUpdateError } = await admin
     .from("profiles")
-    .update({
-      name: adminName,
-      email: adminEmail,
-    })
+    .update(profileUpdatePayload)
     .eq("id", profileId)
     .eq("organization_id", companyId)
     .eq("auth_user_id", authUserId);
@@ -396,12 +408,31 @@ export async function updateCompany(formData: FormData) {
       .update({
         name: previousAdminName,
         email: previousAdminEmail,
+        must_change_password: previousMustChangePassword,
       })
       .eq("id", profileId)
       .eq("organization_id", companyId)
       .eq("auth_user_id", authUserId);
 
     throw new Error(authUpdateError.message);
+  }
+
+  if (newPassword && sendPasswordEmail) {
+    const appUrl = getApplicationBaseUrl();
+    if (appUrl) {
+      try {
+        const template = companyPasswordUpdatedEmail({
+          companyName,
+          adminName,
+          email: adminEmail,
+          temporaryPassword: newPassword,
+          loginUrl: `${appUrl}/login`,
+        });
+        await sendLifenergyEmail({ to: adminEmail, ...template });
+      } catch (error) {
+        console.error("Falha ao enviar nova senha da empresa:", error);
+      }
+    }
   }
 
   if (notifyLicenseAddition) {

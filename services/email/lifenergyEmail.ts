@@ -71,7 +71,15 @@ export function journeyInvitationEmail(params: { participantName: string; compan
   const { participantName, companyName, invitationUrl } = params;
   return {
     subject: "Convite para Avaliação de Desenvolvimento Relacional – Lifenergy Digital",
-    html: emailShell(`<p>Olá, <strong>${escapeHtml(participantName)}</strong>.</p><p>Você foi convidado(a) por <strong>${escapeHtml(companyName)}</strong> a responder um formulário de <strong>Desenvolvimento Relacional</strong> no Lifenergy Digital.</p><p>A atividade tem como objetivo apoiar o processo de desenvolvimento e ampliar a compreensão sobre padrões de comportamento e relacionamento.</p>${actionButton("Acessar o formulário", invitationUrl)}<p><strong>Orientações:</strong></p><ul><li>Reserve um momento em que possa realizar a atividade com tranquilidade e sem interrupções.</li><li>Leia atentamente as instruções apresentadas no formulário.</li><li>Responda de maneira espontânea, evitando excesso de reflexão sobre as respostas.</li><li>Este link é individual e deve ser utilizado exclusivamente por você.</li></ul><p>Se o botão não abrir, copie este endereço no navegador:<br>${escapeHtml(invitationUrl)}</p>`),
+    html: emailShell(`<p>Olá, <strong>${escapeHtml(participantName)}</strong>.</p><p>Você foi convidado(a) por <strong>${escapeHtml(companyName)}</strong> a responder um formulário de <strong>Desenvolvimento Relacional</strong> no Lifenergy Digital.</p><p>A atividade tem como objetivo apoiar o processo de desenvolvimento e ampliar a compreensão sobre padrões de comportamento e relacionamento.</p><p><strong>Orientações:</strong></p><ul><li>Reserve um momento em que possa realizar a atividade com tranquilidade e sem interrupções.</li><li>Leia atentamente as instruções apresentadas no formulário.</li><li>Responda de maneira espontânea, evitando excesso de reflexão sobre as respostas.</li><li>Este link é individual e deve ser utilizado exclusivamente por você.</li></ul>${actionButton("Acessar o formulário", invitationUrl)}<p>Se o botão não abrir, copie este endereço no navegador:<br>${escapeHtml(invitationUrl)}</p>`),
+  };
+}
+
+export function companyPasswordUpdatedEmail(params: { companyName: string; adminName: string; email: string; temporaryPassword: string; loginUrl: string }) {
+  const { companyName, adminName, email, temporaryPassword, loginUrl } = params;
+  return {
+    subject: "Nova senha de acesso ao Lifenergy Digital",
+    html: emailShell(`<p>Olá, <strong>${escapeHtml(adminName)}</strong>.</p><p>A senha de acesso da empresa <strong>${escapeHtml(companyName)}</strong> foi atualizada no Lifenergy Digital.</p><p><strong>Link para acesso:</strong> ${escapeHtml(loginUrl)}<br><strong>Usuário:</strong> ${escapeHtml(email)}<br><strong>Senha temporária:</strong> ${escapeHtml(temporaryPassword)}</p>${actionButton("Acessar o Lifenergy Digital", loginUrl)}<p>Por segurança, será solicitada a alteração da senha no próximo acesso.</p>`),
   };
 }
 

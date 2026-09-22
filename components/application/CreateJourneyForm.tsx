@@ -26,7 +26,7 @@ type FractalSelection = {
 
 const FRACTAL_OPTIONS = [1, 2, 3];
 function fractalDisplayText(value: string) {
-  return String(value || "").replace(/^\s*\d+\.\s*/, "").trim();
+  return String(value || "").replace(/^\s*(?:\d+(?:[.)-]|\s*-\s*)|[IVXLCDM]+[.)-])\s+/i, "").trim();
 }
 
 const EMPTY_SELECTION: FractalSelection = { vortexId: "", connectionPointId: "", fractalId: "" };

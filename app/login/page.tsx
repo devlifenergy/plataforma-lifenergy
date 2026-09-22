@@ -4,7 +4,7 @@ import LoginForm from "./LoginForm";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; message?: string }>;
 }) {
   const params = await searchParams;
 
@@ -36,6 +36,15 @@ export default async function LoginPage({
             className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-5 text-red-700"
           >
             {params.error}
+          </div>
+        )}
+
+        {params.message && (
+          <div
+            role="status"
+            className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-700"
+          >
+            {params.message}
           </div>
         )}
 

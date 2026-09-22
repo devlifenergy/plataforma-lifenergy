@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useFormStatus } from "react-dom";
 import {
   identifyCompanyByEmail,
   signIn,
 } from "@/services/auth/actions";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -110,15 +112,19 @@ export default function LoginForm() {
           Senha
         </label>
 
-        <input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="current-password"
           required
-          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0F2A43] focus:ring-4 focus:ring-[#0F2A43]/10"
           placeholder="Digite sua senha"
         />
+      </div>
+
+      <div className="flex justify-end">
+        <Link href="/esqueci-senha" className="text-sm font-semibold text-[#0F2A43] underline-offset-4 hover:underline">
+          Esqueci minha senha
+        </Link>
       </div>
 
       <SubmitButton />

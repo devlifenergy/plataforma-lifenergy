@@ -1,4 +1,5 @@
 import { CompanyCreateForm } from "@/components/application/CompanyCreateForm";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import {
   listCompanies,
   toggleCompanyStatus,
@@ -95,7 +96,7 @@ export default async function EmpresasPage() {
 
                           <div className="mt-4 w-[420px] max-w-[80vw] rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
                             {company.profileId && company.authUserId ? (
-                              <form action={updateCompany} className="space-y-3">
+                              <form action={updateCompany} autoComplete="off" className="space-y-3">
                                 <input type="hidden" name="company_id" value={company.id} />
                                 <input type="hidden" name="profile_id" value={company.profileId} />
                                 <input type="hidden" name="auth_user_id" value={company.authUserId} />
@@ -135,6 +136,7 @@ export default async function EmpresasPage() {
                                     name="admin_email"
                                     required
                                     type="email"
+                                    autoComplete="off"
                                     defaultValue={company.adminEmail}
                                     className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
                                   />
@@ -150,19 +152,23 @@ export default async function EmpresasPage() {
                                   <label htmlFor={`new_password_${company.id}`} className="mb-1 block text-sm font-medium text-slate-700">
                                     Nova senha
                                   </label>
-                                  <input
+                                  <PasswordInput
                                     id={`new_password_${company.id}`}
                                     name="new_password"
-                                    type="password"
                                     minLength={6}
                                     autoComplete="new-password"
                                     placeholder="Deixe em branco para manter a senha atual"
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                                    inputClassName="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
                                   />
                                   <p className="mt-1 text-xs text-slate-500">
                                     Mínimo de 6 caracteres.
                                   </p>
                                 </div>
+
+                                <label className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white p-3">
+                                  <input name="send_password_email" type="checkbox" className="mt-1 h-4 w-4" />
+                                  <span className="text-xs leading-5 text-slate-600"><strong className="block text-slate-800">Enviar nova senha por e-mail</strong>Use esta opção quando preencher o campo Nova senha. O administrador receberá o link de acesso, usuário e senha temporária.</span>
+                                </label>
 
                                 <label className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white p-3">
                                   <input name="notify_license_addition" type="checkbox" className="mt-1 h-4 w-4" />
