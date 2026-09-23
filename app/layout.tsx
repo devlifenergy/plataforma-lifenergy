@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Work_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const workSans = Work_Sans({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Lifenergy Digital",
-  description: "Plataforma Lifenergy Digital",
+  description:
+    "Lifenergy Digital: ambiente digital para jornadas de desenvolvimento relacional, relatórios e PDIs.",
 };
 
 export default function RootLayout({
@@ -26,7 +27,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${workSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
