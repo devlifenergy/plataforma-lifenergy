@@ -799,7 +799,7 @@ export function PublicLifenergyForm({
               </p>
             </div>
             <p className="mt-6 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
-              Escreva o texto acima no quadro abaixo.
+              Copie o texto acima no quadro abaixo.
             </p>
             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
               <textarea
