@@ -1,294 +1,382 @@
 import Image from "next/image";
 import Link from "next/link";
-import { AppVersion } from "@/components/AppVersion";
 
-const lifenergyFlow = [
+type IconProps = {
+  className?: string;
+};
+
+function ArrowRightIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <path d="M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m13 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PersonIcon({ className = "h-7 w-7" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12 12a4.25 4.25 0 1 0 0-8.5 4.25 4.25 0 0 0 0 8.5Zm0 2.25c-4.48 0-8.25 2.5-8.25 5.75 0 .83.67 1.5 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5c0-3.25-3.77-5.75-8.25-5.75Z" />
+    </svg>
+  );
+}
+
+function GroupIcon({ className = "h-7 w-7" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M8.25 11a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5Zm7.5 0a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5ZM3.5 19.25c0-2.3 2.34-4.25 5.25-4.25S14 16.95 14 19.25c0 .69-.56 1.25-1.25 1.25h-8c-.69 0-1.25-.56-1.25-1.25Zm7.75 1.25c.5-.73.75-1.55.75-2.45 0-.95-.28-1.85-.8-2.65.74-.25 1.56-.4 2.43-.4 3.18 0 5.87 1.95 5.87 4.25 0 .69-.56 1.25-1.25 1.25h-7Z" />
+    </svg>
+  );
+}
+
+function CompassIcon({ className = "h-7 w-7" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <path d="m10 14 1.7-4.7L16.5 8l-1.3 4.8L10 14Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function BarsIcon({ className = "h-7 w-7" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <rect x="4" y="12" width="3.5" height="8" rx="1" />
+      <rect x="10.25" y="8" width="3.5" height="12" rx="1" />
+      <rect x="16.5" y="4" width="3.5" height="16" rx="1" />
+    </svg>
+  );
+}
+
+function BuildingIcon({ className = "h-7 w-7" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M5 20.5A1.5 1.5 0 0 1 3.5 19V7.75c0-.57.32-1.09.82-1.34l6.75-3.38A1.5 1.5 0 0 1 13.25 4.38V7h5.25A1.5 1.5 0 0 1 20 8.5V19a1.5 1.5 0 0 1-1.5 1.5H5Zm2-2.5h2v-2H7v2Zm0-4h2v-2H7v2Zm0-4h2V8H7v2Zm4 8h2v-2h-2v2Zm0-4h2v-2h-2v2Zm0-4h2V8h-2v2Zm4 8h2v-2h-2v2Zm0-4h2v-2h-2v2Z" />
+    </svg>
+  );
+}
+
+function BrainIcon({ className = "h-7 w-7" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className} aria-hidden="true">
+      <path d="M9.5 4.5c-2.2 0-4 1.8-4 4 0 .42.07.83.19 1.2A3.75 3.75 0 0 0 4.5 17c0 1.93 1.57 3.5 3.5 3.5h1.5V4.5Zm5 0c2.2 0 4 1.8 4 4 0 .42-.07.83-.19 1.2A3.75 3.75 0 0 1 19.5 17c0 1.93-1.57 3.5-3.5 3.5h-1.5V4.5Zm-5 5H8m1.5 5H7.5m7-5H16m-1.5 5H16.5M12 4.5v16" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const methodologySteps = [
   {
+    number: "1.",
     title: "Diagnosticar",
-    description:
-      "Mapeia a realidade atual e oferece clareza sobre o ponto de partida da jornada.",
+    description: "Autoconhecimento e consciência",
+    icon: PersonIcon,
   },
   {
+    number: "2.",
     title: "Decodificar",
-    description:
-      "Revela padrões, crenças e causas, criando consciência para agir com mais precisão.",
+    description: "Conexões mais saudáveis e eficazes",
+    icon: GroupIcon,
   },
   {
+    number: "3.",
     title: "Desenvolver",
-    description:
-      "Transforma achados em oportunidades concretas de evolução pessoal e organizacional.",
+    description: "Clareza de propósito e escolhas",
+    icon: CompassIcon,
   },
   {
+    number: "4.",
     title: "Durabilizar",
-    description:
-      "Integra descobertas às rotinas, aos ritos, à cultura e aos resultados sustentáveis.",
-  },
-];
-
-const journeySteps = [
-  "Configure a empresa",
-  "Cadastre aplicadores",
-  "Crie links de aplicação",
-  "Colete respostas",
-  "Gere relatórios",
-  "Desenvolva PDIs",
-  "Acompanhe a evolução",
-];
-
-const resources = [
-  {
-    title: "Aplicação on-line",
-    description:
-      "Criação de links individuais para conduzir avaliações com segurança, clareza e rastreabilidade.",
-  },
-  {
-    title: "Relatórios e PDIs",
-    description:
-      "Geração de relatórios relacionais e planos de desenvolvimento a partir das respostas coletadas.",
-  },
-  {
-    title: "Bibliotecas inteligentes",
-    description:
-      "Organização de documentos, referências técnicas, conteúdos institucionais e materiais de apoio.",
-  },
-  {
-    title: "Gestão de licenças",
-    description:
-      "Controle de modalidades contratadas, utilizadas e disponíveis para novas gerações de documentos.",
+    description: "Resultados sustentáveis para pessoas e organizações",
+    icon: BarsIcon,
   },
 ];
 
 const audiences = [
   {
-    title: "Empresas",
-    description:
-      "Para organizações que desejam compreender padrões relacionais e fortalecer cultura, gestão e desenvolvimento humano.",
+    title: "Líderes",
+    description: "Que buscam mais consciência, repertório e impacto positivo em suas equipes.",
+    icon: PersonIcon,
   },
   {
-    title: "Consultores e aplicadores",
-    description:
-      "Para profissionais autorizados que conduzem jornadas Lifenergy com método, organização e consistência.",
+    title: "Profissionais de Recursos Humanos",
+    description: "Que desejam fortalecer pessoas, cultura e desenvolvimento organizacional.",
+    icon: GroupIcon,
   },
   {
-    title: "Gestores",
-    description:
-      "Para líderes que precisam transformar dados comportamentais em ações práticas de desenvolvimento.",
+    title: "Consultores",
+    description: "Que querem ampliar suas ferramentas e potencializar seus resultados.",
+    icon: GroupIcon,
+  },
+  {
+    title: "Organizações e equipes",
+    description: "Que acreditam no desenvolvimento humano como base para resultados sustentáveis.",
+    icon: BuildingIcon,
   },
 ];
 
-function DecorativeOrbit() {
+const benefits = [
+  {
+    title: "Autoconhecimento",
+    description: "Amplia a consciência, fortalece competências e impulsiona escolhas mais alinhadas.",
+    icon: BrainIcon,
+  },
+  {
+    title: "Desenvolvimento relacional",
+    description: "Melhora a comunicação, a colaboração e a construção de relações mais saudáveis.",
+    icon: GroupIcon,
+  },
+  {
+    title: "Fortalecimento organizacional",
+    description: "Contribui para culturas mais humanas, engajadas e preparadas para o futuro.",
+    icon: BarsIcon,
+  },
+];
+
+const highlightWords = ["Pessoas", "Conexões", "Potencial", "Resultados"];
+
+function NavLinks() {
   return (
-    <div aria-hidden="true" className="relative h-[360px] w-[360px] sm:h-[430px] sm:w-[430px]">
-      <div className="absolute inset-8 rounded-full border border-[#98D6D1]/45" />
-      <div className="absolute inset-20 rounded-full border border-[#205167]/15" />
-      <div className="absolute left-1/2 top-1/2 h-36 w-36 -translate-x-1/2 -translate-y-1/2 rounded-[2.2rem] bg-[#205167] shadow-2xl shadow-[#205167]/20" />
-      <span className="absolute left-[42%] top-[11%] h-14 w-14 rounded-full bg-[#98D6D1]" />
-      <span className="absolute left-[22%] top-[26%] h-11 w-11 rounded-full bg-[#98D6D1]/85" />
-      <span className="absolute left-[18%] top-[47%] h-10 w-10 rounded-full bg-[#98D6D1]/75" />
-      <span className="absolute bottom-[18%] left-[35%] h-12 w-12 rounded-full bg-[#98D6D1]/70" />
-      <span className="absolute bottom-[23%] right-[30%] h-10 w-10 rounded-full bg-[#98D6D1]/60" />
-      <span className="absolute right-[18%] top-[39%] h-9 w-9 rounded-full bg-[#98D6D1]/55" />
-      <span className="absolute right-[28%] top-[21%] h-8 w-8 rounded-full bg-[#98D6D1]/45" />
-      <span className="absolute left-[50%] top-[50%] h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80" />
-    </div>
+    <nav className="hidden items-center gap-8 text-[15px] font-medium text-[#1F3058] lg:flex">
+      <a href="#metodologia" className="transition hover:text-[#0E7FA0]">Metodologia</a>
+      <a href="#para-quem" className="transition hover:text-[#0E7FA0]">Para quem é</a>
+      <a href="#beneficios" className="transition hover:text-[#0E7FA0]">Benefícios</a>
+      <Link href="/biblioteca-tecnica" className="transition hover:text-[#0E7FA0]">Biblioteca Técnica</Link>
+    </nav>
   );
 }
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-[#205167]">
-      <section className="relative isolate overflow-hidden bg-[#F7FBFA]">
-        <div className="absolute -left-28 top-24 -z-10 h-72 w-72 rounded-full bg-[#98D6D1]/45 blur-3xl" />
-        <div className="absolute -right-24 top-16 -z-10 h-80 w-80 rounded-full bg-[#98D6D1]/35 blur-3xl" />
-        <div className="absolute bottom-[-7rem] right-[18%] -z-10 h-64 w-64 rounded-full bg-[#205167]/10 blur-3xl" />
+    <main className="min-h-screen bg-[#EEF5F8] text-[#15254E]">
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_78%_18%,rgba(87,214,240,0.22),transparent_20%),linear-gradient(180deg,#EFF6F9_0%,#EAF3F7_100%)]">
+        <div className="mx-auto max-w-7xl px-6 pb-12 pt-5 lg:px-8 xl:px-10">
+          <header className="flex items-center justify-between gap-6 py-2">
+            <Link href="/" aria-label="Lifenergy Digital - início" className="shrink-0">
+              <Image
+                src="/lifenergy-logo-azul.png"
+                alt="Lifenergy"
+                width={236}
+                height={61}
+                priority
+                className="h-auto w-[170px] sm:w-[210px]"
+              />
+            </Link>
 
-        <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
-          <Link href="/" aria-label="Lifenergy Digital - início" className="block">
-            <Image
-              src="/lifenergy-logo-completo-azul.png"
-              alt="Lifenergy"
-              width={210}
-              height={56}
-              priority
-              className="h-auto w-40 sm:w-48"
-            />
-          </Link>
+            <NavLinks />
 
-          <Link
-            href="/login"
-            className="rounded-full bg-[#205167] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#205167]/15 transition hover:-translate-y-0.5 hover:bg-[#173f50] sm:px-6"
-          >
-            Entrar no Lifenergy Digital
-          </Link>
-        </header>
+            <Link
+              href="/login"
+              className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#66708F] px-6 text-[15px] font-semibold text-[#21325B] transition hover:border-[#21325B] hover:bg-white/60"
+            >
+              Entrar
+            </Link>
+          </header>
 
-        <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-24 pt-12 lg:grid-cols-[1.03fr_0.97fr] lg:px-10 lg:pb-32 lg:pt-20">
-          <div>
-            <p className="mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#2C7585]">
-              <span className="h-px w-10 bg-[#2C7585]" />
-              Desenvolvimento relacional com método e cuidado
-            </p>
-
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[1.05] tracking-[-0.045em] text-[#205167] sm:text-6xl lg:text-7xl">
-              Lifenergy Digital
-            </h1>
-
-            <p className="mt-7 max-w-2xl text-2xl font-medium leading-9 text-[#205167] sm:text-3xl">
-              Um ambiente digital para conduzir jornadas de desenvolvimento relacional com clareza, profundidade e consistência.
-            </p>
-
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-              Organize aplicações, acompanhe respostas, gere relatórios, desenvolva PDIs e apoie decisões sobre pessoas, cultura e comportamento.
-            </p>
-
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <Link
-                href="/login"
-                className="rounded-full bg-[#205167] px-7 py-3.5 text-center text-sm font-bold text-white shadow-xl shadow-[#205167]/20 transition hover:-translate-y-0.5 hover:bg-[#173f50]"
-              >
-                Entrar no Lifenergy Digital
-              </Link>
-              <a
-                href="#metodologia"
-                className="rounded-full border border-[#205167]/20 bg-white/70 px-7 py-3.5 text-center text-sm font-bold text-[#205167] transition hover:-translate-y-0.5 hover:border-[#98D6D1] hover:bg-white"
-              >
-                Conheça a metodologia
-              </a>
-            </div>
-          </div>
-
-          <div className="mx-auto hidden lg:block">
-            <DecorativeOrbit />
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10 lg:py-28">
-        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#2C7585]">O que é</p>
-            <h2 className="mt-5 text-4xl font-semibold leading-tight tracking-[-0.035em] text-[#205167] sm:text-5xl">
-              Um sistema de apoio à aplicação da metodologia Lifenergy.
-            </h2>
-          </div>
-          <div className="self-end">
-            <p className="text-lg leading-8 text-slate-600">
-              O Lifenergy Digital reúne em um só ambiente a criação de jornadas, a coleta de respostas, a organização de dados, a geração de documentos técnicos e a construção de planos de desenvolvimento.
-            </p>
-            <p className="mt-5 text-lg leading-8 text-slate-600">
-              A experiência foi desenhada para preservar o cuidado humano da metodologia e transformar informações comportamentais em caminhos práticos de evolução.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {resources.map((resource) => (
-            <article key={resource.title} className="rounded-[2rem] border border-[#205167]/10 bg-[#F7FBFA] p-7 shadow-sm shadow-[#205167]/5">
-              <div className="mb-7 h-2 w-16 rounded-full bg-[#98D6D1]" />
-              <h3 className="text-xl font-semibold text-[#205167]">{resource.title}</h3>
-              <p className="mt-4 leading-7 text-slate-600">{resource.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="metodologia" className="bg-[#205167] px-6 py-24 text-white lg:py-28">
-        <div className="mx-auto max-w-7xl lg:px-4">
-          <div className="grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-end">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#98D6D1]">Conheça a metodologia</p>
-              <h2 className="mt-5 text-4xl font-semibold leading-tight tracking-[-0.035em] sm:text-5xl">
-                Metodologia Lifenergy – Ciclo 4D
-              </h2>
-            </div>
-            <p className="max-w-2xl text-lg leading-8 text-white/78">
-              Conecta, Desenvolve, Harmoniza e Sustenta. O Ciclo 4D organiza a jornada em quatro movimentos que ampliam consciência, transformam achados em oportunidades e apoiam a consolidação da cultura e dos resultados.
-            </p>
-          </div>
-
-          <div className="mt-16 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {lifenergyFlow.map((step, index) => (
-              <article key={step.title} className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 backdrop-blur">
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#98D6D1] text-sm font-bold text-[#205167]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h3 className="mt-8 text-2xl font-semibold">{step.title}</h3>
-                <p className="mt-4 leading-7 text-white/75">{step.description}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[#F7FBFA] px-6 py-24 lg:py-28">
-        <div className="mx-auto max-w-7xl lg:px-4">
-          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#2C7585]">Uma jornada guiada</p>
-              <h2 className="mt-5 text-4xl font-semibold leading-tight tracking-[-0.035em] text-[#205167] sm:text-5xl">
-                Do primeiro acesso à evolução acompanhada.
-              </h2>
-              <p className="mt-6 text-lg leading-8 text-slate-600">
-                Cada etapa foi pensada para reduzir dispersão, dar clareza ao processo e apoiar o trabalho de quem conduz jornadas de desenvolvimento.
+          <div className="grid items-center gap-10 pb-6 pt-8 lg:grid-cols-[0.97fr_1.03fr] lg:pt-10">
+            <div className="max-w-[560px]">
+              <p className="mb-5 flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.38em] text-[#214C78] sm:text-[13px]">
+                <span className="h-px w-10 bg-[#28B9D8]" />
+                Pessoas no centro da transformação
               </p>
-            </div>
 
-            <div className="rounded-[2rem] bg-white p-6 shadow-xl shadow-[#205167]/8 ring-1 ring-[#205167]/8">
-              <div className="grid gap-3 sm:grid-cols-2">
-                {journeySteps.map((step, index) => (
-                  <div key={step} className="flex items-center gap-4 rounded-2xl border border-[#205167]/8 bg-[#F7FBFA] p-4">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#98D6D1] text-sm font-bold text-[#205167]">
-                      {index + 1}
-                    </span>
-                    <span className="font-semibold text-[#205167]">{step}</span>
+              <h1 className="max-w-[560px] text-[52px] font-semibold leading-[0.94] tracking-[-0.06em] text-[#0D0F3F] sm:text-[64px] lg:text-[78px]">
+                Consciência que transforma.
+                <span className="mt-2 block text-[#1C8DAE]">Energia que conecta.</span>
+              </h1>
+
+              <p className="mt-6 max-w-[560px] text-[20px] leading-8 text-[#2A3558]/90">
+                Uma metodologia de desenvolvimento humano e organizacional que revela potenciais, amplia perspectivas e fortalece relações.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4 text-[13px] font-semibold uppercase tracking-[0.34em] text-[#273868]">
+                {highlightWords.map((word, index) => (
+                  <div key={word} className="flex items-center gap-4">
+                    <span>{word}</span>
+                    {index < highlightWords.length - 1 ? <span className="h-1.5 w-1.5 rounded-full bg-[#44D1DA]" /> : null}
                   </div>
                 ))}
               </div>
+
+              <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+                <a
+                  href="#metodologia"
+                  className="inline-flex items-center justify-center gap-3 rounded-[22px] bg-[#69F0E1] px-7 py-4 text-[15px] font-semibold text-[#0C2448] shadow-[0_18px_30px_-20px_rgba(73,207,199,0.75)] transition hover:-translate-y-0.5 hover:brightness-95"
+                >
+                  Conhecer a metodologia
+                  <ArrowRightIcon />
+                </a>
+
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center gap-3 rounded-[22px] border border-[#7B86A5] bg-white/55 px-7 py-4 text-[15px] font-semibold text-[#22325C] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/80"
+                >
+                  Acessar a Lifenergy Digital
+                  <ArrowRightIcon />
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative mx-auto w-full max-w-[620px]">
+              <div className="absolute inset-0 rounded-[36px] bg-[radial-gradient(circle_at_center,rgba(92,229,247,0.35),transparent_60%)] blur-2xl" />
+              <Image
+                src="/home-hero-visual.png"
+                alt="Ilustração da Lifenergy Digital"
+                width={553}
+                height={470}
+                className="relative z-10 h-auto w-full"
+                priority
+              />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-24 lg:px-10 lg:py-28">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#2C7585]">Para quem é</p>
-          <h2 className="mt-5 text-4xl font-semibold leading-tight tracking-[-0.035em] text-[#205167] sm:text-5xl">
-            Cuidado, método e gestão para diferentes contextos.
-          </h2>
-        </div>
+      <section id="metodologia" className="mx-auto max-w-7xl px-6 pb-10 pt-4 lg:px-8 xl:px-10">
+        <div className="rounded-[28px] border border-[#C7E8F3] bg-white/40 p-6 shadow-[0_10px_40px_-34px_rgba(30,65,120,0.35)] backdrop-blur sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <p className="mb-5 flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.34em] text-[#214C78] sm:text-[13px]">
+                <span className="h-px w-10 bg-[#28B9D8]" />
+                Conheça a metodologia
+              </p>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {audiences.map((audience) => (
-            <article key={audience.title} className="rounded-[2rem] border border-[#205167]/10 bg-white p-8 shadow-lg shadow-[#205167]/6">
-              <h3 className="text-2xl font-semibold text-[#205167]">{audience.title}</h3>
-              <p className="mt-5 leading-7 text-slate-600">{audience.description}</p>
-            </article>
-          ))}
+              <h2 className="text-[34px] font-semibold leading-tight tracking-[-0.04em] text-[#0E1844] sm:text-[44px]">
+                Metodologia Lifenergy - Ciclo 4D
+              </h2>
+
+              <p className="mt-4 max-w-[560px] text-[20px] leading-8 text-[#2D3557]/92">
+                Um caminho integrado para desenvolver autoconhecimento, relações, direção e desenvolvimento organizacional, gerando evolução consistente para pessoas e organizações.
+              </p>
+
+              <a
+                href="#para-quem"
+                className="mt-8 inline-flex items-center gap-3 rounded-[22px] border border-[#7B86A5] bg-white/80 px-6 py-4 text-[15px] font-semibold text-[#22325C] transition hover:bg-white"
+              >
+                Saiba mais sobre a metodologia
+                <ArrowRightIcon />
+              </a>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {methodologySteps.map((step) => {
+                const Icon = step.icon;
+                return (
+                  <article
+                    key={step.title}
+                    className="flex min-h-[240px] flex-col items-center justify-start rounded-full border border-[#8ED9EE] bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(255,255,255,0.2)_100%)] px-5 py-8 text-center"
+                  >
+                    <div className="grid h-14 w-14 place-items-center rounded-full bg-[#DDF6FA] text-[#117FA1]">
+                      <Icon className="h-7 w-7" />
+                    </div>
+                    <h3 className="mt-5 text-[14px] font-bold uppercase tracking-[0.18em] text-[#15335F]">
+                      {step.number} {step.title}
+                    </h3>
+                    <p className="mt-4 text-[17px] leading-6 text-[#29415E]">{step.description}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="px-6 pb-24 lg:pb-28">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-[#98D6D1] px-8 py-16 text-center text-[#205167] shadow-2xl shadow-[#205167]/10 sm:px-12 lg:px-20">
-          <p className="text-xs font-bold uppercase tracking-[0.28em]">Lifenergy Digital</p>
-          <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-semibold leading-tight tracking-[-0.035em] sm:text-5xl">
-            Acesse sua jornada de desenvolvimento.
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#205167]/80">
-            Entre para gerenciar aplicações, acompanhar respostas e utilizar os recursos disponíveis para sua organização.
-          </p>
-          <Link
-            href="/login"
-            className="mt-9 inline-block rounded-full bg-[#205167] px-8 py-3.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#173f50]"
-          >
-            Entrar no Lifenergy Digital
-          </Link>
+      <section id="para-quem" className="mx-auto max-w-7xl px-6 py-4 lg:px-8 xl:px-10">
+        <div className="grid gap-6 xl:grid-cols-[0.9fr_1.7fr]">
+          <div className="rounded-[28px] bg-transparent p-1">
+            <h2 className="text-[32px] font-semibold leading-tight tracking-[-0.04em] text-[#0E1844] sm:text-[42px]">
+              Para quem é
+            </h2>
+            <div className="mt-4 h-1 w-14 rounded-full bg-[#27BED8]" />
+            <p className="mt-5 max-w-[320px] text-[19px] leading-8 text-[#2D3557]/92">
+              A Lifenergy Digital atende diferentes perfis que desejam evoluir, gerar impacto e construir resultados mais humanos e sustentáveis.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {audiences.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article key={item.title} className="rounded-[22px] border border-[#CBE8F2] bg-white/55 p-6 shadow-[0_8px_24px_-24px_rgba(17,48,92,0.45)] backdrop-blur">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-[#E6F7FA] text-[#0C87A8]">
+                    <Icon className="h-7 w-7" />
+                  </div>
+                  <h3 className="mt-5 text-[18px] font-semibold leading-6 text-[#14234D]">{item.title}</h3>
+                  <p className="mt-4 text-[16px] leading-7 text-[#2D3557]/92">{item.description}</p>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      <footer className="bg-[#102F3D] px-6 py-8 text-white/65">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-xs sm:flex-row lg:px-4">
+      <section id="beneficios" className="mx-auto max-w-7xl px-6 pb-4 pt-5 lg:px-8 xl:px-10">
+        <div className="grid gap-4 lg:grid-cols-[0.72fr_2.28fr]">
+          <div className="rounded-[22px] border border-[#CBE8F2] bg-white/55 p-6 shadow-[0_8px_24px_-24px_rgba(17,48,92,0.45)] backdrop-blur">
+            <h2 className="max-w-[230px] text-[26px] font-semibold leading-tight tracking-[-0.03em] text-[#14234D]">
+              Benefícios que geram impacto real
+            </h2>
+            <div className="mt-5 h-1 w-14 rounded-full bg-[#27BED8]" />
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            {benefits.map((benefit) => {
+              const Icon = benefit.icon;
+              return (
+                <article key={benefit.title} className="rounded-[22px] border border-[#CBE8F2] bg-white/55 p-6 shadow-[0_8px_24px_-24px_rgba(17,48,92,0.45)] backdrop-blur">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-[#E6F7FA] text-[#0C87A8]">
+                    <Icon className="h-7 w-7" />
+                  </div>
+                  <h3 className="mt-5 text-[18px] font-semibold leading-6 text-[#14234D]">{benefit.title}</h3>
+                  <p className="mt-4 text-[16px] leading-7 text-[#2D3557]/92">{benefit.description}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-0 pt-6 lg:px-8 xl:px-10">
+        <div className="relative overflow-hidden rounded-t-[28px] sm:rounded-[28px]">
+          <Image
+            src="/home-footer-landscape.png"
+            alt="Paisagem de montanhas ao amanhecer"
+            width={1199}
+            height={217}
+            className="h-[310px] w-full object-cover sm:h-[280px]"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,24,48,0.78)_0%,rgba(2,24,48,0.28)_55%,rgba(2,24,48,0.12)_100%)]" />
+          <div className="absolute inset-0 grid items-center gap-6 p-8 sm:p-10 lg:grid-cols-[1fr_auto] lg:p-12">
+            <div className="max-w-[520px] text-white">
+              <p className="text-[12px] font-bold uppercase tracking-[0.38em] text-[#D4F5FF]">Dê o próximo passo</p>
+              <h2 className="mt-3 text-[36px] font-semibold leading-tight tracking-[-0.04em] sm:text-[48px]">
+                Acesse a Lifenergy Digital
+              </h2>
+              <p className="mt-4 text-[20px] leading-8 text-white/92">
+                Explore conteúdos, ferramentas e experiências para acelerar o seu desenvolvimento e gerar um impacto positivo no mundo.
+              </p>
+            </div>
+
+            <div>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center gap-3 rounded-[22px] bg-[#69F0E1] px-8 py-4 text-[15px] font-semibold text-[#0C2448] shadow-[0_18px_30px_-20px_rgba(73,207,199,0.75)] transition hover:-translate-y-0.5 hover:brightness-95"
+              >
+                Acessar a Lifenergy Digital
+                <ArrowRightIcon />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-[#D9E9F2] bg-[#EEF5F8] px-6 py-6 text-sm text-[#324564] lg:px-8 xl:px-10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Lifenergy. Desenvolvimento humano e organizacional.</p>
-          <AppVersion />
+          <div className="flex items-center gap-4">
+            <Link href="/biblioteca-tecnica" className="transition hover:text-[#0E7FA0]">Biblioteca Técnica</Link>
+            <Link href="/login" className="transition hover:text-[#0E7FA0]">Entrar</Link>
+          </div>
         </div>
       </footer>
     </main>
