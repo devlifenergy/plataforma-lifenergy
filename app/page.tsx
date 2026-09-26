@@ -124,10 +124,10 @@ function EssenceConnector({ reverse = false }: { reverse?: boolean }) {
     <svg className={`connector ${reverse ? "connector-reverse" : ""}`} viewBox="0 0 100 220" aria-hidden="true" preserveAspectRatio="none">
       {reverse ? (
         <>
-          <path d="M96 110C72 110 71 32 8 32" />
-          <path d="M96 110C72 110 71 84 8 84" />
-          <path d="M96 110C72 110 71 136 8 136" />
-          <path d="M96 110C72 110 71 188 8 188" />
+          <path d="M4 110C28 110 30 32 92 32" />
+          <path d="M4 110C28 110 30 84 92 84" />
+          <path d="M4 110C28 110 30 136 92 136" />
+          <path d="M4 110C28 110 30 188 92 188" />
         </>
       ) : (
         <>
