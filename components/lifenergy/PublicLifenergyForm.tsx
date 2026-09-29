@@ -1,8 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BRAZILIAN_STATES, joinNaturalidade, splitNaturalidade } from "@/lib/brazil";
 import { formatCpf, isValidCpf, isValidEmail, onlyDigits } from "@/lib/validation";
+import {
+  LIFENERGY_PRIVACY_POLICY_VERSION,
+  LIFENERGY_PUBLIC_APPLICATION_CONSENT_TEXT,
+  LIFENERGY_TERMS_VERSION,
+} from "@/lib/legal";
 
 type FractalConfig = {
   id: string | null;
@@ -256,6 +262,7 @@ export function PublicLifenergyForm({
     configuredFractals.map(() => emptyFractalState())
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [legalAccepted, setLegalAccepted] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [responseInitialTime, setResponseInitialTime] = useState("");
   const responseTimerStartedAtRef = useRef<number | null>(null);
@@ -591,7 +598,7 @@ export function PublicLifenergyForm({
       method="POST"
       noValidate
       onSubmit={(event) => {
-        if (!isLastFractalSummary || !canContinue() || isSubmitting) {
+        if (!isLastFractalSummary || !canContinue() || !legalAccepted || isSubmitting) {
           event.preventDefault();
           return;
         }
@@ -622,6 +629,10 @@ export function PublicLifenergyForm({
       <input type="hidden" name="nome_aplicador" value={identity.applicatorName} />
       <input type="hidden" name="fractal_count" value={configuredFractals.length} />
       <input type="hidden" name="fractals_json" value={JSON.stringify(fractalsPayload)} />
+      <input type="hidden" name="privacy_policy_version" value={LIFENERGY_PRIVACY_POLICY_VERSION} />
+      <input type="hidden" name="terms_version" value={LIFENERGY_TERMS_VERSION} />
+      <input type="hidden" name="legal_acceptance_text" value={LIFENERGY_PUBLIC_APPLICATION_CONSENT_TEXT} />
+      <input type="hidden" name="legal_acceptance" value={legalAccepted ? "on" : ""} />
 
       <header className="sticky top-0 z-10 -mx-6 -mt-6 border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur md:-mx-8 md:-mt-8 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#B98A2E]">
@@ -799,7 +810,7 @@ export function PublicLifenergyForm({
               </p>
             </div>
             <p className="mt-6 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
-              Copie o texto acima no quadro abaixo.
+              Escreva o texto acima no quadro abaixo.
             </p>
             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
               <textarea
@@ -983,6 +994,52 @@ export function PublicLifenergyForm({
         </p>
       ) : null}
 
+      {isLastFractalSummary ? (
+        <section className="mt-8 rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-5">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#B98A2E]">
+            Privacidade e uso de dados
+          </p>
+          <h3 className="mt-2 text-xl font-bold text-[#0F2D4A]">
+            Ciência para conclusão da aplicação
+          </h3>
+          <p className="mt-3 text-base leading-7 text-slate-700">
+            {LIFENERGY_PUBLIC_APPLICATION_CONSENT_TEXT}
+          </p>
+          <label className="mt-5 flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 text-base leading-6 text-slate-700">
+            <input
+              type="checkbox"
+              checked={legalAccepted}
+              onChange={(event) => setLegalAccepted(event.target.checked)}
+              className="mt-1 h-5 w-5 rounded border-slate-300 text-[#0F2D4A]"
+            />
+            <span>
+              Li e estou ciente sobre o uso dos meus dados para esta aplicação, conforme a{" "}
+              <Link
+                href="/politica-de-privacidade"
+                target="_blank"
+                className="font-bold text-[#0F6C87] underline"
+              >
+                Política de Privacidade
+              </Link>{" "}
+              e os{" "}
+              <Link
+                href="/termos-de-uso"
+                target="_blank"
+                className="font-bold text-[#0F6C87] underline"
+              >
+                Termos de Uso
+              </Link>
+              .
+            </span>
+          </label>
+          {!legalAccepted ? (
+            <p className="mt-3 text-sm font-semibold text-[#0F2D4A]">
+              Marque a ciência para habilitar o envio da aplicação.
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
       <footer className="mt-10 flex flex-col-reverse gap-4 border-t border-slate-200 pt-6 md:flex-row md:items-center md:justify-between">
         <button
           type="button"
@@ -1023,7 +1080,7 @@ export function PublicLifenergyForm({
         ) : (
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !legalAccepted}
             className="rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Enviando avaliação..." : "Concluir Avaliação"}

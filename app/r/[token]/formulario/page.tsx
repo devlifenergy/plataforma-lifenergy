@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabaseServer";
 import { PublicLifenergyForm } from "@/components/lifenergy/PublicLifenergyForm";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 type PageProps = {
   params: Promise<{ token: string }>;
@@ -54,7 +55,7 @@ export default async function FormularioPage({ params }: PageProps) {
 
   if (journey.status === "completed" || journey.status === "exported") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-10">
         <section className="w-full max-w-xl rounded-3xl bg-white p-10 text-center shadow-sm">
           <h1 className="text-3xl font-bold text-[#0F2D4A]">
             Avaliação já concluída
@@ -63,6 +64,15 @@ export default async function FormularioPage({ params }: PageProps) {
             Este link já foi utilizado e não aceita novas respostas.
           </p>
         </section>
+        <footer className="mt-6 text-center text-sm text-slate-500">
+          <Link href="/termos-de-uso" className="font-semibold text-[#0F6C87] underline">
+            Termos de Uso
+          </Link>
+          <span className="mx-2">•</span>
+          <Link href="/politica-de-privacidade" className="font-semibold text-[#0F6C87] underline">
+            Política de Privacidade
+          </Link>
+        </footer>
       </main>
     );
   }
@@ -87,6 +97,15 @@ export default async function FormularioPage({ params }: PageProps) {
           objective: journeyContext.participant_objective || "",
         }}
       />
+      <footer className="mx-auto mt-6 max-w-5xl text-center text-sm text-slate-500">
+        <Link href="/termos-de-uso" className="font-semibold text-[#0F6C87] underline">
+          Termos de Uso
+        </Link>
+        <span className="mx-2">•</span>
+        <Link href="/politica-de-privacidade" className="font-semibold text-[#0F6C87] underline">
+          Política de Privacidade
+        </Link>
+      </footer>
     </main>
   );
 }

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabaseAdmin";
+import {
+  LIFENERGY_PRIVACY_POLICY_VERSION,
+  LIFENERGY_TERMS_VERSION,
+} from "@/lib/legal";
 
 function getTokenFromReferer(request: Request) {
   const referer = request.headers.get("referer");
@@ -95,6 +99,19 @@ export async function POST(request: Request) {
     );
   }
 
+  const legalAccepted = clean(formData.get("legal_acceptance")) === "on";
+  if (!legalAccepted) {
+    return NextResponse.json(
+      { error: "É necessário declarar ciência sobre o uso dos dados para concluir a aplicação.", token },
+      { status: 400 }
+    );
+  }
+
+  const acceptedAt = new Date().toISOString();
+  const privacyPolicyVersion =
+    clean(formData.get("privacy_policy_version")) || LIFENERGY_PRIVACY_POLICY_VERSION;
+  const termsVersion = clean(formData.get("terms_version")) || LIFENERGY_TERMS_VERSION;
+
   const { data: journey, error: journeyError } = await supabase
     .from("journeys")
     .select("id, token, status, organization_id")
@@ -122,6 +139,10 @@ export async function POST(request: Request) {
     .insert({
       journey_id: journey.id,
       organization_id: journey.organization_id,
+      privacy_accepted_at: acceptedAt,
+      privacy_policy_version: privacyPolicyVersion,
+      terms_accepted_at: acceptedAt,
+      terms_version: termsVersion,
       application_date: normalizeDateForDatabase(String(formData.get("application_date") || "")),
       initial_time: normalizeTimeForDatabase(String(formData.get("initial_time") || "")),
       full_name: String(formData.get("nome") || "").trim(),

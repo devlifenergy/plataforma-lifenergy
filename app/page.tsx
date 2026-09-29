@@ -293,7 +293,7 @@ export default function Home() {
         .outcome-card .icon-bubble{margin:0 auto 10px}.outcome-card strong{display:block;font-size:24px;line-height:1.05}.outcome-card p{margin:10px 0 0;color:#44697d;font-size:14px;line-height:1.4}
         .journey{position:relative;overflow:hidden;padding:40px 0 54px;background:radial-gradient(circle at 82% 18%,rgba(110,230,225,.2),transparent 34%),linear-gradient(135deg,#052c42 0%,#073d59 52%,#0b5a76 100%)}
         .journey-inner{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:28px}.journey .eyebrow{color:#d5f7fb}.journey h2{margin:4px 0 0;color:#fff;font-size:clamp(30px,3.6vw,44px);line-height:1.07;letter-spacing:-.04em}.journey .primary-btn{flex:none;background:#91e8e0;color:#073d54;box-shadow:0 14px 28px rgba(0,23,38,.18);white-space:nowrap}.footer-waves{position:absolute;inset:auto 0 0;width:100%;height:150px;z-index:1;pointer-events:none;opacity:.72}
-        .footer{background:#fff;padding:18px 0}.footer-inner{display:grid;grid-template-columns:170px 1fr auto;align-items:center;gap:18px;color:#587184;font-size:12px}.footer-inner img{width:145px;height:auto}.footer-inner .version{white-space:nowrap;color:#476578}
+        .footer{background:#fff;padding:18px 0}.footer-inner{display:grid;grid-template-columns:170px 1fr auto;align-items:center;gap:18px;color:#587184;font-size:12px}.footer-inner img{width:145px;height:auto}.footer-inner .version{white-space:nowrap;color:#476578}.legal-links{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}.legal-links a{color:#0f6c87;text-decoration:none;font-weight:750}.legal-links a:hover{text-decoration:underline}.legal-links span{color:#bfd0da}
         @media(max-width:940px){
           .desktop-nav{display:none}.mobile-menu{display:block}.container{width:min(100% - 40px,760px)}
           .hero-inner{min-height:0;grid-template-columns:1fr;gap:28px;padding:44px 0 34px}.hero-orbit{justify-self:center;width:min(390px,88vw)}.hero-copy{text-align:left}.hero h1{font-size:clamp(44px,9vw,62px)}
@@ -448,7 +448,14 @@ export default function Home() {
         <footer className="footer">
           <div className="container footer-inner">
             <Image src="/lifenergy-logo.png" alt="Lifenergy" width={960} height={230} />
-            <span>© 2026 Lifenergy. Desenvolvimento Humano e Organizacional.</span>
+            <div>
+              <span>© 2026 Lifenergy. Desenvolvimento Humano e Organizacional.</span>
+              <nav className="legal-links" aria-label="Links legais">
+                <Link href="/termos-de-uso">Termos de Uso</Link>
+                <span aria-hidden="true">•</span>
+                <Link href="/politica-de-privacidade">Política de Privacidade</Link>
+              </nav>
+            </div>
             <AppVersion className="version" />
           </div>
         </footer>

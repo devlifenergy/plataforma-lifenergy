@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabaseServer";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 type PageProps = {
   params: Promise<{ token: string }>;
@@ -18,7 +19,7 @@ export default async function JourneyCompletedPage({ params }: PageProps) {
   if (error || !data) notFound();
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-10">
       <section className="w-full max-w-xl rounded-3xl bg-white p-10 text-center shadow-sm">
         <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
           {journey.organization_name}
@@ -34,6 +35,15 @@ export default async function JourneyCompletedPage({ params }: PageProps) {
           Sua avaliação foi registrada com sucesso. Você já pode fechar esta página.
         </p>
       </section>
+      <footer className="mt-6 text-center text-sm text-slate-500">
+        <Link href="/termos-de-uso" className="font-semibold text-[#0F6C87] underline">
+          Termos de Uso
+        </Link>
+        <span className="mx-2">•</span>
+        <Link href="/politica-de-privacidade" className="font-semibold text-[#0F6C87] underline">
+          Política de Privacidade
+        </Link>
+      </footer>
     </main>
   );
 }
