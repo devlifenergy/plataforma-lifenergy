@@ -1,0 +1,26 @@
+PATCH CORRETIVO 1.5.10 — PDF SERVERLESS / VERCEL
+
+Causa confirmada:
+pdf-parse 2.4.5 usa PDF.js e falha no runtime publicado da Vercel com:
+ReferenceError: DOMMatrix is not defined
+
+Correção:
+- remove pdf-parse;
+- instala unpdf 1.8.x, que inclui build de PDF.js preparado para runtimes serverless;
+- mantém Mammoth para DOCX;
+- mantém o fluxo, banco, migration e interface atuais.
+
+COMO APLICAR
+1. Extraia este ZIP na raiz:
+   C:\Projetos\lifenergyproject
+
+2. No PowerShell, dentro da raiz, execute:
+   .\APLICAR_PATCH_1_5_10_PDF_SERVERLESS.ps1
+
+O script:
+- npm uninstall pdf-parse
+- npm install unpdf@^1.8.1
+- limpa .next
+- executa npm run build
+
+Não altera Supabase, migrations ou variáveis da Vercel.

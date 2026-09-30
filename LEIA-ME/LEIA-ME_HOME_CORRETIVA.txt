@@ -1,0 +1,19 @@
+PACOTE CORRETIVO - HOME LIFENERGY DIGITAL
+
+Este pacote prioriza fidelidade visual à versão aprovada no preview.
+
+Arquivos incluídos:
+- app/page.tsx
+- public/home-lifenergy-final.png
+
+Como aplicar:
+1. Extraia o ZIP na raiz do projeto C:\Projetos\lifenergyproject
+2. Permita substituir app/page.tsx
+3. Rode:
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run build
+
+Observação:
+- A composição visual aprovada foi usada como base integral para evitar a perda de proporção e impacto visual.
+- Os principais botões e menus têm áreas clicáveis sobre a imagem.
+- O conteúdo essencial também foi incluído em texto acessível para leitores de tela.

@@ -1,0 +1,39 @@
+LIFENERGY DIGITAL — RELEASE 1.5.11 — E-MAILS OPCIONAIS
+
+Base: código 1.5.10 fornecido pelo usuário.
+Não altera banco de dados e não adiciona dependências.
+
+Implementa:
+1. Empresa criada: checkbox opcional para enviar acesso ao administrador, com link, usuário e senha temporária.
+2. Convite criado: checkbox opcional para enviar o link individual e instruções ao avaliado.
+3. Licenças adicionadas: checkbox opcional na edição da empresa; envia somente quando houver aumento de uma ou mais modalidades, consolidando as quantidades adicionadas.
+
+Marca e linguagem: Lifenergy Digital; "Acesso ao Lifenergy Digital".
+Falha no serviço de e-mail não desfaz a operação principal.
+
+Variáveis necessárias no ambiente Vercel/Sandbox:
+RESEND_API_KEY
+LIFENERGY_EMAIL_FROM
+LIFENERGY_APP_URL
+
+Aplicação:
+- Extraia este ZIP na raiz C:\Projetos\lifenergyproject, permitindo substituir os arquivos.
+- NÃO é necessária migração SQL.
+
+Teste local:
+Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+npm run build
+
+Somente após BUILD OK:
+git status --short
+git add -- package.json package-lock.json services/email/lifenergyEmail.ts services/companies/actions.ts services/journeys/actions.ts components/application/CompanyCreateForm.tsx components/application/CreateJourneyForm.tsx app/painel/empresas/page.tsx
+git commit -m "Release 1.5.11 - Emails opcionais do Lifenergy Digital"
+git push origin feature/multiplos-fractais-prototipo
+
+Testes no Sandbox:
+A) Criar empresa com checkbox desmarcado: cria sem e-mail.
+B) Criar empresa com checkbox marcado: recebe acesso e senha temporária.
+C) Criar convite com checkbox marcado: avaliado recebe link e instruções.
+D) Criar convite com checkbox desmarcado: cria sem e-mail; botão existente "Enviar por e-mail" continua disponível.
+E) Aumentar licenças e marcar notificação: administrador recebe quantidades adicionadas.
+F) Editar empresa sem aumento de licença: não envia notificação de licenças.

@@ -1,0 +1,8 @@
+PATCH 1.5.10 — DOMMatrix/Vercel
+
+Substitui somente lib/technicalLibraryExtractor.ts.
+Não altera banco, migrations, package.json, Supabase ou variáveis da Vercel.
+
+Aplicar na raiz do projeto e executar:
+Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+npm run build

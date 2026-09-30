@@ -1,0 +1,29 @@
+LIFENERGY DIGITAL — RELEASE 1.5.10
+Biblioteca Técnica: links externos e visualização
+
+ESCOPO
+- Arquivo PDF opcional.
+- Link externo opcional.
+- Pelo menos arquivo ou link é obrigatório.
+- Arquivo + link é permitido.
+- YouTube recebe o rótulo “Assistir ao vídeo”.
+- Outros links recebem “Acessar conteúdo”.
+- Documentos recebem “Visualizar conteúdo”.
+- Nova rota /view usa Content-Disposition inline.
+- A rota antiga /download não é removida, mas deixa de ser usada pelas telas.
+- Nenhuma alteração em Biblioteca Corporativa/PDI.
+- Migration apenas adiciona external_url e valida protocolo http/https.
+
+ORDEM SEGURA
+1. Confirmar branch feature/multiplos-fractais-prototipo.
+2. Aplicar a migration no BANCO SANDBOX.
+3. Aplicar os arquivos do patch.
+4. npm run build.
+5. Testar localmente se desejado.
+6. Somente após build OK: git add seletivo, commit e push para Sandbox.
+7. Testar o deployment Sandbox.
+8. Produção somente após aprovação.
+
+OBSERVAÇÃO
+A interface remove a opção de download da Biblioteca Técnica e serve PDFs em modo inline.
+Como qualquer conteúdo entregue ao navegador, isso não constitui proteção absoluta contra salvamento/cópia.

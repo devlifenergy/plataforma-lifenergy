@@ -1,0 +1,20 @@
+PACOTE DE ATUALIZACAO - PAGINA INICIAL LIFENERGY DIGITAL
+
+Conteudo do pacote:
+- app/page.tsx
+- public/lifenergy-logo-azul.png
+- public/home-hero-visual.png
+- public/home-footer-landscape.png
+
+Como aplicar:
+1. Copie o arquivo app/page.tsx para a pasta app/page.tsx do projeto.
+2. Copie os tres arquivos da pasta public para a pasta public do projeto.
+3. Rode o build:
+   npm run build
+4. Se o build estiver OK, publique normalmente.
+
+Observacoes:
+- Esta versao usa o nome Lifenergy Digital em toda a pagina.
+- O menu superior contem: Metodologia, Para quem e, Beneficios e Biblioteca Tecnica.
+- O CTA principal aponta para /login.
+- A Biblioteca Tecnica aponta para /biblioteca-tecnica.

@@ -1,0 +1,20 @@
+PATCH CORRETIVO 1.5.10 — EXTRAÇÃO AUTOMÁTICA PDF/DOCX
+
+Aplicar sobre o commit 9d001ba.
+
+O super_admin informa apenas título, descrição/fundamentação, PDF ou DOCX, link complementar opcional e visibilidade.
+A Plataforma Lifenergy extrai o conteúdo automaticamente e monta /biblioteca-tecnica/[documentId].
+Não há botão de download nem abertura do PDF/DOCX para leitura.
+YouTube é incorporado na página.
+
+A migration APAGA TODOS os registros atuais de technical_library_documents, conforme solicitado.
+
+Depois de copiar:
+1. Aplicar a migration no Sandbox.
+2. npm install
+3. npm run build
+4. Só então commit/push.
+
+O npm install atualizará package-lock.json; inclua-o no commit.
+
+PDFs apenas digitalizados/imagem não usam OCR; o sistema pedirá PDF com texto selecionável.

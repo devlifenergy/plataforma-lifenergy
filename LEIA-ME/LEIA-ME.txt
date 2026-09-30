@@ -1,0 +1,19 @@
+PACOTE CORRIGIDO — HOME LIFENERGY DIGITAL PARA SANDBOX
+
+Arquivos incluídos:
+- app/page.tsx
+- public/lifenergy-logo.png
+- public/lifenergy-symbol.png
+
+Correções aplicadas:
+1. Mantida a primeira seção com o fundo escuro já existente no Sandbox.
+2. Após o gráfico da seção “Nossa essência”, o quadro “Por que Lifenergy Digital” foi movido para a esquerda.
+3. O quadro com a frase “Pessoas mais conscientes...” foi movido para a direita.
+4. O título “Visão integrada” foi removido desse quadro.
+5. A imagem das ondas e do sol ganhou mais espaço sem reduzir a fonte da frase.
+6. A seção “Conexões que geram perspectiva” recebeu fundo azul-escuro, com contraste ajustado para leitura.
+
+Publicação:
+- Substitua os arquivos na raiz do projeto.
+- Rode npm run build.
+- Faça commit e push para feature/multiplos-fractais-prototipo.

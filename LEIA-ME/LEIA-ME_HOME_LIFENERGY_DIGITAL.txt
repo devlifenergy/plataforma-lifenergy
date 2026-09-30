@@ -1,0 +1,27 @@
+PACOTE DE ATUALIZACAO - PAGINA INICIAL LIFENERGY DIGITAL
+
+Arquivos alterados/adicionados:
+- app/page.tsx
+- app/layout.tsx
+- public/lifenergy-logo-completo-azul.png
+
+Objetivo:
+Atualizar a pagina inicial publica para a identidade Lifenergy Digital, utilizando a marca Lifenergy, a paleta oficial e a Metodologia Lifenergy - Ciclo 4D como base de conteudo.
+
+Principais ajustes:
+- Remove mencoes a nomenclaturas antigas na home.
+- Usa "Lifenergy Digital" nos botoes e chamadas principais.
+- Inclui secao "Conheca a metodologia" com Metodologia Lifenergy - Ciclo 4D.
+- Usa paleta azul escuro #205167, verde agua #98D6D1 e branco.
+- Usa Work Sans como tipografia principal.
+- Adiciona logomarca em public/lifenergy-logo-completo-azul.png.
+
+Como aplicar:
+1. Extraia o ZIP na raiz do projeto C:\Projetos\lifenergyproject.
+2. Permita substituir os arquivos.
+3. Rode:
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run build
+
+Publicacao:
+Apos Build OK, publicar primeiro no ambiente Sandbox antes de promover para producao.

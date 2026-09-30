@@ -1,0 +1,22 @@
+Release 1.5.12 - Melhorias de formulário, Biblioteca Técnica, e-mails e senhas
+
+Aplicação:
+1. Extraia este ZIP na raiz do projeto C:\Projetos\lifenergyproject, permitindo substituir os arquivos.
+2. Rode:
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run build
+3. Se o build passar, faça commit/push para a branch de Sandbox.
+
+Escopo:
+- Cronômetro do formulário inicia somente ao chegar no Passo 3.
+- Informação adicionada no Passo 1: após clicar em Continuar, seguir até o final.
+- Números prefixados dos fractais removidos da visualização do formulário sem alterar o texto canônico salvo.
+- Botão Voltar na Biblioteca Técnica leva para o Painel quando há usuário logado.
+- E-mail de convite agora mostra o botão Acessar o formulário após as Orientações.
+- Edição de empresa permite enviar e-mail com nova senha quando o campo Nova senha for preenchido.
+- Fluxo Esqueci minha senha criado em /esqueci-senha.
+- Campo de senha com ícone de olho em login, criação de empresa, edição de empresa e criação/redefinição de senha.
+- Campos de criação de empresa com autocomplete desativado para reduzir preenchimento automático indevido de e-mail/senha.
+
+Observação:
+- O fluxo Esqueci minha senha usa o reset de senha do Supabase Auth e redireciona para /alterar-senha após a validação do link.
