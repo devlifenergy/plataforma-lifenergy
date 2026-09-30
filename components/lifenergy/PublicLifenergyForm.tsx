@@ -5,9 +5,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BRAZILIAN_STATES, joinNaturalidade, splitNaturalidade } from "@/lib/brazil";
 import { formatCpf, isValidCpf, isValidEmail, onlyDigits } from "@/lib/validation";
 import {
+  LIFENERGY_PARTICIPATION_TERMS_VERSION,
   LIFENERGY_PRIVACY_POLICY_VERSION,
   LIFENERGY_PUBLIC_APPLICATION_CONSENT_TEXT,
-  LIFENERGY_TERMS_VERSION,
 } from "@/lib/legal";
 
 type FractalConfig = {
@@ -630,7 +630,7 @@ export function PublicLifenergyForm({
       <input type="hidden" name="fractal_count" value={configuredFractals.length} />
       <input type="hidden" name="fractals_json" value={JSON.stringify(fractalsPayload)} />
       <input type="hidden" name="privacy_policy_version" value={LIFENERGY_PRIVACY_POLICY_VERSION} />
-      <input type="hidden" name="terms_version" value={LIFENERGY_TERMS_VERSION} />
+      <input type="hidden" name="terms_version" value={LIFENERGY_PARTICIPATION_TERMS_VERSION} />
       <input type="hidden" name="legal_acceptance_text" value={LIFENERGY_PUBLIC_APPLICATION_CONSENT_TEXT} />
       <input type="hidden" name="legal_acceptance" value={legalAccepted ? "on" : ""} />
 
@@ -1015,7 +1015,7 @@ export function PublicLifenergyForm({
             <span>
               Li e estou ciente sobre o uso dos meus dados para esta aplicação, conforme a{" "}
               <Link
-                href="/politica-de-privacidade"
+                href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`}
                 target="_blank"
                 className="font-bold text-[#0F6C87] underline"
               >
@@ -1023,11 +1023,11 @@ export function PublicLifenergyForm({
               </Link>{" "}
               e os{" "}
               <Link
-                href="/termos-de-uso"
+                href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`}
                 target="_blank"
                 className="font-bold text-[#0F6C87] underline"
               >
-                Termos de Uso
+                Termo de Participação
               </Link>
               .
             </span>

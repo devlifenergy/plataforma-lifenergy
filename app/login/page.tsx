@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AppVersion } from "@/components/application/AppVersion";
 import LoginForm from "./LoginForm";
 
@@ -51,6 +52,15 @@ export default async function LoginPage({
         <LoginForm />
 
         <footer className="mt-8 border-t border-slate-100 pt-5 text-center">
+          <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-semibold text-[#0F6C87]">
+            <Link href="/termos-de-uso?returnTo=/login" className="underline-offset-4 hover:underline">
+              Termos de Uso
+            </Link>
+            <span className="text-slate-300" aria-hidden="true">•</span>
+            <Link href="/politica-de-privacidade?returnTo=/login" className="underline-offset-4 hover:underline">
+              Política de Privacidade
+            </Link>
+          </nav>
           <p className="text-xs text-slate-400">
             Lifenergy Digital · <AppVersion />
           </p>

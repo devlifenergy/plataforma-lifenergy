@@ -1,7 +1,18 @@
 import Link from "next/link";
-import { LIFENERGY_PRIVACY_POLICY_VERSION } from "@/lib/legal";
+import {
+  LIFENERGY_PRIVACY_POLICY_VERSION,
+  legalReturnLabel,
+  safeLegalReturnTo,
+} from "@/lib/legal";
 
-export default function PrivacyPolicyPage() {
+type PageProps = {
+  searchParams: Promise<{ returnTo?: string | string[] }>;
+};
+
+export default async function PrivacyPolicyPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const returnTo = safeLegalReturnTo(params.returnTo);
+
   return (
     <main className="legal-page">
       <style>{`
@@ -32,7 +43,7 @@ export default function PrivacyPolicyPage() {
       <header className="legal-header">
         <div className="legal-header-inner">
           <Link href="/" className="brand">Lifenergy Digital</Link>
-          <Link href="/" className="back-link">Voltar para a página inicial</Link>
+          <Link href={returnTo} className="back-link">{legalReturnLabel(returnTo)}</Link>
         </div>
       </header>
 
@@ -139,7 +150,7 @@ export default function PrivacyPolicyPage() {
         </article>
 
         <div className="bottom-action">
-          <Link href="/" className="primary-return">Voltar para a página inicial</Link>
+          <Link href={returnTo} className="primary-return">{legalReturnLabel(returnTo)}</Link>
         </div>
       </section>
 

@@ -1,7 +1,18 @@
 import Link from "next/link";
-import { LIFENERGY_TERMS_VERSION } from "@/lib/legal";
+import {
+  LIFENERGY_COMPANY_TERMS_VERSION,
+  legalReturnLabel,
+  safeLegalReturnTo,
+} from "@/lib/legal";
 
-export default function TermsOfUsePage() {
+type PageProps = {
+  searchParams: Promise<{ returnTo?: string | string[] }>;
+};
+
+export default async function TermsOfUsePage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const returnTo = safeLegalReturnTo(params.returnTo);
+
   return (
     <main className="legal-page">
       <style>{`
@@ -32,7 +43,7 @@ export default function TermsOfUsePage() {
       <header className="legal-header">
         <div className="legal-header-inner">
           <Link href="/" className="brand">Lifenergy Digital</Link>
-          <Link href="/" className="back-link">Voltar para a página inicial</Link>
+          <Link href={returnTo} className="back-link">{legalReturnLabel(returnTo)}</Link>
         </div>
       </header>
 
@@ -106,11 +117,11 @@ export default function TermsOfUsePage() {
             contratante.
           </p>
 
-          <p className="meta">Versão: {LIFENERGY_TERMS_VERSION}</p>
+          <p className="meta">Versão: {LIFENERGY_COMPANY_TERMS_VERSION}</p>
         </article>
 
         <div className="bottom-action">
-          <Link href="/" className="primary-return">Voltar para a página inicial</Link>
+          <Link href={returnTo} className="primary-return">{legalReturnLabel(returnTo)}</Link>
         </div>
       </section>
 

@@ -5,11 +5,30 @@ import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
 import { isValidEmail } from "@/lib/validation";
 import { getApplicationBaseUrl } from "@/services/email/lifenergyEmail";
+import {
+  LIFENERGY_COMPANY_TERMS_VERSION,
+  LIFENERGY_PRIVACY_POLICY_VERSION,
+} from "@/lib/legal";
 
 function redirectWithError(message: string): never {
   const query = new URLSearchParams({ error: message });
   redirect(`/login?${query.toString()}`);
 }
+
+function hasCurrentCompanyLegalAcceptance(profile: {
+  company_terms_version?: string | null;
+  company_privacy_policy_version?: string | null;
+  company_terms_accepted_at?: string | null;
+  company_privacy_accepted_at?: string | null;
+}) {
+  return (
+    profile.company_terms_version === LIFENERGY_COMPANY_TERMS_VERSION &&
+    profile.company_privacy_policy_version === LIFENERGY_PRIVACY_POLICY_VERSION &&
+    Boolean(profile.company_terms_accepted_at) &&
+    Boolean(profile.company_privacy_accepted_at)
+  );
+}
+
 
 export async function identifyCompanyByEmail(email: string): Promise<{
   companyName: string | null;
@@ -74,7 +93,7 @@ export async function signIn(formData: FormData) {
 
   const { data: profile, error: profileError } = await admin
     .from("profiles")
-    .select("role, organization_id, must_change_password")
+    .select("role, organization_id, must_change_password, company_terms_accepted_at, company_terms_version, company_privacy_accepted_at, company_privacy_policy_version")
     .eq("auth_user_id", signInData.user.id)
     .single();
 
@@ -118,6 +137,10 @@ export async function signIn(formData: FormData) {
     redirect("/alterar-senha");
   }
 
+  if (profile.role !== "super_admin" && !hasCurrentCompanyLegalAcceptance(profile)) {
+    redirect("/aceite-legal");
+  }
+
   redirect("/painel");
 }
 
@@ -126,6 +149,46 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+
+export async function acceptCompanyLegalTerms(formData: FormData) {
+  const acceptedTerms = formData.get("accept_company_terms") === "on";
+  const acceptedPrivacy = formData.get("accept_privacy_policy") === "on";
+
+  if (!acceptedTerms || !acceptedPrivacy) {
+    redirect("/aceite-legal?error=Para%20continuar%2C%20aceite%20os%20Termos%20de%20Uso%20e%20a%20Pol%C3%ADtica%20de%20Privacidade.");
+  }
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const admin = createAdminClient();
+  const acceptedAt = new Date().toISOString();
+
+  const { error } = await admin
+    .from("profiles")
+    .update({
+      company_terms_accepted_at: acceptedAt,
+      company_terms_version: LIFENERGY_COMPANY_TERMS_VERSION,
+      company_privacy_accepted_at: acceptedAt,
+      company_privacy_policy_version: LIFENERGY_PRIVACY_POLICY_VERSION,
+    })
+    .eq("auth_user_id", user.id);
+
+  if (error) {
+    redirect(`/aceite-legal?error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect("/painel");
+}
+
 
 
 export async function changeInitialPassword(formData: FormData) {

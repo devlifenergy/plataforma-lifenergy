@@ -65,11 +65,11 @@ export default async function FormularioPage({ params }: PageProps) {
           </p>
         </section>
         <footer className="mt-6 text-center text-sm text-slate-500">
-          <Link href="/termos-de-uso" className="font-semibold text-[#0F6C87] underline">
-            Termos de Uso
+          <Link href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#0F6C87] underline">
+            Termo de Participação
           </Link>
           <span className="mx-2">•</span>
-          <Link href="/politica-de-privacidade" className="font-semibold text-[#0F6C87] underline">
+          <Link href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#0F6C87] underline">
             Política de Privacidade
           </Link>
         </footer>
@@ -98,11 +98,11 @@ export default async function FormularioPage({ params }: PageProps) {
         }}
       />
       <footer className="mx-auto mt-6 max-w-5xl text-center text-sm text-slate-500">
-        <Link href="/termos-de-uso" className="font-semibold text-[#0F6C87] underline">
-          Termos de Uso
+        <Link href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#0F6C87] underline">
+          Termo de Participação
         </Link>
         <span className="mx-2">•</span>
-        <Link href="/politica-de-privacidade" className="font-semibold text-[#0F6C87] underline">
+        <Link href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#0F6C87] underline">
           Política de Privacidade
         </Link>
       </footer>

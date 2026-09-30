@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import {
+  LIFENERGY_PARTICIPATION_TERMS_VERSION,
   LIFENERGY_PRIVACY_POLICY_VERSION,
-  LIFENERGY_TERMS_VERSION,
 } from "@/lib/legal";
 
 function getTokenFromReferer(request: Request) {
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
   const acceptedAt = new Date().toISOString();
   const privacyPolicyVersion =
     clean(formData.get("privacy_policy_version")) || LIFENERGY_PRIVACY_POLICY_VERSION;
-  const termsVersion = clean(formData.get("terms_version")) || LIFENERGY_TERMS_VERSION;
+  const termsVersion = clean(formData.get("terms_version")) || LIFENERGY_PARTICIPATION_TERMS_VERSION;
 
   const { data: journey, error: journeyError } = await supabase
     .from("journeys")

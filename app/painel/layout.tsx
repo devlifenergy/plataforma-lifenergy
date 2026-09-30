@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import { CompanyShell } from "@/components/layout/CompanyShell";
 import { createClient } from "@/lib/supabaseServer";
+import {
+  LIFENERGY_COMPANY_TERMS_VERSION,
+  LIFENERGY_PRIVACY_POLICY_VERSION,
+} from "@/lib/legal";
 
 export default async function PainelLayout({
   children,
@@ -19,7 +23,7 @@ export default async function PainelLayout({
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("name, email, role, must_change_password, organizations(name)")
+    .select("name, email, role, must_change_password, company_terms_accepted_at, company_terms_version, company_privacy_accepted_at, company_privacy_policy_version, organizations(name)")
     .eq("auth_user_id", user.id)
     .single();
 
@@ -28,6 +32,16 @@ export default async function PainelLayout({
   }
   if ((profile as any).must_change_password) {
     redirect("/alterar-senha");
+  }
+
+  const hasCurrentLegalAcceptance =
+    (profile as any).company_terms_version === LIFENERGY_COMPANY_TERMS_VERSION &&
+    (profile as any).company_privacy_policy_version === LIFENERGY_PRIVACY_POLICY_VERSION &&
+    Boolean((profile as any).company_terms_accepted_at) &&
+    Boolean((profile as any).company_privacy_accepted_at);
+
+  if ((profile as any).role !== "super_admin" && !hasCurrentLegalAcceptance) {
+    redirect("/aceite-legal");
   }
 
   const organizations = (profile as any).organizations;
@@ -39,7 +53,7 @@ const organizationName = Array.isArray(organizations)
   return (
     <CompanyShell
       userName={profile.name}
-      organizationName={organizationName || "Plataforma Lifenergy"}
+      organizationName={organizationName || "Lifenergy Digital"}
       role={profile.role}
     >
       {children}
