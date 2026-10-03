@@ -1,16 +1,198 @@
 import { CompanyCreateForm } from "@/components/application/CompanyCreateForm";
-import { PasswordInput } from "@/components/ui/PasswordInput";
 import {
   listCompanies,
   toggleCompanyStatus,
   updateCompany,
 } from "@/services/companies/actions";
 
+type Company = Awaited<ReturnType<typeof listCompanies>>[number];
+
+function LicensesSummary({ company }: { company: Company }) {
+  return (
+    <div className="space-y-1 text-xs leading-5 text-slate-600">
+      <div className="flex justify-between gap-2 md:block">
+        <span className="font-medium text-slate-700 md:font-normal">Individual:</span>{" "}
+        <span>{company.licenseIndividualReports ?? "Ilimitado"}</span>
+      </div>
+      <div className="flex justify-between gap-2 md:block">
+        <span className="font-medium text-slate-700 md:font-normal">PDI Relacional:</span>{" "}
+        <span>{company.licensePdiRelational ?? "Ilimitado"}</span>
+      </div>
+      <div className="flex justify-between gap-2 md:block">
+        <span className="font-medium text-slate-700 md:font-normal">PDI Corporativo:</span>{" "}
+        <span>{company.licensePdiCorporate ?? "Ilimitado"}</span>
+      </div>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: Company["status"] }) {
+  return (
+    <span
+      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+        status === "active"
+          ? "bg-emerald-100 text-emerald-700"
+          : "bg-slate-200 text-slate-600"
+      }`}
+    >
+      {status === "active" ? "Ativa" : "Inativa"}
+    </span>
+  );
+}
+
+function CompanyEditDetails({ company }: { company: Company }) {
+  return (
+    <details className="group">
+      <summary className="cursor-pointer list-none font-semibold text-[#0F2D4A] underline">
+        Editar
+      </summary>
+
+      <div className="mt-4 w-full max-w-full rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm xl:w-[420px]">
+        {company.profileId && company.authUserId ? (
+          <form action={updateCompany} className="space-y-3">
+            <input type="hidden" name="company_id" value={company.id} />
+            <input type="hidden" name="profile_id" value={company.profileId} />
+            <input type="hidden" name="auth_user_id" value={company.authUserId} />
+
+            <div>
+              <label
+                htmlFor={`company_name_${company.id}`}
+                className="mb-1 block text-sm font-medium text-slate-700"
+              >
+                Nome da empresa
+              </label>
+              <input
+                id={`company_name_${company.id}`}
+                name="company_name"
+                required
+                defaultValue={company.name}
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor={`admin_name_${company.id}`}
+                className="mb-1 block text-sm font-medium text-slate-700"
+              >
+                Nome do administrador
+              </label>
+              <input
+                id={`admin_name_${company.id}`}
+                name="admin_name"
+                required
+                defaultValue={company.adminName}
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor={`admin_email_${company.id}`}
+                className="mb-1 block text-sm font-medium text-slate-700"
+              >
+                E-mail do administrador
+              </label>
+              <input
+                id={`admin_email_${company.id}`}
+                name="admin_email"
+                required
+                type="email"
+                defaultValue={company.adminEmail}
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+              />
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-3">
+              <label className="text-xs font-medium text-slate-700">
+                Rel. Individual
+                <input
+                  name="license_individual_reports"
+                  type="number"
+                  min="0"
+                  required
+                  defaultValue={company.licenseIndividualReports ?? 0}
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2"
+                />
+              </label>
+              <label className="text-xs font-medium text-slate-700">
+                PDI Relacional
+                <input
+                  name="license_pdi_relational"
+                  type="number"
+                  min="0"
+                  required
+                  defaultValue={company.licensePdiRelational ?? 0}
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2"
+                />
+              </label>
+              <label className="text-xs font-medium text-slate-700">
+                PDI Corporativo
+                <input
+                  name="license_pdi_corporate"
+                  type="number"
+                  min="0"
+                  required
+                  defaultValue={company.licensePdiCorporate ?? 0}
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2"
+                />
+              </label>
+            </div>
+
+            <div>
+              <label
+                htmlFor={`new_password_${company.id}`}
+                className="mb-1 block text-sm font-medium text-slate-700"
+              >
+                Nova senha
+              </label>
+              <input
+                id={`new_password_${company.id}`}
+                name="new_password"
+                type="password"
+                minLength={6}
+                autoComplete="new-password"
+                placeholder="Deixe em branco para manter a senha atual"
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Mínimo de 6 caracteres.
+              </p>
+            </div>
+
+            <button className="w-full rounded-xl bg-[#0F2D4A] px-5 py-3 font-semibold text-white transition hover:opacity-90">
+              Salvar alterações
+            </button>
+          </form>
+        ) : (
+          <p className="text-sm text-amber-700">
+            Esta empresa não possui um administrador vinculado e não pode ser editada nesta tela.
+          </p>
+        )}
+      </div>
+    </details>
+  );
+}
+
+function CompanyActions({ company }: { company: Company }) {
+  return (
+    <div className="flex flex-wrap items-start gap-4">
+      <CompanyEditDetails company={company} />
+
+      <form action={toggleCompanyStatus.bind(null, company.id, company.status)}>
+        <button className="font-semibold text-[#0F2D4A] underline">
+          {company.status === "active" ? "Inativar" : "Ativar"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default async function EmpresasPage() {
   const companies = await listCompanies();
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-full space-y-6 overflow-hidden">
       <div>
         <h1 className="text-3xl font-bold text-[#0F2D4A]">Empresas</h1>
         <p className="mt-1 text-slate-500">
@@ -18,7 +200,7 @@ export default async function EmpresasPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-[#0F2D4A]">
           Cadastrar empresa
         </h2>
@@ -27,7 +209,7 @@ export default async function EmpresasPage() {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-6 py-4">
+        <div className="border-b border-slate-200 px-4 py-4 sm:px-6">
           <h2 className="text-lg font-semibold text-[#0F2D4A]">
             Empresas cadastradas
           </h2>
@@ -38,167 +220,98 @@ export default async function EmpresasPage() {
             Nenhuma empresa cadastrada.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px] text-left">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-sm text-slate-500">
-                  <th className="px-6 py-3">Empresa</th>
-                  <th className="px-6 py-3">Administrador</th>
-                  <th className="px-6 py-3">E-mail</th>
-                  <th className="px-6 py-3">Licenças</th>
-                  <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Ações</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {companies.map((company) => (
-                  <tr
-                    key={company.id}
-                    className="border-b border-slate-100 align-top last:border-0"
-                  >
-                    <td className="px-6 py-4 font-medium text-slate-900">
-                      {company.name}
-                    </td>
-
-                    <td className="px-6 py-4 text-slate-700">
-                      {company.adminName || "Não informado"}
-                    </td>
-
-                    <td className="px-6 py-4 text-slate-700">
-                      {company.adminEmail || "Não informado"}
-                    </td>
-
-                    <td className="px-6 py-4 text-xs leading-5 text-slate-600">
-                      <div>Individual: {company.licenseIndividualReports ?? "Ilimitado"}</div>
-                      <div>PDI Relacional: {company.licensePdiRelational ?? "Ilimitado"}</div>
-                      <div>PDI Corporativo: {company.licensePdiCorporate ?? "Ilimitado"}</div>
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                          company.status === "active"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-slate-200 text-slate-600"
-                        }`}
-                      >
-                        {company.status === "active" ? "Ativa" : "Inativa"}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <div className="flex items-start gap-4">
-                        <details className="group">
-                          <summary className="cursor-pointer list-none font-semibold text-[#0F2D4A] underline">
-                            Editar
-                          </summary>
-
-                          <div className="mt-4 w-[420px] max-w-[80vw] rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-                            {company.profileId && company.authUserId ? (
-                              <form action={updateCompany} autoComplete="off" className="space-y-3">
-                                <input type="hidden" name="company_id" value={company.id} />
-                                <input type="hidden" name="profile_id" value={company.profileId} />
-                                <input type="hidden" name="auth_user_id" value={company.authUserId} />
-
-                                <div>
-                                  <label htmlFor={`company_name_${company.id}`} className="mb-1 block text-sm font-medium text-slate-700">
-                                    Nome da empresa
-                                  </label>
-                                  <input
-                                    id={`company_name_${company.id}`}
-                                    name="company_name"
-                                    required
-                                    defaultValue={company.name}
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-                                  />
-                                </div>
-
-                                <div>
-                                  <label htmlFor={`admin_name_${company.id}`} className="mb-1 block text-sm font-medium text-slate-700">
-                                    Nome do administrador
-                                  </label>
-                                  <input
-                                    id={`admin_name_${company.id}`}
-                                    name="admin_name"
-                                    required
-                                    defaultValue={company.adminName}
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-                                  />
-                                </div>
-
-                                <div>
-                                  <label htmlFor={`admin_email_${company.id}`} className="mb-1 block text-sm font-medium text-slate-700">
-                                    E-mail do administrador
-                                  </label>
-                                  <input
-                                    id={`admin_email_${company.id}`}
-                                    name="admin_email"
-                                    required
-                                    type="email"
-                                    autoComplete="off"
-                                    defaultValue={company.adminEmail}
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-                                  />
-                                </div>
-
-                                <div className="grid grid-cols-3 gap-2">
-                                  <label className="text-xs font-medium text-slate-700">Rel. Individual<input name="license_individual_reports" type="number" min="0" required defaultValue={company.licenseIndividualReports ?? 0} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2" /></label>
-                                  <label className="text-xs font-medium text-slate-700">PDI Relacional<input name="license_pdi_relational" type="number" min="0" required defaultValue={company.licensePdiRelational ?? 0} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2" /></label>
-                                  <label className="text-xs font-medium text-slate-700">PDI Corporativo<input name="license_pdi_corporate" type="number" min="0" required defaultValue={company.licensePdiCorporate ?? 0} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2" /></label>
-                                </div>
-
-                                <div>
-                                  <label htmlFor={`new_password_${company.id}`} className="mb-1 block text-sm font-medium text-slate-700">
-                                    Nova senha
-                                  </label>
-                                  <PasswordInput
-                                    id={`new_password_${company.id}`}
-                                    name="new_password"
-                                    minLength={6}
-                                    autoComplete="new-password"
-                                    placeholder="Deixe em branco para manter a senha atual"
-                                    inputClassName="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-                                  />
-                                  <p className="mt-1 text-xs text-slate-500">
-                                    Mínimo de 6 caracteres.
-                                  </p>
-                                </div>
-
-                                <label className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white p-3">
-                                  <input name="send_password_email" type="checkbox" className="mt-1 h-4 w-4" />
-                                  <span className="text-xs leading-5 text-slate-600"><strong className="block text-slate-800">Enviar nova senha por e-mail</strong>Use esta opção quando preencher o campo Nova senha. O administrador receberá o link de acesso, usuário e senha temporária.</span>
-                                </label>
-
-                                <label className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white p-3">
-                                  <input name="notify_license_addition" type="checkbox" className="mt-1 h-4 w-4" />
-                                  <span className="text-xs leading-5 text-slate-600"><strong className="block text-slate-800">Notificar novas licenças por e-mail</strong>Se houver aumento no saldo contratado, informa ao administrador quantas licenças foram adicionadas.</span>
-                                </label>
-
-                                <button className="w-full rounded-xl bg-[#0F2D4A] px-5 py-3 font-semibold text-white transition hover:opacity-90">
-                                  Salvar alterações
-                                </button>
-                              </form>
-                            ) : (
-                              <p className="text-sm text-amber-700">
-                                Esta empresa não possui um administrador vinculado e não pode ser editada nesta tela.
-                              </p>
-                            )}
-                          </div>
-                        </details>
-
-                        <form action={toggleCompanyStatus.bind(null, company.id, company.status)}>
-                          <button className="font-semibold text-[#0F2D4A] underline">
-                            {company.status === "active" ? "Inativar" : "Ativar"}
-                          </button>
-                        </form>
-                      </div>
-                    </td>
+          <>
+            <div className="hidden xl:block">
+              <table className="w-full table-fixed text-left">
+                <colgroup>
+                  <col className="w-[18%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[24%]" />
+                  <col className="w-[18%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[15%]" />
+                </colgroup>
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
+                    <th className="px-4 py-3">Empresa</th>
+                    <th className="px-4 py-3">Administrador</th>
+                    <th className="px-4 py-3">E-mail</th>
+                    <th className="px-4 py-3">Licenças</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody>
+                  {companies.map((company) => (
+                    <tr
+                      key={company.id}
+                      className="border-b border-slate-100 align-top last:border-0"
+                    >
+                      <td className="break-words px-4 py-4 text-sm font-medium text-slate-900">
+                        {company.name}
+                      </td>
+
+                      <td className="break-words px-4 py-4 text-sm text-slate-700">
+                        {company.adminName || "Não informado"}
+                      </td>
+
+                      <td className="break-all px-4 py-4 text-sm text-slate-700">
+                        {company.adminEmail || "Não informado"}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <LicensesSummary company={company} />
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <StatusBadge status={company.status} />
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <CompanyActions company={company} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="grid gap-4 p-4 xl:hidden">
+              {companies.map((company) => (
+                <article
+                  key={company.id}
+                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="break-words text-base font-semibold text-slate-900">
+                        {company.name}
+                      </h3>
+                      <p className="mt-1 break-words text-sm text-slate-600">
+                        {company.adminName || "Administrador não informado"}
+                      </p>
+                      <p className="mt-1 break-all text-sm text-slate-600">
+                        {company.adminEmail || "E-mail não informado"}
+                      </p>
+                    </div>
+                    <StatusBadge status={company.status} />
+                  </div>
+
+                  <div className="mt-4 rounded-xl bg-slate-50 p-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Licenças
+                    </p>
+                    <LicensesSummary company={company} />
+                  </div>
+
+                  <div className="mt-4 border-t border-slate-100 pt-4">
+                    <CompanyActions company={company} />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
