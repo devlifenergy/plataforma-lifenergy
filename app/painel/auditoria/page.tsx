@@ -49,6 +49,80 @@ function formatMetadata(metadata: Record<string, unknown> | null) {
   return JSON.stringify(metadata, null, 2);
 }
 
+function ActionBadge({ action }: { action: string }) {
+  return (
+    <span className="inline-flex rounded-full bg-[#0F2D4A]/10 px-3 py-1 text-xs font-semibold text-[#0F2D4A]">
+      {actionLabels[action] ?? action}
+    </span>
+  );
+}
+
+function AuditLogCard({ log }: { log: AuditLogRow }) {
+  const metadataWithContext = {
+    ...(log.metadata ?? {}),
+    ip_address: log.ip_address,
+    user_agent: log.user_agent,
+  };
+
+  return (
+    <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <ActionBadge action={log.action} />
+          <h3 className="mt-3 break-words text-lg font-bold text-[#0F2D4A]">
+            {log.description || actionLabels[log.action] || log.action}
+          </h3>
+          <p className="mt-1 break-all text-xs text-slate-400">{log.action}</p>
+        </div>
+        <p className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+          {formatDate(log.created_at)}
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Usuário</p>
+          <p className="mt-2 break-words text-sm font-semibold text-slate-700">
+            {log.actor_name || "Sistema"}
+          </p>
+          <p className="mt-1 break-all text-xs text-slate-500">{log.actor_email || "-"}</p>
+        </div>
+
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Empresa</p>
+          <p className="mt-2 break-words text-sm font-semibold text-slate-700">
+            {log.organization_name || "-"}
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Entidade</p>
+          <p className="mt-2 break-words text-sm font-semibold text-slate-700">
+            {log.entity_type || "-"}
+          </p>
+          <p className="mt-1 break-all text-xs text-slate-500">{log.entity_id || "-"}</p>
+        </div>
+
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Origem</p>
+          <p className="mt-2 break-words text-sm text-slate-700">
+            {log.ip_address || "IP não informado"}
+          </p>
+        </div>
+      </div>
+
+      <details className="mt-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[#0F2D4A] transition hover:bg-slate-100">
+          Ver detalhes técnicos
+        </summary>
+        <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words border-t border-slate-200 bg-slate-950 p-4 text-xs leading-5 text-slate-100">
+{formatMetadata(metadataWithContext)}
+        </pre>
+      </details>
+    </article>
+  );
+}
+
 export default async function AuditPage() {
   const supabase = await createClient();
 
@@ -86,7 +160,7 @@ export default async function AuditPage() {
   const logs = (data ?? []) as AuditLogRow[];
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-full space-y-6 overflow-x-hidden">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
           Auditoria e rastreabilidade
@@ -95,8 +169,7 @@ export default async function AuditPage() {
           Eventos do Lifenergy Digital
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-          Esta tela apresenta os registros recentes de ações críticas do sistema, incluindo aceite legal,
-          criação de aplicações, conclusão de formulários, geração de documentos e downloads.
+          Acompanhe ações críticas do sistema, incluindo aceite legal, criação de aplicações, conclusão de formulários, geração de documentos e downloads.
         </p>
       </header>
 
@@ -106,8 +179,8 @@ export default async function AuditPage() {
         </div>
       ) : null}
 
-      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-6 py-4">
+      <section className="space-y-4">
+        <div className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
           <h2 className="text-lg font-semibold text-[#0F2A43]">Registros recentes</h2>
           <p className="mt-1 text-sm text-slate-500">
             Exibindo os últimos 100 eventos disponíveis para o seu perfil.
@@ -115,67 +188,14 @@ export default async function AuditPage() {
         </div>
 
         {logs.length === 0 ? (
-          <div className="px-6 py-10 text-sm text-slate-500">
+          <div className="rounded-3xl border border-slate-200 bg-white px-6 py-10 text-center text-sm text-slate-500 shadow-sm">
             Nenhum evento de auditoria registrado ainda.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-[1100px] divide-y divide-slate-200 text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                <tr>
-                  <th className="px-5 py-3 font-semibold">Data/hora</th>
-                  <th className="px-5 py-3 font-semibold">Ação</th>
-                  <th className="px-5 py-3 font-semibold">Usuário</th>
-                  <th className="px-5 py-3 font-semibold">Empresa</th>
-                  <th className="px-5 py-3 font-semibold">Entidade</th>
-                  <th className="px-5 py-3 font-semibold">Descrição</th>
-                  <th className="px-5 py-3 font-semibold">Detalhes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {logs.map((log) => (
-                  <tr key={log.id} className="align-top hover:bg-slate-50/70">
-                    <td className="whitespace-nowrap px-5 py-4 text-slate-600">
-                      {formatDate(log.created_at)}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="font-semibold text-[#0F2A43]">
-                        {actionLabels[log.action] ?? log.action}
-                      </span>
-                      <p className="mt-1 text-xs text-slate-400">{log.action}</p>
-                    </td>
-                    <td className="px-5 py-4 text-slate-600">
-                      <p className="font-medium text-slate-700">{log.actor_name || "Sistema"}</p>
-                      <p className="mt-1 text-xs text-slate-400">{log.actor_email || "-"}</p>
-                    </td>
-                    <td className="px-5 py-4 text-slate-600">{log.organization_name || "-"}</td>
-                    <td className="px-5 py-4 text-slate-600">
-                      <p>{log.entity_type || "-"}</p>
-                      <p className="mt-1 max-w-[180px] truncate text-xs text-slate-400">
-                        {log.entity_id || "-"}
-                      </p>
-                    </td>
-                    <td className="max-w-[280px] px-5 py-4 leading-6 text-slate-600">
-                      {log.description || "-"}
-                    </td>
-                    <td className="px-5 py-4">
-                      <details className="group">
-                        <summary className="cursor-pointer text-sm font-semibold text-[#0F2A43] transition hover:text-[#B98A2E]">
-                          Ver detalhes
-                        </summary>
-                        <pre className="mt-3 max-h-56 max-w-[360px] overflow-auto rounded-xl bg-slate-950 p-4 text-xs leading-5 text-slate-100">
-{formatMetadata({
-  ...(log.metadata ?? {}),
-  ip_address: log.ip_address,
-  user_agent: log.user_agent,
-})}
-                        </pre>
-                      </details>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-4">
+            {logs.map((log) => (
+              <AuditLogCard key={log.id} log={log} />
+            ))}
           </div>
         )}
       </section>

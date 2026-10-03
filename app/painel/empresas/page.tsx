@@ -7,115 +7,151 @@ import {
 
 type Company = Awaited<ReturnType<typeof listCompanies>>[number];
 
-function LicensesSummary({ company }: { company: Company }) {
-  return (
-    <div className="space-y-1 text-xs leading-5 text-slate-600">
-      <div className="flex justify-between gap-2 md:block">
-        <span className="font-medium text-slate-700 md:font-normal">Individual:</span>{" "}
-        <span>{company.licenseIndividualReports ?? "Ilimitado"}</span>
-      </div>
-      <div className="flex justify-between gap-2 md:block">
-        <span className="font-medium text-slate-700 md:font-normal">PDI Relacional:</span>{" "}
-        <span>{company.licensePdiRelational ?? "Ilimitado"}</span>
-      </div>
-      <div className="flex justify-between gap-2 md:block">
-        <span className="font-medium text-slate-700 md:font-normal">PDI Corporativo:</span>{" "}
-        <span>{company.licensePdiCorporate ?? "Ilimitado"}</span>
-      </div>
-    </div>
-  );
+function formatLicense(value: number | null | undefined) {
+  if (value === null || value === undefined) return "Ilimitado";
+  return String(value);
+}
+
+function numberOrZero(value: number | null | undefined) {
+  return typeof value === "number" ? value : 0;
 }
 
 function StatusBadge({ status }: { status: Company["status"] }) {
+  const isActive = status === "active";
+
   return (
     <span
-      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-        status === "active"
+      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+        isActive
           ? "bg-emerald-100 text-emerald-700"
           : "bg-slate-200 text-slate-600"
       }`}
     >
-      {status === "active" ? "Ativa" : "Inativa"}
+      {isActive ? "Ativa" : "Inativa"}
     </span>
+  );
+}
+
+function LicensePill({ label, value }: { label: string; value: number | null | undefined }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        {label}
+      </p>
+      <p className="mt-1 text-xl font-bold text-[#0F2D4A]">{formatLicense(value)}</p>
+    </div>
+  );
+}
+
+function CompanyStats({ companies }: { companies: Company[] }) {
+  const activeCompanies = companies.filter((company) => company.status === "active").length;
+  const inactiveCompanies = companies.length - activeCompanies;
+  const totalIndividual = companies.reduce(
+    (sum, company) => sum + numberOrZero(company.licenseIndividualReports),
+    0
+  );
+  const totalRelational = companies.reduce(
+    (sum, company) => sum + numberOrZero(company.licensePdiRelational),
+    0
+  );
+  const totalCorporate = companies.reduce(
+    (sum, company) => sum + numberOrZero(company.licensePdiCorporate),
+    0
+  );
+
+  return (
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Empresas</p>
+        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{companies.length}</p>
+      </div>
+      <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Ativas</p>
+        <p className="mt-2 text-2xl font-bold text-emerald-800">{activeCompanies}</p>
+      </div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Inativas</p>
+        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{inactiveCompanies}</p>
+      </div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Relatórios</p>
+        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{totalIndividual}</p>
+      </div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">PDIs</p>
+        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{totalRelational + totalCorporate}</p>
+      </div>
+    </section>
   );
 }
 
 function CompanyEditDetails({ company }: { company: Company }) {
   return (
-    <details className="group">
-      <summary className="cursor-pointer list-none font-semibold text-[#0F2D4A] underline">
-        Editar
+    <details className="group rounded-2xl border border-slate-200 bg-white">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-[#0F2D4A] transition hover:bg-slate-50">
+        <span>Editar empresa</span>
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 group-open:hidden">
+          Abrir
+        </span>
+        <span className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 group-open:inline-flex">
+          Fechar
+        </span>
       </summary>
 
-      <div className="mt-4 w-full max-w-full rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm xl:w-[420px]">
+      <div className="border-t border-slate-200 bg-slate-50 p-4">
         {company.profileId && company.authUserId ? (
-          <form action={updateCompany} className="space-y-3">
+          <form action={updateCompany} className="space-y-4">
             <input type="hidden" name="company_id" value={company.id} />
             <input type="hidden" name="profile_id" value={company.profileId} />
             <input type="hidden" name="auth_user_id" value={company.authUserId} />
 
-            <div>
-              <label
-                htmlFor={`company_name_${company.id}`}
-                className="mb-1 block text-sm font-medium text-slate-700"
-              >
+            <div className="grid gap-4 lg:grid-cols-3">
+              <label className="text-sm font-medium text-slate-700">
                 Nome da empresa
+                <input
+                  name="company_name"
+                  required
+                  defaultValue={company.name}
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                />
               </label>
-              <input
-                id={`company_name_${company.id}`}
-                name="company_name"
-                required
-                defaultValue={company.name}
-                className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-              />
-            </div>
 
-            <div>
-              <label
-                htmlFor={`admin_name_${company.id}`}
-                className="mb-1 block text-sm font-medium text-slate-700"
-              >
+              <label className="text-sm font-medium text-slate-700">
                 Nome do administrador
+                <input
+                  name="admin_name"
+                  required
+                  defaultValue={company.adminName}
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                />
               </label>
-              <input
-                id={`admin_name_${company.id}`}
-                name="admin_name"
-                required
-                defaultValue={company.adminName}
-                className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-              />
-            </div>
 
-            <div>
-              <label
-                htmlFor={`admin_email_${company.id}`}
-                className="mb-1 block text-sm font-medium text-slate-700"
-              >
+              <label className="text-sm font-medium text-slate-700">
                 E-mail do administrador
+                <input
+                  name="admin_email"
+                  required
+                  type="email"
+                  defaultValue={company.adminEmail}
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                />
               </label>
-              <input
-                id={`admin_email_${company.id}`}
-                name="admin_email"
-                required
-                type="email"
-                defaultValue={company.adminEmail}
-                className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-              />
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-3">
-              <label className="text-xs font-medium text-slate-700">
-                Rel. Individual
+            <div className="grid gap-4 sm:grid-cols-3">
+              <label className="text-sm font-medium text-slate-700">
+                Relatório Individual
                 <input
                   name="license_individual_reports"
                   type="number"
                   min="0"
                   required
                   defaultValue={company.licenseIndividualReports ?? 0}
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2"
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
                 />
               </label>
-              <label className="text-xs font-medium text-slate-700">
+
+              <label className="text-sm font-medium text-slate-700">
                 PDI Relacional
                 <input
                   name="license_pdi_relational"
@@ -123,10 +159,11 @@ function CompanyEditDetails({ company }: { company: Company }) {
                   min="0"
                   required
                   defaultValue={company.licensePdiRelational ?? 0}
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2"
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
                 />
               </label>
-              <label className="text-xs font-medium text-slate-700">
+
+              <label className="text-sm font-medium text-slate-700">
                 PDI Corporativo
                 <input
                   name="license_pdi_corporate"
@@ -134,35 +171,29 @@ function CompanyEditDetails({ company }: { company: Company }) {
                   min="0"
                   required
                   defaultValue={company.licensePdiCorporate ?? 0}
-                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2"
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
                 />
               </label>
             </div>
 
-            <div>
-              <label
-                htmlFor={`new_password_${company.id}`}
-                className="mb-1 block text-sm font-medium text-slate-700"
-              >
+            <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+              <label className="text-sm font-medium text-slate-700">
                 Nova senha
+                <input
+                  name="new_password"
+                  type="password"
+                  minLength={6}
+                  autoComplete="new-password"
+                  placeholder="Deixe em branco para manter a senha atual"
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                />
+                <span className="mt-1 block text-xs text-slate-500">Mínimo de 6 caracteres.</span>
               </label>
-              <input
-                id={`new_password_${company.id}`}
-                name="new_password"
-                type="password"
-                minLength={6}
-                autoComplete="new-password"
-                placeholder="Deixe em branco para manter a senha atual"
-                className="w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-              />
-              <p className="mt-1 text-xs text-slate-500">
-                Mínimo de 6 caracteres.
-              </p>
-            </div>
 
-            <button className="w-full rounded-xl bg-[#0F2D4A] px-5 py-3 font-semibold text-white transition hover:opacity-90">
-              Salvar alterações
-            </button>
+              <button className="rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90">
+                Salvar alterações
+              </button>
+            </div>
           </form>
         ) : (
           <p className="text-sm text-amber-700">
@@ -174,17 +205,50 @@ function CompanyEditDetails({ company }: { company: Company }) {
   );
 }
 
-function CompanyActions({ company }: { company: Company }) {
+function CompanyCard({ company }: { company: Company }) {
   return (
-    <div className="flex flex-wrap items-start gap-4">
-      <CompanyEditDetails company={company} />
+    <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] xl:items-start">
+        <div className="min-w-0 space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h3 className="break-words text-xl font-bold text-[#0F2D4A]">{company.name}</h3>
+              <p className="mt-2 break-words text-sm text-slate-600">
+                <span className="font-semibold text-slate-700">Administrador:</span>{" "}
+                {company.adminName || "Não informado"}
+              </p>
+              <p className="mt-1 break-all text-sm text-slate-600">
+                <span className="font-semibold text-slate-700">E-mail:</span>{" "}
+                {company.adminEmail || "Não informado"}
+              </p>
+            </div>
+            <StatusBadge status={company.status} />
+          </div>
 
-      <form action={toggleCompanyStatus.bind(null, company.id, company.status)}>
-        <button className="font-semibold text-[#0F2D4A] underline">
-          {company.status === "active" ? "Inativar" : "Ativar"}
-        </button>
-      </form>
-    </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <LicensePill label="Rel. Individual" value={company.licenseIndividualReports} />
+            <LicensePill label="PDI Relacional" value={company.licensePdiRelational} />
+            <LicensePill label="PDI Corporativo" value={company.licensePdiCorporate} />
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <CompanyEditDetails company={company} />
+
+          <form action={toggleCompanyStatus.bind(null, company.id, company.status)}>
+            <button
+              className={`w-full rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
+                company.status === "active"
+                  ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+              }`}
+            >
+              {company.status === "active" ? "Inativar empresa" : "Ativar empresa"}
+            </button>
+          </form>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -192,128 +256,55 @@ export default async function EmpresasPage() {
   const companies = await listCompanies();
 
   return (
-    <div className="max-w-full space-y-6 overflow-hidden">
-      <div>
-        <h1 className="text-3xl font-bold text-[#0F2D4A]">Empresas</h1>
-        <p className="mt-1 text-slate-500">
-          Cadastre empresas clientes e seus usuários administradores.
+    <div className="max-w-full space-y-6 overflow-x-hidden">
+      <header>
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+          Superusuário
         </p>
-      </div>
+        <h1 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Empresas</h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+          Cadastre empresas clientes, gerencie administradores, status e saldos de licenças em uma tela sem rolagem horizontal.
+        </p>
+      </header>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-        <h2 className="mb-4 text-lg font-semibold text-[#0F2D4A]">
-          Cadastrar empresa
-        </h2>
+      <CompanyStats companies={companies} />
 
-        <CompanyCreateForm />
-      </div>
+      <details className="rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-lg font-semibold text-[#0F2D4A] transition hover:bg-slate-50 sm:px-6">
+          <span>Cadastrar nova empresa</span>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 group-open:hidden">
+            Abrir formulário
+          </span>
+        </summary>
+        <div className="border-t border-slate-200 p-4 sm:p-6">
+          <CompanyCreateForm />
+        </div>
+      </details>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-4 py-4 sm:px-6">
-          <h2 className="text-lg font-semibold text-[#0F2D4A]">
-            Empresas cadastradas
-          </h2>
+      <section className="space-y-4">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-[#0F2D4A]">Empresas cadastradas</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              {companies.length === 0
+                ? "Nenhuma empresa cadastrada."
+                : `${companies.length} empresa${companies.length === 1 ? "" : "s"} encontrada${companies.length === 1 ? "" : "s"}.`}
+            </p>
+          </div>
         </div>
 
         {companies.length === 0 ? (
-          <div className="px-6 py-12 text-center text-slate-500">
+          <div className="rounded-3xl border border-slate-200 bg-white px-6 py-12 text-center text-sm text-slate-500 shadow-sm">
             Nenhuma empresa cadastrada.
           </div>
         ) : (
-          <>
-            <div className="hidden xl:block">
-              <table className="w-full table-fixed text-left">
-                <colgroup>
-                  <col className="w-[18%]" />
-                  <col className="w-[16%]" />
-                  <col className="w-[24%]" />
-                  <col className="w-[18%]" />
-                  <col className="w-[9%]" />
-                  <col className="w-[15%]" />
-                </colgroup>
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
-                    <th className="px-4 py-3">Empresa</th>
-                    <th className="px-4 py-3">Administrador</th>
-                    <th className="px-4 py-3">E-mail</th>
-                    <th className="px-4 py-3">Licenças</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Ações</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {companies.map((company) => (
-                    <tr
-                      key={company.id}
-                      className="border-b border-slate-100 align-top last:border-0"
-                    >
-                      <td className="break-words px-4 py-4 text-sm font-medium text-slate-900">
-                        {company.name}
-                      </td>
-
-                      <td className="break-words px-4 py-4 text-sm text-slate-700">
-                        {company.adminName || "Não informado"}
-                      </td>
-
-                      <td className="break-all px-4 py-4 text-sm text-slate-700">
-                        {company.adminEmail || "Não informado"}
-                      </td>
-
-                      <td className="px-4 py-4">
-                        <LicensesSummary company={company} />
-                      </td>
-
-                      <td className="px-4 py-4">
-                        <StatusBadge status={company.status} />
-                      </td>
-
-                      <td className="px-4 py-4">
-                        <CompanyActions company={company} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="grid gap-4 p-4 xl:hidden">
-              {companies.map((company) => (
-                <article
-                  key={company.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0">
-                      <h3 className="break-words text-base font-semibold text-slate-900">
-                        {company.name}
-                      </h3>
-                      <p className="mt-1 break-words text-sm text-slate-600">
-                        {company.adminName || "Administrador não informado"}
-                      </p>
-                      <p className="mt-1 break-all text-sm text-slate-600">
-                        {company.adminEmail || "E-mail não informado"}
-                      </p>
-                    </div>
-                    <StatusBadge status={company.status} />
-                  </div>
-
-                  <div className="mt-4 rounded-xl bg-slate-50 p-3">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      Licenças
-                    </p>
-                    <LicensesSummary company={company} />
-                  </div>
-
-                  <div className="mt-4 border-t border-slate-100 pt-4">
-                    <CompanyActions company={company} />
-                  </div>
-                </article>
-              ))}
-            </div>
-          </>
+          <div className="grid gap-4">
+            {companies.map((company) => (
+              <CompanyCard key={company.id} company={company} />
+            ))}
+          </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
