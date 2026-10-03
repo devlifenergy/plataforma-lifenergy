@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabaseServer";
+import { logAuditEvent } from "@/services/audit/auditLog";
 
 type RouteContext = {
   params: Promise<{ documentId: string }>;
@@ -57,6 +58,19 @@ export async function GET(_request: Request, context: RouteContext) {
     const fileName = document.file_name || `${document.title || "documento"}.txt`;
     const contentType = document.mime_type || "application/octet-stream";
     const buffer = Buffer.from(document.file_content_base64, "base64");
+
+    await logAuditEvent({
+      action: "document.downloaded",
+      organizationId: (document as any).organization_id,
+      entityType: "organization_document",
+      entityId: document.id,
+      description: `Documento corporativo baixado: ${fileName}.`,
+      metadata: {
+        title: document.title,
+        file_name: fileName,
+        mime_type: contentType,
+      },
+    });
 
     return new Response(buffer as unknown as BodyInit, {
       headers: {

@@ -10,6 +10,7 @@ import {
 } from "@/services/reports/lifenergyV1Docx";
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "@/services/reports/lifenergyV1Types";
+import { logAuditEvent } from "@/services/audit/auditLog";
 import { assertLicenseAvailable } from "@/services/licensing/licenseGuard";
 import {
   buildLifenergyMetricSignature,
@@ -197,6 +198,25 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     const docx = buildLifenergyV1Docx(sourceSnapshot, content);
+
+    await logAuditEvent({
+      action: "report.relational_generated",
+      organizationId: reportData.organization.id,
+      organizationName: reportData.organization.name,
+      actorProfileId: reportData.profile.id,
+      actorName: reportData.profile.name,
+      actorEmail: reportData.profile.email,
+      entityType: "journey_response",
+      entityId: responseId,
+      description: `Relatório Relacional gerado para ${reportData.response.full_name}.`,
+      metadata: {
+        journey_id: reportData.journey.id,
+        file_name: fileName,
+        regenerate: shouldRegenerate,
+        reused_existing_document: Boolean(stored),
+        report_version: LIFENERGY_REPORT_VERSION,
+      },
+    });
 
     return new Response(docx as unknown as BodyInit, {
       headers: {

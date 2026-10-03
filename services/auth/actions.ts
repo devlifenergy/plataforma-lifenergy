@@ -9,6 +9,7 @@ import {
   LIFENERGY_COMPANY_TERMS_VERSION,
   LIFENERGY_PRIVACY_POLICY_VERSION,
 } from "@/lib/legal";
+import { logAuditEvent } from "@/services/audit/auditLog";
 
 function redirectWithError(message: string): never {
   const query = new URLSearchParams({ error: message });
@@ -172,6 +173,12 @@ export async function acceptCompanyLegalTerms(formData: FormData) {
   const admin = createAdminClient();
   const acceptedAt = new Date().toISOString();
 
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("id, organization_id, name, email")
+    .eq("auth_user_id", user.id)
+    .maybeSingle();
+
   const { error } = await admin
     .from("profiles")
     .update({
@@ -185,6 +192,22 @@ export async function acceptCompanyLegalTerms(formData: FormData) {
   if (error) {
     redirect(`/aceite-legal?error=${encodeURIComponent(error.message)}`);
   }
+
+  await logAuditEvent({
+    action: "legal.company_acceptance",
+    organizationId: (profile as any)?.organization_id ?? null,
+    actorUserId: user.id,
+    actorProfileId: (profile as any)?.id ?? null,
+    actorName: (profile as any)?.name ?? null,
+    actorEmail: (profile as any)?.email ?? user.email ?? null,
+    entityType: "profile",
+    entityId: (profile as any)?.id ?? user.id,
+    description: "Usuário da empresa aceitou os Termos de Uso e a Política de Privacidade.",
+    metadata: {
+      company_terms_version: LIFENERGY_COMPANY_TERMS_VERSION,
+      company_privacy_policy_version: LIFENERGY_PRIVACY_POLICY_VERSION,
+    },
+  });
 
   redirect("/painel");
 }

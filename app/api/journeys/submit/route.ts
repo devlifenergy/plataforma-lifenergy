@@ -4,6 +4,7 @@ import {
   LIFENERGY_PARTICIPATION_TERMS_VERSION,
   LIFENERGY_PRIVACY_POLICY_VERSION,
 } from "@/lib/legal";
+import { logAuditEvent } from "@/services/audit/auditLog";
 
 function getTokenFromReferer(request: Request) {
   const referer = request.headers.get("referer");
@@ -114,7 +115,7 @@ export async function POST(request: Request) {
 
   const { data: journey, error: journeyError } = await supabase
     .from("journeys")
-    .select("id, token, status, organization_id")
+    .select("id, token, status, organization_id, code, participant_name, participant_email")
     .eq("token", token)
     .single();
 
@@ -229,6 +230,23 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+
+  await logAuditEvent({
+    action: "public_form.completed",
+    organizationId: journey.organization_id,
+    entityType: "journey_response",
+    entityId: response.id,
+    description: `Formulário público concluído por ${String(formData.get("nome") || "").trim()}.`,
+    metadata: {
+      journey_id: journey.id,
+      journey_code: (journey as any).code,
+      participant_name: String(formData.get("nome") || "").trim(),
+      participant_email: String(formData.get("email") || "").trim(),
+      fractal_count: responseFractals.length,
+      privacy_policy_version: privacyPolicyVersion,
+      terms_version: termsVersion,
+    },
+  });
 
   return NextResponse.redirect(new URL(`/r/${token}/concluido`, request.url), 303);
 }

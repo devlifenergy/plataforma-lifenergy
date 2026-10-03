@@ -18,6 +18,7 @@ const menuItems: MenuItem[] = [
   { label: "PDI Corporativo", href: "/painel/pdi-corporativo", hiddenForSuperAdmin: true },
   { label: "Biblioteca Corporativa", href: "/painel/biblioteca", hiddenForSuperAdmin: true },
   { label: "Biblioteca Técnica", href: "/painel/biblioteca-tecnica" },
+  { label: "Auditoria", href: "/painel/auditoria" },
   { label: "Laudos", href: "/painel/exportacoes", superAdminOnly: true },
 ];
 
@@ -77,7 +78,7 @@ export function CompanyShell({
           </form>
         </aside>
 
-        <main className="flex-1 p-6 md:p-10">{children}</main>
+        <main className="min-w-0 flex-1 p-6 md:p-10">{children}</main>
       </div>
     </div>
   );

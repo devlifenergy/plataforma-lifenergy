@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabaseServer";
 import { findFractalMatrixItem } from "@/services/fractals/lifenergyFractalMatrix";
 import { isValidCpf, isValidEmail } from "@/lib/validation";
 import { joinNaturalidade } from "@/lib/brazil";
+import { logAuditEvent } from "@/services/audit/auditLog";
 
 async function getCurrentProfile() {
   const supabase = await createClient();
@@ -20,7 +21,7 @@ async function getCurrentProfile() {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, organization_id")
+    .select("id, auth_user_id, organization_id, name, email")
     .eq("auth_user_id", user.id)
     .single();
 
@@ -277,6 +278,24 @@ export async function createJourney(formData: FormData) {
     throw new Error(fractalsError.message);
   }
 
+  await logAuditEvent({
+    action: "journey.created",
+    organizationId: (profile as any).organization_id,
+    actorProfileId: (profile as any).id,
+    actorUserId: (profile as any).auth_user_id,
+    actorName: (profile as any).name,
+    actorEmail: (profile as any).email,
+    entityType: "journey",
+    entityId: journey.id,
+    description: `Link de aplicação criado para ${participantName}.`,
+    metadata: {
+      code,
+      participant_email: participantEmail,
+      participant_cpf: participantCpf,
+      fractal_count: activities.length,
+    },
+  });
+
   let emailSent = false;
   let emailWarning: string | null = null;
   if (sendInvitationEmail) {
@@ -293,6 +312,24 @@ export async function createJourney(formData: FormData) {
     } catch (error) {
       emailWarning = error instanceof Error ? error.message : "Não foi possível enviar o convite por e-mail.";
     }
+  }
+
+  if (emailSent) {
+    await logAuditEvent({
+      action: "journey.invitation_email_sent",
+      organizationId: (profile as any).organization_id,
+      actorProfileId: (profile as any).id,
+      actorUserId: (profile as any).auth_user_id,
+      actorName: (profile as any).name,
+      actorEmail: (profile as any).email,
+      entityType: "journey",
+      entityId: journey.id,
+      description: `Convite da aplicação enviado por e-mail para ${participantName}.`,
+      metadata: {
+        code,
+        participant_email: participantEmail,
+      },
+    });
   }
 
   revalidatePath("/painel/entrevistados");
@@ -324,7 +361,7 @@ export async function updateJourneyParticipant(formData: FormData) {
 
   const { data: journey, error: journeyError } = await supabase
     .from("journeys")
-    .select("id, status")
+    .select("id, status, code, participant_name, participant_email")
     .eq("id", journeyId)
     .eq("organization_id", profile.organization_id)
     .single();
@@ -379,6 +416,23 @@ export async function updateJourneyParticipant(formData: FormData) {
     throw new Error(insertError.message);
   }
 
+  await logAuditEvent({
+    action: "journey.updated",
+    organizationId: (profile as any).organization_id,
+    actorProfileId: (profile as any).id,
+    actorUserId: (profile as any).auth_user_id,
+    actorName: (profile as any).name,
+    actorEmail: (profile as any).email,
+    entityType: "journey",
+    entityId: journeyId,
+    description: `Link de aplicação atualizado para ${participantName}.`,
+    metadata: {
+      participant_email: participantEmail,
+      participant_cpf: participantCpf,
+      fractal_count: activities.length,
+    },
+  });
+
   revalidatePath("/painel/entrevistados");
 }
 
@@ -393,7 +447,7 @@ export async function deletePendingJourney(formData: FormData) {
 
   const { data: journey, error: journeyError } = await supabase
     .from("journeys")
-    .select("id, status")
+    .select("id, status, code, participant_name, participant_email")
     .eq("id", journeyId)
     .eq("organization_id", profile.organization_id)
     .single();
@@ -429,6 +483,23 @@ export async function deletePendingJourney(formData: FormData) {
     throw new Error(error.message);
   }
 
+  await logAuditEvent({
+    action: "journey.deleted",
+    organizationId: (profile as any).organization_id,
+    actorProfileId: (profile as any).id,
+    actorUserId: (profile as any).auth_user_id,
+    actorName: (profile as any).name,
+    actorEmail: (profile as any).email,
+    entityType: "journey",
+    entityId: journeyId,
+    description: `Link de aplicação pendente excluído${(journey as any).participant_name ? ` para ${(journey as any).participant_name}` : ""}.`,
+    metadata: {
+      code: (journey as any).code,
+      participant_email: (journey as any).participant_email,
+      previous_status: (journey as any).status,
+    },
+  });
+
   revalidatePath("/painel/entrevistados");
 }
 
@@ -437,7 +508,7 @@ async function sendJourneyInvitationEmail(params: { supabase: any; organizationI
   const { data: organization } = await supabase.from("organizations").select("name").eq("id", organizationId).single();
   const { getApplicationBaseUrl, journeyInvitationEmail, sendLifenergyEmail } = await import("@/services/email/lifenergyEmail");
   const baseUrl = getApplicationBaseUrl();
-  if (!baseUrl) return { sent: false, reason: "Configure LIFENERGY_APP_URL para enviar links por e-mail." } as const;
+  if (!baseUrl) return { sent: false, reason: "Configure NEXT_PUBLIC_APP_URL para enviar links por e-mail." } as const;
   const url = `${baseUrl}/r/${token}`;
   const template = journeyInvitationEmail({ participantName, companyName: organization?.name || "sua empresa", invitationUrl: url });
   return sendLifenergyEmail({ to: participantEmail, ...template });
@@ -465,5 +536,22 @@ export async function sendJourneyLinkEmail(journeyId: string) {
     token: journey.token,
   });
   if (!result.sent) throw new Error(result.reason);
+
+  await logAuditEvent({
+    action: "journey.invitation_email_sent",
+    organizationId: (profile as any).organization_id,
+    actorProfileId: (profile as any).id,
+    actorUserId: (profile as any).auth_user_id,
+    actorName: (profile as any).name,
+    actorEmail: (profile as any).email,
+    entityType: "journey",
+    entityId: journey.id,
+    description: `Convite da aplicação reenviado por e-mail para ${journey.participant_name}.`,
+    metadata: {
+      code: journey.code,
+      participant_email: journey.participant_email,
+    },
+  });
+
   return { sent: true };
 }
