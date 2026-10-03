@@ -7,13 +7,67 @@ import {
 
 type Company = Awaited<ReturnType<typeof listCompanies>>[number];
 
-function formatLicense(value: number | null | undefined) {
+type LicenseMetric = {
+  label: string;
+  shortLabel: string;
+  contracted: number | null | undefined;
+  used: number;
+};
+
+function numberOrZero(value: number | null | undefined) {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function formatQuantity(value: number | null | undefined) {
   if (value === null || value === undefined) return "Ilimitado";
   return String(value);
 }
 
-function numberOrZero(value: number | null | undefined) {
-  return typeof value === "number" ? value : 0;
+function availableQuantity(contracted: number | null | undefined, used: number) {
+  if (contracted === null || contracted === undefined) return null;
+  return Math.max(numberOrZero(contracted) - numberOrZero(used), 0);
+}
+
+function usagePercentage(contracted: number | null | undefined, used: number) {
+  const total = numberOrZero(contracted);
+  if (total <= 0) return used > 0 ? 100 : 0;
+  return Math.min(100, Math.round((numberOrZero(used) / total) * 100));
+}
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return "Não informado";
+
+  try {
+    return new Intl.DateTimeFormat("pt-BR", {
+      dateStyle: "short",
+      timeZone: "America/Sao_Paulo",
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+function buildLicenseMetrics(company: Company): LicenseMetric[] {
+  return [
+    {
+      label: "Relatório Individual",
+      shortLabel: "Relatórios",
+      contracted: company.licenseIndividualReports,
+      used: company.usedIndividualReports ?? 0,
+    },
+    {
+      label: "PDI Relacional",
+      shortLabel: "PDI Relacional",
+      contracted: company.licensePdiRelational,
+      used: company.usedPdiRelational ?? 0,
+    },
+    {
+      label: "PDI Corporativo",
+      shortLabel: "PDI Corporativo",
+      contracted: company.licensePdiCorporate,
+      used: company.usedPdiCorporate ?? 0,
+    },
+  ];
 }
 
 function StatusBadge({ status }: { status: Company["status"] }) {
@@ -21,7 +75,7 @@ function StatusBadge({ status }: { status: Company["status"] }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+      className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold ${
         isActive
           ? "bg-emerald-100 text-emerald-700"
           : "bg-slate-200 text-slate-600"
@@ -32,13 +86,58 @@ function StatusBadge({ status }: { status: Company["status"] }) {
   );
 }
 
-function LicensePill({ label, value }: { label: string; value: number | null | undefined }) {
+function LicenseUsageCard({ metric }: { metric: LicenseMetric }) {
+  const available = availableQuantity(metric.contracted, metric.used);
+  const percent = usagePercentage(metric.contracted, metric.used);
+  const isExhausted = available !== null && available <= 0;
+  const isLow = available !== null && available > 0 && numberOrZero(metric.contracted) > 0 && available <= 2;
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-        {label}
-      </p>
-      <p className="mt-1 text-xl font-bold text-[#0F2D4A]">{formatLicense(value)}</p>
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-[#0F2D4A]">{metric.label}</p>
+          <p className="mt-1 text-xs text-slate-500">Gestão do saldo de licenças</p>
+        </div>
+        {isExhausted ? (
+          <span className="shrink-0 rounded-full bg-red-100 px-2 py-1 text-[11px] font-semibold text-red-700">
+            Esgotada
+          </span>
+        ) : isLow ? (
+          <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-700">
+            Baixa
+          </span>
+        ) : (
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-700">
+            OK
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+        <div className="rounded-xl bg-white px-2 py-3 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Contratadas</p>
+          <p className="mt-1 text-lg font-bold text-[#0F2D4A]">{formatQuantity(metric.contracted)}</p>
+        </div>
+        <div className="rounded-xl bg-white px-2 py-3 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Usadas</p>
+          <p className="mt-1 text-lg font-bold text-[#0F2D4A]">{metric.used}</p>
+        </div>
+        <div className="rounded-xl bg-white px-2 py-3 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Saldo</p>
+          <p className={`mt-1 text-lg font-bold ${isExhausted ? "text-red-700" : "text-emerald-700"}`}>
+            {available === null ? "Ilimitado" : available}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200">
+        <div
+          className={`h-full rounded-full ${isExhausted ? "bg-red-500" : isLow ? "bg-amber-500" : "bg-emerald-500"}`}
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <p className="mt-2 text-xs text-slate-500">{percent}% consumido no ciclo atual.</p>
     </div>
   );
 }
@@ -46,18 +145,10 @@ function LicensePill({ label, value }: { label: string; value: number | null | u
 function CompanyStats({ companies }: { companies: Company[] }) {
   const activeCompanies = companies.filter((company) => company.status === "active").length;
   const inactiveCompanies = companies.length - activeCompanies;
-  const totalIndividual = companies.reduce(
-    (sum, company) => sum + numberOrZero(company.licenseIndividualReports),
-    0
-  );
-  const totalRelational = companies.reduce(
-    (sum, company) => sum + numberOrZero(company.licensePdiRelational),
-    0
-  );
-  const totalCorporate = companies.reduce(
-    (sum, company) => sum + numberOrZero(company.licensePdiCorporate),
-    0
-  );
+  const allMetrics = companies.flatMap(buildLicenseMetrics);
+  const totalContracted = allMetrics.reduce((sum, metric) => sum + numberOrZero(metric.contracted), 0);
+  const totalUsed = allMetrics.reduce((sum, metric) => sum + numberOrZero(metric.used), 0);
+  const totalAvailable = Math.max(totalContracted - totalUsed, 0);
 
   return (
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
@@ -74,12 +165,12 @@ function CompanyStats({ companies }: { companies: Company[] }) {
         <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{inactiveCompanies}</p>
       </div>
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Relatórios</p>
-        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{totalIndividual}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Usadas</p>
+        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{totalUsed}</p>
       </div>
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">PDIs</p>
-        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{totalRelational + totalCorporate}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Saldo total</p>
+        <p className="mt-2 text-2xl font-bold text-emerald-700">{totalAvailable}</p>
       </div>
     </section>
   );
@@ -88,13 +179,13 @@ function CompanyStats({ companies }: { companies: Company[] }) {
 function CompanyEditDetails({ company }: { company: Company }) {
   return (
     <details className="group rounded-2xl border border-slate-200 bg-white">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-[#0F2D4A] transition hover:bg-slate-50">
-        <span>Editar empresa</span>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 group-open:hidden">
-          Abrir
+      <summary className="flex cursor-pointer list-none flex-col gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-[#0F2D4A] transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between">
+        <span>Editar dados e licenças</span>
+        <span className="inline-flex w-full justify-center rounded-xl bg-[#0F2D4A] px-4 py-2 text-xs font-semibold text-white group-open:hidden sm:w-auto">
+          Abrir edição
         </span>
-        <span className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 group-open:inline-flex">
-          Fechar
+        <span className="hidden w-full justify-center rounded-xl bg-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 group-open:inline-flex sm:w-auto">
+          Fechar edição
         </span>
       </summary>
 
@@ -138,42 +229,48 @@ function CompanyEditDetails({ company }: { company: Company }) {
               </label>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-              <label className="text-sm font-medium text-slate-700">
-                Relatório Individual
-                <input
-                  name="license_individual_reports"
-                  type="number"
-                  min="0"
-                  required
-                  defaultValue={company.licenseIndividualReports ?? 0}
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-                />
-              </label>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="text-sm font-bold text-[#0F2D4A]">Licenças contratadas</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Ajuste o total contratado. O saldo exibido no card considera as licenças já usadas no ciclo atual.
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <label className="text-sm font-medium text-slate-700">
+                  Relatório Individual
+                  <input
+                    name="license_individual_reports"
+                    type="number"
+                    min="0"
+                    required
+                    defaultValue={company.licenseIndividualReports ?? 0}
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                  />
+                </label>
 
-              <label className="text-sm font-medium text-slate-700">
-                PDI Relacional
-                <input
-                  name="license_pdi_relational"
-                  type="number"
-                  min="0"
-                  required
-                  defaultValue={company.licensePdiRelational ?? 0}
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-                />
-              </label>
+                <label className="text-sm font-medium text-slate-700">
+                  PDI Relacional
+                  <input
+                    name="license_pdi_relational"
+                    type="number"
+                    min="0"
+                    required
+                    defaultValue={company.licensePdiRelational ?? 0}
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                  />
+                </label>
 
-              <label className="text-sm font-medium text-slate-700">
-                PDI Corporativo
-                <input
-                  name="license_pdi_corporate"
-                  type="number"
-                  min="0"
-                  required
-                  defaultValue={company.licensePdiCorporate ?? 0}
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
-                />
-              </label>
+                <label className="text-sm font-medium text-slate-700">
+                  PDI Corporativo
+                  <input
+                    name="license_pdi_corporate"
+                    type="number"
+                    min="0"
+                    required
+                    defaultValue={company.licensePdiCorporate ?? 0}
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                  />
+                </label>
+              </div>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
@@ -190,7 +287,7 @@ function CompanyEditDetails({ company }: { company: Company }) {
                 <span className="mt-1 block text-xs text-slate-500">Mínimo de 6 caracteres.</span>
               </label>
 
-              <button className="rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90">
+              <button className="w-full rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90 lg:w-auto">
                 Salvar alterações
               </button>
             </div>
@@ -206,38 +303,33 @@ function CompanyEditDetails({ company }: { company: Company }) {
 }
 
 function CompanyCard({ company }: { company: Company }) {
+  const metrics = buildLicenseMetrics(company);
+
   return (
-    <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] xl:items-start">
-        <div className="min-w-0 space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
+    <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5">
+      <div className="space-y-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 space-y-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <h3 className="break-words text-xl font-bold text-[#0F2D4A]">{company.name}</h3>
-              <p className="mt-2 break-words text-sm text-slate-600">
-                <span className="font-semibold text-slate-700">Administrador:</span>{" "}
-                {company.adminName || "Não informado"}
-              </p>
-              <p className="mt-1 break-all text-sm text-slate-600">
-                <span className="font-semibold text-slate-700">E-mail:</span>{" "}
-                {company.adminEmail || "Não informado"}
-              </p>
+              <StatusBadge status={company.status} />
             </div>
-            <StatusBadge status={company.status} />
+            <p className="break-words text-sm text-slate-600">
+              <span className="font-semibold text-slate-700">Administrador:</span>{" "}
+              {company.adminName || "Não informado"}
+            </p>
+            <p className="break-all text-sm text-slate-600">
+              <span className="font-semibold text-slate-700">E-mail:</span>{" "}
+              {company.adminEmail || "Não informado"}
+            </p>
+            <p className="text-xs text-slate-500">
+              Ciclo de licenças desde: {formatDate(company.licensesStartedAt)}
+            </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <LicensePill label="Rel. Individual" value={company.licenseIndividualReports} />
-            <LicensePill label="PDI Relacional" value={company.licensePdiRelational} />
-            <LicensePill label="PDI Corporativo" value={company.licensePdiCorporate} />
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <CompanyEditDetails company={company} />
-
-          <form action={toggleCompanyStatus.bind(null, company.id, company.status)}>
+          <form action={toggleCompanyStatus.bind(null, company.id, company.status)} className="w-full lg:w-auto">
             <button
-              className={`w-full rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
+              className={`w-full rounded-2xl border px-4 py-3 text-sm font-semibold transition lg:w-auto ${
                 company.status === "active"
                   ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
                   : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
@@ -247,6 +339,14 @@ function CompanyCard({ company }: { company: Company }) {
             </button>
           </form>
         </div>
+
+        <div className="grid gap-3 lg:grid-cols-3">
+          {metrics.map((metric) => (
+            <LicenseUsageCard key={metric.label} metric={metric} />
+          ))}
+        </div>
+
+        <CompanyEditDetails company={company} />
       </div>
     </article>
   );
@@ -257,23 +357,26 @@ export default async function EmpresasPage() {
 
   return (
     <div className="max-w-full space-y-6 overflow-x-hidden">
-      <header>
+      <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
           Superusuário
         </p>
         <h1 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Empresas</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Cadastre empresas clientes, gerencie administradores, status e saldos de licenças em uma tela sem rolagem horizontal.
+          Gerencie empresas, administradores e licenças com visão clara de contratadas, usadas e disponíveis.
         </p>
       </header>
 
       <CompanyStats companies={companies} />
 
-      <details className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-lg font-semibold text-[#0F2D4A] transition hover:bg-slate-50 sm:px-6">
+      <details className="group rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 text-lg font-semibold text-[#0F2D4A] transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <span>Cadastrar nova empresa</span>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 group-open:hidden">
-            Abrir formulário
+          <span className="inline-flex w-full justify-center rounded-xl bg-[#0F2D4A] px-4 py-2 text-xs font-semibold text-white group-open:hidden sm:w-auto">
+            Abrir cadastro
+          </span>
+          <span className="hidden w-full justify-center rounded-xl bg-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 group-open:inline-flex sm:w-auto">
+            Fechar cadastro
           </span>
         </summary>
         <div className="border-t border-slate-200 p-4 sm:p-6">
@@ -282,15 +385,13 @@ export default async function EmpresasPage() {
       </details>
 
       <section className="space-y-4">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-[#0F2D4A]">Empresas cadastradas</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              {companies.length === 0
-                ? "Nenhuma empresa cadastrada."
-                : `${companies.length} empresa${companies.length === 1 ? "" : "s"} encontrada${companies.length === 1 ? "" : "s"}.`}
-            </p>
-          </div>
+        <div className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+          <h2 className="text-xl font-semibold text-[#0F2D4A]">Empresas cadastradas</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            {companies.length === 0
+              ? "Nenhuma empresa cadastrada."
+              : `${companies.length} empresa${companies.length === 1 ? "" : "s"} encontrada${companies.length === 1 ? "" : "s"}.`}
+          </p>
         </div>
 
         {companies.length === 0 ? (

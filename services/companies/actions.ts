@@ -12,6 +12,7 @@ type CompanyListItem = {
   name: string;
   status: string;
   created_at: string;
+  licensesStartedAt: string | null;
   profileId: string | null;
   authUserId: string | null;
   adminName: string;
@@ -19,6 +20,9 @@ type CompanyListItem = {
   licenseIndividualReports: number | null;
   licensePdiRelational: number | null;
   licensePdiCorporate: number | null;
+  usedIndividualReports: number;
+  usedPdiRelational: number;
+  usedPdiCorporate: number;
 };
 
 async function requireSuperAdmin() {
@@ -57,6 +61,40 @@ function isAuthUserAlreadyExistsMessage(message: string) {
   );
 }
 
+async function countGeneratedReports(admin: ReturnType<typeof createAdminClient>, organizationId: string, startedAt: string | null) {
+  const since = startedAt || new Date().toISOString();
+
+  const { count, error } = await admin
+    .from("generated_reports")
+    .select("id", { head: true, count: "exact" })
+    .eq("organization_id", organizationId)
+    .eq("status", "generated")
+    .gte("created_at", since);
+
+  if (error) return 0;
+  return count ?? 0;
+}
+
+async function countGeneratedPdis(
+  admin: ReturnType<typeof createAdminClient>,
+  organizationId: string,
+  pdiType: "relational" | "corporate",
+  startedAt: string | null
+) {
+  const since = startedAt || new Date().toISOString();
+
+  const { count, error } = await admin
+    .from("generated_pdis")
+    .select("id", { head: true, count: "exact" })
+    .eq("organization_id", organizationId)
+    .eq("pdi_type", pdiType)
+    .eq("status", "generated")
+    .gte("created_at", since);
+
+  if (error) return 0;
+  return count ?? 0;
+}
+
 export async function listCompanies(): Promise<CompanyListItem[]> {
   await requireSuperAdmin();
 
@@ -68,7 +106,7 @@ export async function listCompanies(): Promise<CompanyListItem[]> {
   ] = await Promise.all([
     admin
       .from("organizations")
-      .select("id, name, status, created_at, license_individual_reports, license_pdi_relational, license_pdi_corporate")
+      .select("id, name, status, created_at, licenses_started_at, license_individual_reports, license_pdi_relational, license_pdi_corporate")
       .order("created_at", { ascending: false }),
     admin
       .from("profiles")
@@ -105,23 +143,35 @@ export async function listCompanies(): Promise<CompanyListItem[]> {
     }
   }
 
-  return (organizations ?? []).map((organization) => {
-    const organizationAdmin = adminByOrganization.get(organization.id);
+  return Promise.all(
+    (organizations ?? []).map(async (organization) => {
+      const organizationAdmin = adminByOrganization.get(organization.id);
+      const licensesStartedAt = (organization as any).licenses_started_at ?? null;
+      const [usedIndividualReports, usedPdiRelational, usedPdiCorporate] = await Promise.all([
+        countGeneratedReports(admin, organization.id, licensesStartedAt),
+        countGeneratedPdis(admin, organization.id, "relational", licensesStartedAt),
+        countGeneratedPdis(admin, organization.id, "corporate", licensesStartedAt),
+      ]);
 
-    return {
-      id: organization.id,
-      name: organization.name,
-      status: organization.status,
-      created_at: organization.created_at,
-      profileId: organizationAdmin?.id ?? null,
-      authUserId: organizationAdmin?.auth_user_id ?? null,
-      adminName: organizationAdmin?.name ?? "",
-      adminEmail: organizationAdmin?.email ?? "",
-      licenseIndividualReports: (organization as any).license_individual_reports ?? null,
-      licensePdiRelational: (organization as any).license_pdi_relational ?? null,
-      licensePdiCorporate: (organization as any).license_pdi_corporate ?? null,
-    };
-  });
+      return {
+        id: organization.id,
+        name: organization.name,
+        status: organization.status,
+        created_at: organization.created_at,
+        licensesStartedAt,
+        profileId: organizationAdmin?.id ?? null,
+        authUserId: organizationAdmin?.auth_user_id ?? null,
+        adminName: organizationAdmin?.name ?? "",
+        adminEmail: organizationAdmin?.email ?? "",
+        licenseIndividualReports: (organization as any).license_individual_reports ?? null,
+        licensePdiRelational: (organization as any).license_pdi_relational ?? null,
+        licensePdiCorporate: (organization as any).license_pdi_corporate ?? null,
+        usedIndividualReports,
+        usedPdiRelational,
+        usedPdiCorporate,
+      };
+    })
+  );
 }
 
 export async function createCompany(formData: FormData) {
