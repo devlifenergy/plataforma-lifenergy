@@ -539,22 +539,30 @@ export async function updateCompany(formData: FormData) {
     }
   }
 
-  await logAuditEvent({
-    action: "company.updated",
-    organizationId: companyId,
-    organizationName: companyName,
-    entityType: "organization",
-    entityId: companyId,
-    description: `Empresa atualizada: ${companyName}.`,
-    metadata: {
-      previous_company_name: previousCompanyName,
-      previous_admin_name: previousAdminName,
-      previous_admin_email: previousAdminEmail,
-      admin_name: adminName,
-      admin_email: adminEmail,
-      password_updated: Boolean(newPassword),
-    },
-  });
+  const companyProfileChanged =
+    companyName !== previousCompanyName ||
+    adminName !== previousAdminName ||
+    adminEmail !== previousAdminEmail ||
+    Boolean(newPassword);
+
+  if (companyProfileChanged) {
+    await logAuditEvent({
+      action: "company.updated",
+      organizationId: companyId,
+      organizationName: companyName,
+      entityType: "organization",
+      entityId: companyId,
+      description: `Empresa atualizada: ${companyName}.`,
+      metadata: {
+        previous_company_name: previousCompanyName,
+        previous_admin_name: previousAdminName,
+        previous_admin_email: previousAdminEmail,
+        admin_name: adminName,
+        admin_email: adminEmail,
+        password_updated: Boolean(newPassword),
+      },
+    });
+  }
 
   const licenseDeltaIndividual = licenseIndividual - previousLicenseIndividual;
   const licenseDeltaRelational = licenseRelational - previousLicenseRelational;
