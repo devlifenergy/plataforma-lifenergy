@@ -3,7 +3,6 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createCompany } from "@/services/companies/actions";
-import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export function CompanyCreateForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -37,7 +36,7 @@ export function CompanyCreateForm() {
   }
 
   return (
-    <form ref={formRef} action={handleSubmit} autoComplete="off" className="grid gap-4 md:grid-cols-2">
+    <form ref={formRef} action={handleSubmit} className="grid gap-4 md:grid-cols-2">
       <input
         name="company_name"
         required
@@ -59,18 +58,17 @@ export function CompanyCreateForm() {
         required
         disabled={isPending}
         type="email"
-        autoComplete="off"
         placeholder="E-mail do administrador *"
         className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
       />
 
-      <PasswordInput
+      <input
         name="password"
         required
         disabled={isPending}
-        autoComplete="new-password"
+        type="password"
         placeholder="Senha inicial *"
-        inputClassName="w-full rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+        className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
       />
 
       <input name="license_individual_reports" required min="0" type="number" disabled={isPending} placeholder="Licenças - Relatório Individual *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:bg-slate-100" />

@@ -273,6 +273,24 @@ function CompanyEditDetails({ company }: { company: Company }) {
               </div>
             </div>
 
+            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  name="notify_license_addition"
+                  type="checkbox"
+                  className="mt-1 h-5 w-5 rounded border-amber-300 text-[#0F2D4A]"
+                />
+                <span>
+                  <strong className="block text-sm text-[#0F2D4A]">
+                    Enviar e-mail sobre novas licenças ao salvar
+                  </strong>
+                  <span className="mt-1 block text-xs leading-5 text-slate-600">
+                    Use esta opção quando houver aumento no saldo contratado. O administrador da empresa será avisado por e-mail sobre as novas licenças adicionadas.
+                  </span>
+                </span>
+              </label>
+            </div>
+
             <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
               <label className="text-sm font-medium text-slate-700">
                 Nova senha

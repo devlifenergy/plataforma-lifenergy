@@ -136,23 +136,35 @@ export async function logAuditEvent(params: AuditLogParams) {
       normalizeText(params.organizationName) ??
       currentActor?.organizationName ??
       (await resolveOrganizationName(organizationId));
+    const actorUserId = normalizeText(params.actorUserId) ?? currentActor?.actorUserId ?? null;
+    const actorProfileId = normalizeText(params.actorProfileId) ?? currentActor?.actorProfileId ?? null;
+    const actorName = normalizeText(params.actorName) ?? currentActor?.actorName ?? null;
+    const actorEmail = normalizeText(params.actorEmail) ?? currentActor?.actorEmail ?? null;
+    const action = normalizeText(params.action) ?? "unknown";
+    const entityType = normalizeText(params.entityType);
+    const entityId = normalizeText(params.entityId);
 
     const admin = createAdminClient();
 
     await admin.from("audit_logs").insert({
       organization_id: organizationId,
       organization_name: organizationName,
-      actor_profile_id: normalizeText(params.actorProfileId) ?? currentActor?.actorProfileId ?? null,
-      actor_user_id: normalizeText(params.actorUserId) ?? currentActor?.actorUserId ?? null,
-      actor_name: normalizeText(params.actorName) ?? currentActor?.actorName ?? null,
-      actor_email: normalizeText(params.actorEmail) ?? currentActor?.actorEmail ?? null,
-      action: normalizeText(params.action) ?? "unknown",
-      entity_type: normalizeText(params.entityType),
-      entity_id: normalizeText(params.entityId),
+      actor_profile_id: actorProfileId,
+      actor_user_id: actorUserId,
+      actor_name: actorName,
+      actor_email: actorEmail,
+      action,
+      entity_type: entityType,
+      entity_id: entityId,
       description: normalizeText(params.description),
       metadata: params.metadata ?? {},
       ip_address: requestContext.ipAddress,
       user_agent: requestContext.userAgent,
+      // Compatibilidade com tabelas criadas por versões anteriores da auditoria.
+      // Em alguns bancos a tabela audit_logs ainda possui as colunas legadas
+      // user_id/entity; preenchê-las evita falhas silenciosas no insert.
+      user_id: actorUserId,
+      entity: entityType ?? action,
     });
   } catch (error) {
     console.error("Falha ao registrar auditoria:", error);

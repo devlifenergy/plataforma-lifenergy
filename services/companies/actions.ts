@@ -556,26 +556,44 @@ export async function updateCompany(formData: FormData) {
     },
   });
 
+  const licenseDeltaIndividual = licenseIndividual - previousLicenseIndividual;
+  const licenseDeltaRelational = licenseRelational - previousLicenseRelational;
+  const licenseDeltaCorporate = licenseCorporate - previousLicenseCorporate;
   const licenseChanged =
-    licenseIndividual !== previousLicenseIndividual ||
-    licenseRelational !== previousLicenseRelational ||
-    licenseCorporate !== previousLicenseCorporate;
+    licenseDeltaIndividual !== 0 ||
+    licenseDeltaRelational !== 0 ||
+    licenseDeltaCorporate !== 0;
 
   if (licenseChanged) {
+    const hasIncrease = licenseDeltaIndividual > 0 || licenseDeltaRelational > 0 || licenseDeltaCorporate > 0;
+    const hasReduction = licenseDeltaIndividual < 0 || licenseDeltaRelational < 0 || licenseDeltaCorporate < 0;
+    const movementType = hasIncrease && hasReduction ? "ajuste_misto" : hasIncrease ? "aumento" : "reducao";
+
     await logAuditEvent({
       action: "license.updated",
       organizationId: companyId,
       organizationName: companyName,
       entityType: "organization",
       entityId: companyId,
-      description: `Licenças atualizadas para ${companyName}.`,
+      description: `Licenças atualizadas para ${companyName}. Movimento: ${movementType}.`,
       metadata: {
-        previous_license_individual_reports: previousLicenseIndividual,
-        previous_license_pdi_relational: previousLicenseRelational,
-        previous_license_pdi_corporate: previousLicenseCorporate,
-        license_individual_reports: licenseIndividual,
-        license_pdi_relational: licenseRelational,
-        license_pdi_corporate: licenseCorporate,
+        movement_type: movementType,
+        previous: {
+          license_individual_reports: previousLicenseIndividual,
+          license_pdi_relational: previousLicenseRelational,
+          license_pdi_corporate: previousLicenseCorporate,
+        },
+        current: {
+          license_individual_reports: licenseIndividual,
+          license_pdi_relational: licenseRelational,
+          license_pdi_corporate: licenseCorporate,
+        },
+        delta: {
+          license_individual_reports: licenseDeltaIndividual,
+          license_pdi_relational: licenseDeltaRelational,
+          license_pdi_corporate: licenseDeltaCorporate,
+        },
+        notification_email_requested: notifyLicenseAddition,
       },
     });
   }
