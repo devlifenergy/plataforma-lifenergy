@@ -5,7 +5,6 @@ import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
 import { isValidEmail } from "@/lib/validation";
 import { companyAccessEmail, companyPasswordUpdatedEmail, getApplicationBaseUrl, licensesAddedEmail, sendLifenergyEmail } from "@/services/email/lifenergyEmail";
-import { logAuditEvent } from "@/services/audit/auditLog";
 
 type CompanyListItem = {
   id: string;
@@ -59,6 +58,84 @@ function isAuthUserAlreadyExistsMessage(message: string) {
     normalized.includes("already exists") ||
     normalized.includes("user already")
   );
+}
+
+
+type CompanyAuditAction = "company.created" | "company.updated" | "license.updated";
+
+type CompanyAuditParams = {
+  action: CompanyAuditAction;
+  organizationId: string;
+  organizationName: string | null;
+  entityType?: string;
+  entityId?: string;
+  description: string;
+  metadata?: Record<string, unknown>;
+};
+
+async function readCompanyAuditActor(admin: ReturnType<typeof createAdminClient>) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return null;
+
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("id, auth_user_id, name, email, role")
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
+
+    return {
+      actorUserId: user.id,
+      actorProfileId: (profile as any)?.id ?? null,
+      actorName: (profile as any)?.name ?? user.email ?? null,
+      actorEmail: (profile as any)?.email ?? user.email ?? null,
+    };
+  } catch (error) {
+    console.error("Falha ao identificar ator da auditoria de empresa:", error);
+    return null;
+  }
+}
+
+async function insertCompanyAuditLog(
+  admin: ReturnType<typeof createAdminClient>,
+  params: CompanyAuditParams
+) {
+  const actor = await readCompanyAuditActor(admin);
+  const entityType = params.entityType ?? "organization";
+  const entityId = params.entityId ?? params.organizationId;
+
+  const payload = {
+    organization_id: params.organizationId,
+    organization_name: params.organizationName,
+    actor_profile_id: actor?.actorProfileId ?? null,
+    actor_user_id: actor?.actorUserId ?? null,
+    actor_name: actor?.actorName ?? null,
+    actor_email: actor?.actorEmail ?? null,
+    action: params.action,
+    entity_type: entityType,
+    entity_id: entityId,
+    description: params.description,
+    metadata: params.metadata ?? {},
+    // Compatibilidade com tabelas audit_logs criadas antes da 1.5.15.
+    user_id: actor?.actorUserId ?? null,
+    entity: entityType,
+  };
+
+  const { error } = await admin.from("audit_logs").insert(payload);
+
+  if (error) {
+    console.error("Falha ao registrar auditoria de empresa:", {
+      action: params.action,
+      organizationId: params.organizationId,
+      organizationName: params.organizationName,
+      error,
+    });
+    throw new Error(`A alteração foi processada, mas a auditoria da empresa não foi gravada: ${error.message}`);
+  }
 }
 
 async function countGeneratedReports(admin: ReturnType<typeof createAdminClient>, organizationId: string, startedAt: string | null) {
@@ -299,7 +376,7 @@ export async function createCompany(formData: FormData) {
     }
   }
 
-  await logAuditEvent({
+  await insertCompanyAuditLog(admin, {
     action: "company.created",
     organizationId: organization.id,
     organizationName: companyName,
@@ -546,7 +623,7 @@ export async function updateCompany(formData: FormData) {
     Boolean(newPassword);
 
   if (companyProfileChanged) {
-    await logAuditEvent({
+    await insertCompanyAuditLog(admin, {
       action: "company.updated",
       organizationId: companyId,
       organizationName: companyName,
@@ -577,7 +654,7 @@ export async function updateCompany(formData: FormData) {
     const hasReduction = licenseDeltaIndividual < 0 || licenseDeltaRelational < 0 || licenseDeltaCorporate < 0;
     const movementType = hasIncrease && hasReduction ? "ajuste_misto" : hasIncrease ? "aumento" : "reducao";
 
-    await logAuditEvent({
+    await insertCompanyAuditLog(admin, {
       action: "license.updated",
       organizationId: companyId,
       organizationName: companyName,
@@ -630,7 +707,7 @@ export async function toggleCompanyStatus(id: string, currentStatus: string) {
     throw new Error(error.message);
   }
 
-  await logAuditEvent({
+  await insertCompanyAuditLog(admin, {
     action: "company.updated",
     organizationId: id,
     organizationName: (organization as any)?.name ?? null,
