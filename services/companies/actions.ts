@@ -107,7 +107,38 @@ async function insertCompanyAuditLog(
   const actor = await readCompanyAuditActor(admin);
   const entityType = params.entityType ?? "organization";
   const entityId = params.entityId ?? params.organizationId;
+  const metadata = params.metadata ?? {};
 
+  // Caminho principal: RPC com SECURITY DEFINER.
+  // Motivo: em produção, a atualização da empresa acontecia, mas a auditoria
+  // da tela Empresas não era gravada de forma confiável. A RPC centraliza a
+  // gravação no banco e usa a sessão autenticada para identificar o ator.
+  try {
+    const supabase = await createClient();
+    const { error: rpcError } = await supabase.rpc("lifenergy_insert_company_audit_log", {
+      p_organization_id: params.organizationId,
+      p_organization_name: params.organizationName,
+      p_action: params.action,
+      p_entity_type: entityType,
+      p_entity_id: entityId,
+      p_description: params.description,
+      p_metadata: metadata,
+    });
+
+    if (!rpcError) return;
+
+    console.error("Falha ao registrar auditoria de empresa via RPC:", {
+      action: params.action,
+      organizationId: params.organizationId,
+      organizationName: params.organizationName,
+      error: rpcError,
+    });
+  } catch (error) {
+    console.error("Falha inesperada na RPC de auditoria de empresa:", error);
+  }
+
+  // Fallback administrativo. Mantém compatibilidade com ambientes onde a
+  // migration da RPC ainda não foi aplicada.
   const payload = {
     organization_id: params.organizationId,
     organization_name: params.organizationName,
@@ -119,22 +150,23 @@ async function insertCompanyAuditLog(
     entity_type: entityType,
     entity_id: entityId,
     description: params.description,
-    metadata: params.metadata ?? {},
+    metadata,
     // Compatibilidade com tabelas audit_logs criadas antes da 1.5.15.
-    user_id: actor?.actorUserId ?? null,
+    user_id: actor?.actorProfileId ?? null,
     entity: entityType,
   };
 
   const { error } = await admin.from("audit_logs").insert(payload);
 
   if (error) {
-    console.error("Falha ao registrar auditoria de empresa:", {
+    console.error("Falha ao registrar auditoria de empresa pelo fallback administrativo:", {
       action: params.action,
       organizationId: params.organizationId,
       organizationName: params.organizationName,
       error,
     });
-    throw new Error(`A alteração foi processada, mas a auditoria da empresa não foi gravada: ${error.message}`);
+    // A auditoria não pode derrubar a operação de gestão de empresa.
+    // O erro fica nos logs do Vercel para diagnóstico.
   }
 }
 
