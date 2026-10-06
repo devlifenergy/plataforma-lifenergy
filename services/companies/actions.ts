@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
 import { isValidEmail } from "@/lib/validation";
@@ -100,11 +101,62 @@ async function readCompanyAuditActor(admin: ReturnType<typeof createAdminClient>
   }
 }
 
+function extractClientIpFromHeaderValue(value: string | null) {
+  if (!value) return null;
+
+  const firstValue = value.split(",")[0]?.trim();
+  if (!firstValue) return null;
+
+  return firstValue
+    .replace(/^for=/i, "")
+    .replace(/^"|"$/g, "")
+    .replace(/^\[|\]$/g, "")
+    .trim() || null;
+}
+
+async function readCompanyAuditRequestContext() {
+  try {
+    const requestHeaders = await headers();
+    const forwarded = requestHeaders.get("forwarded");
+    const forwardedFor = requestHeaders.get("x-forwarded-for");
+    const realIp = requestHeaders.get("x-real-ip");
+    const vercelForwardedFor = requestHeaders.get("x-vercel-forwarded-for");
+    const userAgent = requestHeaders.get("user-agent");
+
+    let ipAddress =
+      extractClientIpFromHeaderValue(vercelForwardedFor) ||
+      extractClientIpFromHeaderValue(forwardedFor) ||
+      extractClientIpFromHeaderValue(realIp);
+
+    if (!ipAddress && forwarded) {
+      const forwardedForPart = forwarded
+        .split(";")
+        .map((part) => part.trim())
+        .find((part) => part.toLowerCase().startsWith("for="));
+      ipAddress = extractClientIpFromHeaderValue(forwardedForPart ?? null);
+    }
+
+    return {
+      ipAddress,
+      userAgent: userAgent || null,
+    };
+  } catch (error) {
+    console.error("Falha ao ler IP/User-Agent da auditoria de empresa:", error);
+    return {
+      ipAddress: null,
+      userAgent: null,
+    };
+  }
+}
+
 async function insertCompanyAuditLog(
   admin: ReturnType<typeof createAdminClient>,
   params: CompanyAuditParams
 ) {
-  const actor = await readCompanyAuditActor(admin);
+  const [actor, requestContext] = await Promise.all([
+    readCompanyAuditActor(admin),
+    readCompanyAuditRequestContext(),
+  ]);
   const entityType = params.entityType ?? "organization";
   const entityId = params.entityId ?? params.organizationId;
   const metadata = params.metadata ?? {};
@@ -123,6 +175,8 @@ async function insertCompanyAuditLog(
       p_entity_id: entityId,
       p_description: params.description,
       p_metadata: metadata,
+      p_ip_address: requestContext.ipAddress,
+      p_user_agent: requestContext.userAgent,
     });
 
     if (!rpcError) return;
@@ -151,6 +205,8 @@ async function insertCompanyAuditLog(
     entity_id: entityId,
     description: params.description,
     metadata,
+    ip_address: requestContext.ipAddress,
+    user_agent: requestContext.userAgent,
     // Compatibilidade com tabelas audit_logs criadas antes da 1.5.15.
     user_id: actor?.actorProfileId ?? null,
     entity: entityType,
