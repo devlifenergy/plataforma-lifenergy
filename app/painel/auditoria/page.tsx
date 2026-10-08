@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabaseServer";
 
 type AuditLogRow = {
@@ -24,7 +24,7 @@ const actionLabels: Record<string, string> = {
   "journey.deleted": "Link de aplicação excluído",
   "journey.invitation_email_sent": "Convite enviado por e-mail",
   "public_form.completed": "Formulário público concluído",
-  "report.relational_generated": "Relatório Relacional gerado",
+  "report.relational_generated": "Relatório Lifenergy gerado",
   "pdi.generated": "PDI gerado",
   "document.downloaded": "Documento baixado",
   "company.created": "Empresa criada",

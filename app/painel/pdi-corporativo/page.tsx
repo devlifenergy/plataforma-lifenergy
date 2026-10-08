@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { GeneratePdiButton } from "@/components/application/GeneratePdiButton";
 import { LicenseBalanceCards } from "@/components/application/LicenseBalanceCards";
 import { Button } from "@/components/ui/Button";
@@ -35,7 +35,7 @@ export default async function PdiCorporativoPage() {
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#B98A2E]">Desenvolvimento corporativo</p>
         <h1 className="mt-1 text-3xl font-bold text-[#0F2D4A]">PDI Corporativo</h1>
-        <p className="mt-2 max-w-4xl text-slate-500">A listagem é agrupada por CPF. Cada Relatório Relacional gera um PDI Corporativo próprio, direcionado pelo cargo informado no Contexto Operacional.</p>
+        <p className="mt-2 max-w-4xl text-slate-500">A listagem é agrupada por CPF. Cada Relatório Lifenergy gera um PDI Corporativo próprio, direcionado pelo cargo informado no Contexto Operacional.</p>
       </div>
 
       <LicenseBalanceCards summary={licenseSummary} show={["corporate"]} />
@@ -45,7 +45,7 @@ export default async function PdiCorporativoPage() {
       ) : null}
 
       {reportCandidates.length === 0 ? (
-        <Card><p className="rounded-xl bg-slate-50 px-4 py-4 text-[15px] text-slate-500">Nenhum Relatório Relacional disponível para geração de PDI Corporativo.</p></Card>
+        <Card><p className="rounded-xl bg-slate-50 px-4 py-4 text-[15px] text-slate-500">Nenhum Relatório Lifenergy disponível para geração de PDI Corporativo.</p></Card>
       ) : Array.from(groups.entries()).map(([cpfKey, items]) => (
         <Card key={cpfKey}>
           <div className="mb-5 border-b border-slate-200 pb-4">

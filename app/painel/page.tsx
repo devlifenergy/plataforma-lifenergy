@@ -1,11 +1,11 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabaseServer";
 
 const companyCards = [
   ["Aplicadores Autorizados", "/painel/aplicadores", "Cadastre e gerencie os aplicadores autorizados da empresa."],
   ["Aplicação on-line", "/painel/entrevistados", "Crie links, acompanhe o preenchimento e gerencie as aplicações on-line."],
-  ["Relatório Relacional", "/painel/relatorio-relacional", "Gere e faça novo download dos relatórios vinculados às aplicações concluídas."],
+  ["Relatório Lifenergy", "/painel/relatorio-relacional", "Gere e faça novo download dos relatórios vinculados às aplicações concluídas."],
   ["PDI Relacional", "/painel/pdi", "Gere um PDI Relacional para cada relatório individual existente."],
   ["PDI Corporativo", "/painel/pdi-corporativo", "Gere um PDI Corporativo por relatório, orientado pelo cargo e pela Biblioteca Corporativa."],
   ["Biblioteca Corporativa", "/painel/biblioteca", "Gerencie logomarca e documentos corporativos usados na geração dos PDIs."],

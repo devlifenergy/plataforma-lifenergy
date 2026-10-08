@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { signOut } from "@/services/auth/actions";
 
 type MenuItem = {
@@ -13,7 +13,7 @@ const menuItems: MenuItem[] = [
   { label: "Empresas", href: "/painel/empresas", superAdminOnly: true },
   { label: "Aplicadores Autorizados", href: "/painel/aplicadores", hiddenForSuperAdmin: true },
   { label: "Aplicação on-line", href: "/painel/entrevistados", hiddenForSuperAdmin: true },
-  { label: "Relatório Relacional", href: "/painel/relatorio-relacional", hiddenForSuperAdmin: true },
+  { label: "Relatório Lifenergy", href: "/painel/relatorio-relacional", hiddenForSuperAdmin: true },
   { label: "PDI Relacional", href: "/painel/pdi", hiddenForSuperAdmin: true },
   { label: "PDI Corporativo", href: "/painel/pdi-corporativo", hiddenForSuperAdmin: true },
   { label: "Biblioteca Corporativa", href: "/painel/biblioteca", hiddenForSuperAdmin: true },

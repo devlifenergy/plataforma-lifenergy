@@ -1,4 +1,4 @@
-import { GeneratePdiButton } from "@/components/application/GeneratePdiButton";
+﻿import { GeneratePdiButton } from "@/components/application/GeneratePdiButton";
 import { LicenseBalanceCards } from "@/components/application/LicenseBalanceCards";
 import { Card } from "@/components/ui/Card";
 import { listPdiPageData } from "@/services/pdi/actions";
@@ -43,7 +43,7 @@ export default async function PdiRelacionalPage() {
       <LicenseBalanceCards summary={licenseSummary} show={["relational"]} />
 
       {reportCandidates.length === 0 ? (
-        <Card><p className="rounded-xl bg-slate-50 px-4 py-4 text-[15px] text-slate-500">Nenhum Relatório Relacional disponível para geração de PDI.</p></Card>
+        <Card><p className="rounded-xl bg-slate-50 px-4 py-4 text-[15px] text-slate-500">Nenhum Relatório Lifenergy disponível para geração de PDI.</p></Card>
       ) : (
         Array.from(groups.entries()).map(([cpfKey, items]) => (
           <Card key={cpfKey}>
