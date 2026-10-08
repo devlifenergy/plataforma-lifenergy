@@ -207,7 +207,7 @@ async function insertCompanyAuditLog(
     metadata,
     ip_address: requestContext.ipAddress,
     user_agent: requestContext.userAgent,
-    // Compatibilidade com tabelas audit_logs criadas antes da 1.5.15.
+    // Compatibilidade com tabelas audit_logs criadas antes da 1.5.16.2.
     user_id: actor?.actorProfileId ?? null,
     entity: entityType,
   };
