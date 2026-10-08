@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabaseAdmin";
+﻿import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
 
 export type LicenseKind = "individual_report" | "pdi_relational" | "pdi_corporate";
@@ -123,7 +123,7 @@ export async function assertLicenseAvailable(params: {
     const label = params.kind === "individual_report"
       ? "Relatório Individual"
       : params.kind === "pdi_relational"
-        ? "PDI Relacional"
+        ? "Trilha Lifenergy"
         : "PDI Corporativo";
     throw new Error(`Licença esgotada para ${label}. Solicite novas licenças ao administrador.`);
   }

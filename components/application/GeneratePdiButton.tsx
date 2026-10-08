@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -92,7 +92,7 @@ export function GeneratePdiButton({
 
   const isBusy = Boolean(activeAction);
   const isBlocked = Boolean(disabledReason);
-  const buttonLabel = label ?? (pdiType === "corporate" ? "Gerar PDI Corporativo" : "Gerar PDI Relacional");
+  const buttonLabel = label ?? (pdiType === "corporate" ? "Gerar PDI Corporativo" : "Gerar Trilha Lifenergy");
   const regenerateButtonLabel =
     regenerateLabel ?? (pdiType === "corporate" ? "Gerar um novo PDI Corporativo" : "Regenerar PDI");
   const baseUrl = `/api/pdi/lifenergy/${encodeURIComponent(responseId)}?type=${pdiType}`;

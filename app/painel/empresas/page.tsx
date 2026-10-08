@@ -56,8 +56,8 @@ function buildLicenseMetrics(company: Company): LicenseMetric[] {
       used: company.usedIndividualReports ?? 0,
     },
     {
-      label: "PDI Relacional",
-      shortLabel: "PDI Relacional",
+      label: "Trilha Lifenergy",
+      shortLabel: "Trilha Lifenergy",
       contracted: company.licensePdiRelational,
       used: company.usedPdiRelational ?? 0,
     },
@@ -96,7 +96,7 @@ function LicenseUsageCard({ metric }: { metric: LicenseMetric }) {
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-bold text-[#0F2D4A]">{metric.label}</p>
+          <p className="break-words text-sm font-bold leading-tight text-[#0F2D4A]">{metric.label}</p>
           <p className="mt-1 text-xs text-slate-500">Gestão do saldo de licenças</p>
         </div>
         {isExhausted ? (
@@ -115,16 +115,16 @@ function LicenseUsageCard({ metric }: { metric: LicenseMetric }) {
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-xl bg-white px-2 py-3 shadow-sm">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Contratadas</p>
+        <div className="min-w-0 rounded-xl bg-white px-1.5 py-3 shadow-sm sm:px-2">
+          <p className="break-words text-[9px] font-semibold uppercase leading-tight tracking-normal text-slate-400 sm:text-[10px]">Contratadas</p>
           <p className="mt-1 text-lg font-bold text-[#0F2D4A]">{formatQuantity(metric.contracted)}</p>
         </div>
-        <div className="rounded-xl bg-white px-2 py-3 shadow-sm">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Usadas</p>
+        <div className="min-w-0 rounded-xl bg-white px-1.5 py-3 shadow-sm sm:px-2">
+          <p className="break-words text-[9px] font-semibold uppercase leading-tight tracking-normal text-slate-400 sm:text-[10px]">Usadas</p>
           <p className="mt-1 text-lg font-bold text-[#0F2D4A]">{metric.used}</p>
         </div>
-        <div className="rounded-xl bg-white px-2 py-3 shadow-sm">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Saldo</p>
+        <div className="min-w-0 rounded-xl bg-white px-1.5 py-3 shadow-sm sm:px-2">
+          <p className="break-words text-[9px] font-semibold uppercase leading-tight tracking-normal text-slate-400 sm:text-[10px]">Saldo</p>
           <p className={`mt-1 text-lg font-bold ${isExhausted ? "text-red-700" : "text-emerald-700"}`}>
             {available === null ? "Ilimitado" : available}
           </p>
@@ -248,7 +248,7 @@ function CompanyEditDetails({ company }: { company: Company }) {
                 </label>
 
                 <label className="text-sm font-medium text-slate-700">
-                  PDI Relacional
+                  Trilha Lifenergy
                   <input
                     name="license_pdi_relational"
                     type="number"
