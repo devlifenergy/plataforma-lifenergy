@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabaseAdmin";
+﻿import { createAdminClient } from "@/lib/supabaseAdmin";
 import { isLifenergyV1GeneratedContent } from "@/services/reports/lifenergyV1AI";
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
 import {
@@ -85,7 +85,7 @@ export async function buildLifenergyPdiDataFromReportData(
   ]);
 
   if (!storedReport) {
-    throw new Error("Gere o Relatório Relacional desta aplicação antes de gerar o PDI.");
+    throw new Error("Gere o Relatório Lifenergy desta aplicação antes de gerar o PDI.");
   }
 
   return {

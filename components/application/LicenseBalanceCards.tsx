@@ -1,4 +1,4 @@
-import type { OrganizationLicenseSummary } from "@/services/licensing/licenseGuard";
+﻿import type { OrganizationLicenseSummary } from "@/services/licensing/licenseGuard";
 
 type Props = {
   summary: OrganizationLicenseSummary;
@@ -7,7 +7,7 @@ type Props = {
 
 const config = {
   individual: { label: "Relatório Individual", key: "individualReport" as const },
-  relational: { label: "PDI Relacional", key: "pdiRelational" as const },
+  relational: { label: "Trilha Lifenergy", key: "pdiRelational" as const },
   corporate: { label: "PDI Corporativo", key: "pdiCorporate" as const },
 };
 

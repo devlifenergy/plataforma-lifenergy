@@ -1,4 +1,4 @@
-import type { LifenergyPdiData } from "./lifenergyPdiTypes";
+﻿import type { LifenergyPdiData } from "./lifenergyPdiTypes";
 import {
   LIFENERGY_PDI_ENGINE_VERSION,
   LIFENERGY_PDI_PROMPT_VERSION,
@@ -83,7 +83,7 @@ Os indicadores devem ser específicos, mensuráveis, alcançáveis, relevantes e
 Inclua evidência objetiva de conclusão, qualidade ou evolução comportamental.
 Evite indicadores genéricos como "melhorar comunicação". Transforme em prática observável.
 
-REGRAS PARA PDI RELACIONAL
+REGRAS PARA TRILHA LIFENERGY
 1. Não use linguagem corporativa quando não houver vínculo de empregado.
 2. Não mencione cargo, gestor, área, performance corporativa ou metas da empresa como se fossem dados certos.
 3. Use foco em autopercepção, relações interpessoais, comunicação, autorregulação, clareza de escolhas e propósito.

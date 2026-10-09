@@ -2,56 +2,148 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabaseServer";
 
-const companyCards = [
-  ["Aplicadores Autorizados", "/painel/aplicadores", "Cadastre e gerencie os aplicadores autorizados da empresa."],
-  ["Aplicação on-line", "/painel/entrevistados", "Crie links, acompanhe o preenchimento e gerencie as aplicações on-line."],
-  ["Relatório Relacional", "/painel/relatorio-relacional", "Gere e faça novo download dos relatórios vinculados às aplicações concluídas."],
-  ["PDI Relacional", "/painel/pdi", "Gere um PDI Relacional para cada relatório individual existente."],
-  ["PDI Corporativo", "/painel/pdi-corporativo", "Gere um PDI Corporativo por relatório, orientado pelo cargo e pela Biblioteca Corporativa."],
-  ["Biblioteca Corporativa", "/painel/biblioteca", "Gerencie logomarca e documentos corporativos usados na geração dos PDIs."],
-  ["Biblioteca Técnica", "/painel/biblioteca-tecnica", "Consulte a base de conhecimento e fundamentação técnica da Plataforma Lifenergy."],
-] as const;
+type DashboardAction = {
+  title: string;
+  description: string;
+  href: string;
+};
+
+const superAdminActions: DashboardAction[] = [
+  {
+    title: "Empresas",
+    description: "Cadastre, edite e gerencie empresas, administradores e licenças.",
+    href: "/painel/empresas",
+  },
+  {
+    title: "Biblioteca Técnica",
+    description: "Organize documentos técnicos disponíveis no Lifenergy Digital.",
+    href: "/painel/biblioteca-tecnica",
+  },
+  {
+    title: "Auditoria",
+    description: "Acompanhe eventos, alterações e rastreabilidade do sistema.",
+    href: "/painel/auditoria",
+  },
+  {
+    title: "Laudos",
+    description: "Exporte dados consolidados com filtros por empresa, avaliado e período.",
+    href: "/painel/exportacoes",
+  },
+];
+
+const organizationActions: DashboardAction[] = [
+  {
+    title: "Aplicadores Autorizados",
+    description: "Cadastre e gerencie pessoas autorizadas a conduzir aplicações.",
+    href: "/painel/aplicadores",
+  },
+  {
+    title: "Aplicação on-line",
+    description: "Crie links únicos, acompanhe aplicações concluídas e consulte os registros.",
+    href: "/painel/entrevistados",
+  },
+  {
+    title: "Relatório Lifenergy",
+    description: "Gere relatórios Lifenergy a partir das aplicações concluídas.",
+    href: "/painel/relatorio-relacional",
+  },
+  {
+    title: "Trilha Lifenergy",
+    description: "Gere trilhas de desenvolvimento individual a partir dos relatórios.",
+    href: "/painel/pdi",
+  },
+  {
+    title: "PDI Corporativo",
+    description: "Crie PDIs corporativos usando a biblioteca e o contexto da organização.",
+    href: "/painel/pdi-corporativo",
+  },
+  {
+    title: "Biblioteca Corporativa",
+    description: "Cadastre documentos corporativos para alimentar a inteligência da empresa.",
+    href: "/painel/biblioteca",
+  },
+  {
+    title: "Biblioteca Técnica",
+    description: "Acesse materiais técnicos e orientações disponíveis no Lifenergy Digital.",
+    href: "/painel/biblioteca-tecnica",
+  },
+];
+
+function DashboardCards({ actions }: { actions: DashboardAction[] }) {
+  return (
+    <div className="mt-10 grid max-w-5xl gap-5 md:grid-cols-2 xl:grid-cols-3">
+      {actions.map((action) => (
+        <Link
+          key={action.href}
+          href={action.href}
+          className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
+        >
+          <h2 className="text-lg font-semibold text-[#0F2A43]">{action.title}</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{action.description}</p>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export default async function PainelPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("role")
     .eq("auth_user_id", user.id)
     .single();
-  if (error || !profile) redirect("/login");
 
-  if ((profile as { role: string }).role === "super_admin") {
+  if (error || !profile) {
+    redirect("/login");
+  }
+
+  const role = (profile as { role: string }).role;
+
+  if (role === "super_admin") {
     return (
       <section>
-        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">Painel Administrativo</p>
-        <h1 className="text-4xl font-bold text-[#0F2A43]">Bem-vindo ao Lifenergy Digital</h1>
-        <p className="mt-4 max-w-3xl text-slate-700">Utilize este ambiente para administrar empresas clientes e exportar os dados consolidados de avaliações concluídas.</p>
-        <div className="mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
-          <Link href="/painel/empresas" className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"><h2 className="text-lg font-semibold text-[#0F2A43]">Empresas</h2><p className="mt-2 text-sm text-slate-600">Cadastre, edite e gerencie as empresas clientes.</p></Link>
-          <Link href="/painel/exportacoes" className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"><h2 className="text-lg font-semibold text-[#0F2A43]">Laudos</h2><p className="mt-2 text-sm text-slate-600">Exporte os dados para Excel com filtros por empresa, avaliado e período.</p></Link>
-        </div>
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+          Painel Administrativo
+        </p>
+
+        <h1 className="text-4xl font-bold text-[#0F2A43]">
+          Painel Inicial do Superusuário
+        </h1>
+
+        <p className="mt-4 max-w-3xl text-slate-700">
+          Acesse aqui os mesmos módulos disponíveis no menu lateral para administração do Lifenergy Digital.
+        </p>
+
+        <DashboardCards actions={superAdminActions} />
       </section>
     );
   }
 
   return (
     <section>
-      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">Painel da Empresa</p>
-      <h1 className="text-4xl font-bold text-[#0F2A43]">Bem-vindo ao Lifenergy Digital</h1>
-      <p className="mt-4 max-w-4xl text-slate-700">Acesse as principais funções da plataforma pelos atalhos abaixo.</p>
-      <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {companyCards.map(([title, href, description]) => (
-          <Link key={href} href={href} className="group block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md">
-            <div className="mb-4 h-1.5 w-12 rounded-full bg-[#B98A2E] transition-all group-hover:w-20" />
-            <h2 className="text-lg font-semibold text-[#0F2A43]">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
-          </Link>
-        ))}
-      </div>
+      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+        Painel da Empresa
+      </p>
+
+      <h1 className="text-4xl font-bold text-[#0F2A43]">
+        Bem-vindo ao Lifenergy Digital
+      </h1>
+
+      <p className="mt-4 max-w-3xl text-slate-700">
+        Utilize este ambiente para gerenciar aplicadores, aplicações, relatórios, trilhas de desenvolvimento e documentos corporativos.
+      </p>
+
+      <DashboardCards actions={organizationActions} />
     </section>
   );
 }

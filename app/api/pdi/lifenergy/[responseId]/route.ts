@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import {
   generateLifenergyPdiContent,
@@ -152,7 +152,7 @@ export async function GET(request: Request, context: RouteContext) {
       actorEmail: reportData.profile.email,
       entityType: "journey_response",
       entityId: responseId,
-      description: `${pdiType === "corporate" ? "PDI Corporativo" : "PDI Relacional"} gerado para ${reportData.response.full_name}.`,
+      description: `${pdiType === "corporate" ? "PDI Corporativo" : "Trilha Lifenergy"} gerado para ${reportData.response.full_name}.`,
       metadata: {
         journey_id: reportData.journey.id,
         file_name: fileName,

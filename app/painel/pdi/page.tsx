@@ -1,4 +1,4 @@
-import { GeneratePdiButton } from "@/components/application/GeneratePdiButton";
+﻿import { GeneratePdiButton } from "@/components/application/GeneratePdiButton";
 import { LicenseBalanceCards } from "@/components/application/LicenseBalanceCards";
 import { Card } from "@/components/ui/Card";
 import { listPdiPageData } from "@/services/pdi/actions";
@@ -36,14 +36,14 @@ export default async function PdiRelacionalPage() {
     <div className="space-y-6">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#B98A2E]">Desenvolvimento humano</p>
-        <h1 className="mt-1 text-3xl font-bold text-[#0F2D4A]">PDI Relacional</h1>
-        <p className="mt-2 max-w-4xl text-slate-500">A listagem é agrupada por CPF, mas cada relatório gera o seu próprio PDI Relacional.</p>
+        <h1 className="mt-1 text-3xl font-bold text-[#0F2D4A]">Trilha Lifenergy</h1>
+        <p className="mt-2 max-w-4xl text-slate-500">A listagem é agrupada por CPF, mas cada relatório gera o seu próprio Trilha Lifenergy.</p>
       </div>
 
       <LicenseBalanceCards summary={licenseSummary} show={["relational"]} />
 
       {reportCandidates.length === 0 ? (
-        <Card><p className="rounded-xl bg-slate-50 px-4 py-4 text-[15px] text-slate-500">Nenhum Relatório Relacional disponível para geração de PDI.</p></Card>
+        <Card><p className="rounded-xl bg-slate-50 px-4 py-4 text-[15px] text-slate-500">Nenhum Relatório Lifenergy disponível para geração de PDI.</p></Card>
       ) : (
         Array.from(groups.entries()).map(([cpfKey, items]) => (
           <Card key={cpfKey}>
@@ -62,13 +62,13 @@ export default async function PdiRelacionalPage() {
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B98A2E]">Relatório {candidate.code}</p>
                       <p className="mt-2 text-[15px] leading-6 text-slate-600">Aplicador: {candidate.applicatorName} · Concluído em {formatDate(candidate.completedAt)}</p>
-                      <p className="mt-1 text-sm text-slate-500">{generated ? "PDI Relacional já gerado e salvo" : "Disponível para geração"}</p>
+                      <p className="mt-1 text-sm text-slate-500">{generated ? "Trilha Lifenergy já gerado e salvo" : "Disponível para geração"}</p>
                     </div>
                     <GeneratePdiButton
                       responseId={candidate.responseId}
                       pdiType="relational"
-                      label={generated ? "Baixar PDI Relacional" : "Gerar PDI Relacional"}
-                      disabledReason={noLicense ? "Sem licenças disponíveis para gerar um novo PDI Relacional." : null}
+                      label={generated ? "Baixar Trilha Lifenergy" : "Gerar Trilha Lifenergy"}
+                      disabledReason={noLicense ? "Sem licenças disponíveis para gerar um novo Trilha Lifenergy." : null}
                     />
                   </div>
                 );

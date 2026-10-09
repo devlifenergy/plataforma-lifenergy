@@ -1,4 +1,4 @@
-import { GenerateReportButton } from "@/components/application/GenerateReportButton";
+﻿import { GenerateReportButton } from "@/components/application/GenerateReportButton";
 import { LicenseBalanceCards } from "@/components/application/LicenseBalanceCards";
 import { Card } from "@/components/ui/Card";
 import { createClient } from "@/lib/supabaseServer";
@@ -48,7 +48,7 @@ export default async function RelatorioRelacionalPage() {
     <div className="space-y-6">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#B98A2E]">Relatórios</p>
-        <h1 className="mt-1 text-3xl font-bold text-[#0F2D4A]">Relatório Relacional</h1>
+        <h1 className="mt-1 text-3xl font-bold text-[#0F2D4A]">Relatório Lifenergy</h1>
         <p className="mt-2 max-w-4xl text-slate-500">Gere um relatório para cada aplicação concluída. Documentos já gerados podem ser baixados novamente sem consumir nova licença.</p>
       </div>
 

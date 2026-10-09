@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
@@ -207,7 +207,7 @@ async function insertCompanyAuditLog(
     metadata,
     ip_address: requestContext.ipAddress,
     user_agent: requestContext.userAgent,
-    // Compatibilidade com tabelas audit_logs criadas antes da 1.5.15.
+    // Compatibilidade com tabelas audit_logs criadas antes da 1.5.17.
     user_id: actor?.actorProfileId ?? null,
     entity: entityType,
   };
@@ -687,7 +687,7 @@ export async function updateCompany(formData: FormData) {
   if (notifyLicenseAddition) {
     const additions = [
       { label: "Relatório Individual/Relacional", quantity: Math.max(0, licenseIndividual - Number((currentOrganization as any).license_individual_reports ?? 0)) },
-      { label: "PDI Relacional", quantity: Math.max(0, licenseRelational - Number((currentOrganization as any).license_pdi_relational ?? 0)) },
+      { label: "Trilha Lifenergy", quantity: Math.max(0, licenseRelational - Number((currentOrganization as any).license_pdi_relational ?? 0)) },
       { label: "PDI Corporativo", quantity: Math.max(0, licenseCorporate - Number((currentOrganization as any).license_pdi_corporate ?? 0)) },
     ].filter((item) => item.quantity > 0);
 

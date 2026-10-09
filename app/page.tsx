@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { AppVersion } from "@/components/AppVersion";
 
@@ -204,7 +204,7 @@ const benefits = [
 ];
 
 const hubItems = [
-  { text: "Relatório relacional", icon: <DocumentIcon /> },
+  { text: "Relatório Lifenergy", icon: <DocumentIcon /> },
   { text: "Biblioteca corporativa", icon: <BookIcon /> },
   { text: "PDI corporativo", icon: <ChartIcon /> },
   { text: "Cadastro de aplicadores autorizados", icon: <PeopleIcon /> },
