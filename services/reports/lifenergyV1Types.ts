@@ -1,8 +1,8 @@
 export const LIFENERGY_REPORT_VERSION = "lifenergy_relatorio_canonico_v3_1_5_19";
 export const LIFENERGY_REPORT_FORMAT = "docx";
 export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.19";
-export const LIFENERGY_REPORT_PROMPT_VERSION = "modelo_canonico_v3_2026_10_13";
-export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_modelo_canonico_v3_1_5_19";
+export const LIFENERGY_REPORT_PROMPT_VERSION = "modelo_canonico_v3_2026_10_13_ajuste_estrutura";
+export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_modelo_canonico_v3_1_5_19_2";
 
 export type LifenergyFractalResponse = {
   index: number;
@@ -90,6 +90,11 @@ export type LifenergyV1GeneratedContent = {
     interpretacao: string;
     sugestoes: string;
   }>;
+  /**
+   * Texto corrido da seção 4: Entendendo a linguagem dos fractais.
+   * Deve integrar todos os fractais em narrativa única, sem marcadores.
+   */
+  linguagem_dos_fractais?: string;
   sintese_padroes: string;
   recomendacoes_habilidades: string;
   /**
