@@ -85,11 +85,12 @@ function run(text: unknown, options?: { bold?: boolean; italic?: boolean; color?
 
 function paragraph(
   text: unknown,
-  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean }
+  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean; indent?: number }
 ) {
   const parts: string[] = [];
   if (options?.style) parts.push(`<w:pStyle w:val="${options.style}"/>`);
   if (options?.center) parts.push('<w:jc w:val="center"/>');
+  if (options?.indent) parts.push(`<w:ind w:left="${options.indent}"/>`);
   const paragraphProperties = parts.length > 0 ? `<w:pPr>${parts.join("")}</w:pPr>` : "";
 
   return `<w:p>${paragraphProperties}${run(text, {
@@ -100,12 +101,12 @@ function paragraph(
   })}</w:p>`;
 }
 
-function bullet(label: string, value: unknown) {
-  return paragraph(`• ${label}: ${cleanXmlText(value) || "-"}`);
+function fieldLine(label: string, value: unknown) {
+  return paragraph(`${label}: ${cleanXmlText(value) || "-"}`, { indent: 360 });
 }
 
-function smallBullet(text: unknown) {
-  return paragraph(`o ${cleanXmlText(text)}`);
+function indentedLine(text: unknown) {
+  return paragraph(cleanXmlText(text), { indent: 720 });
 }
 
 function paragraphs(text: unknown) {
@@ -201,7 +202,6 @@ function quoteActivity(value: string) {
 function fractalBlocks(data: LifenergyV1ReportData, content: LifenergyV1GeneratedContent) {
   return data.fractals
     .map((fractal) => {
-      const analysis = analysisFor(content, fractal.position);
       const title = `Fractal ${fractal.position} – ${quoteActivity(fractal.presentedActivity)}`;
       const rows = [
         ["Nº da resposta", "Resposta", "Hierarquia", "Padrões relacionais identificados"],
@@ -215,29 +215,37 @@ function fractalBlocks(data: LifenergyV1ReportData, content: LifenergyV1Generate
 
       return [
         heading2(title),
-        table(rows, { widths: [1200, 2800, 1800, 4300] }),
-        heading2(`Interpretação do Fractal ${fractal.position}`),
-        paragraphs(analysis?.interpretacao ?? "Interpretação não gerada."),
-        heading2(`Sugestões de desenvolvimento – Fractal ${fractal.position}`),
-        paragraphs(analysis?.sugestoes ?? "Sugestões não geradas."),
+        table(rows, { widths: [1450, 3000, 1700, 3850] }),
       ].join("");
     })
     .join("");
 }
 
+function languageOfFractals(content: LifenergyV1GeneratedContent) {
+  const integratedText = cleanXmlText(content.linguagem_dos_fractais);
+  if (integratedText) return paragraphs(integratedText);
+
+  const fallback = content.fractal_analyses
+    .map((analysis) => cleanXmlText(analysis.interpretacao))
+    .filter(Boolean)
+    .join(" ");
+
+  return paragraphs(fallback || "Interpretação integrada não gerada.");
+}
+
 function appliedFractals(data: LifenergyV1ReportData) {
   return data.fractals
-    .map((fractal) => smallBullet(`Fractal ${fractal.position} – ${quoteActivity(fractal.presentedActivity)}`))
+    .map((fractal) => indentedLine(`Fractal ${fractal.position} – ${quoteActivity(fractal.presentedActivity)}`))
     .join("");
 }
 
 function attributeMeaning(attribute: string) {
   const meanings: Record<string, string> = {
-    "socialização": "Atributo relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.",
-    "reflexão": "Atributo relacionado com a reflexão interior do Usuário sobre as suas questões de vida e aspectos maiores do contexto no qual ele habita.",
-    "lazer": "Atributo relacionado com a realização de atividades que promovem o prazer e a felicidade do Usuário, sejam elas ao ar livre ou em casa.",
-    "propósito": "Atributo relacionado com a motivação pessoal e os objetivos do Usuário, ditando suas ambições, perspectivas de futuro e conquistas.",
-    "sentimento": "Atributo relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos;",
+    "socialização": "Padrão relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.",
+    "reflexão": "Padrão relacionado com a reflexão interior do Usuário sobre as suas questões de vida e aspectos maiores do contexto no qual ele habita.",
+    "lazer": "Padrão relacionado com a realização de atividades que promovem o prazer e a felicidade do Usuário, sejam elas ao ar livre ou em casa.",
+    "propósito": "Padrão relacionado com a motivação pessoal e os objetivos do Usuário, ditando suas ambições, perspectivas de futuro e conquistas.",
+    "sentimento": "Padrão relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos.",
   };
   return meanings[String(attribute || "").trim().toLowerCase()] || "";
 }
@@ -348,7 +356,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
     content.atributos_percentuais.map((item) => [item.atributo.trim().toLowerCase(), item])
   );
   const attributeRows = [
-    ["Atributo", "Percentual", "Significado"],
+    ["Padrão", "Percentual", "Significado"],
     ...attributeOrder.map((attribute) => {
       const item = attributeByName.get(attribute.toLowerCase());
       return [attribute, item?.percentual ?? "0%", attributeMeaning(attribute)];
@@ -356,33 +364,37 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
   ];
 
   const body = [
-    paragraph("RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO", { style: "Title" }),
+    paragraph("RELATORIO LIFENERGY", { style: "Title" }),
     paragraph(`Empresa: ${data.organization.name}`, { center: true, color: "666666", size: 20 }),
     heading1("1. Identificação"),
-    bullet("Nome", data.response.full_name),
-    bullet("CPF", data.response.cpf),
-    bullet("E-mail", data.response.email),
-    bullet("Data de nascimento", formatDate(data.response.birth_date)),
-    bullet("Naturalidade", data.response.naturalidade),
-    bullet("Objetivo de participação", data.response.participation_objective),
+    fieldLine("Nome", data.response.full_name),
+    fieldLine("CPF", data.response.cpf),
+    fieldLine("E-mail", data.response.email),
+    fieldLine("Data de nascimento", formatDate(data.response.birth_date)),
+    fieldLine("Naturalidade", data.response.naturalidade),
+    fieldLine("Objetivo de participação", data.response.participation_objective),
     heading1("2. Registro de Aplicação"),
-    bullet("Identidade", labelApplicationType(data.response.application_type)),
-    bullet("Nome do aplicador", data.response.applicator_name || data.journey.applicator_name || "Não informado"),
-    bullet("Escolha da atividade", labelActivityChoice(data.response.activity_choice)),
-    bullet("Tempo de resposta", "Não informado"),
-    bullet("Data de aplicação", formatDate(data.response.application_date)),
-    paragraph("• Fractais de comportamento aplicados:", { bold: true }),
+    fieldLine("Identidade", labelApplicationType(data.response.application_type)),
+    fieldLine("Nome do aplicador", data.response.applicator_name || data.journey.applicator_name || "Não informado"),
+    fieldLine("Escolha da atividade", labelActivityChoice(data.response.activity_choice)),
+    fieldLine("Tempo de resposta", "Não informado"),
+    fieldLine("Data de aplicação", formatDate(data.response.application_date)),
+    paragraph("Fractais de comportamento aplicados:", { bold: true, indent: 360 }),
     appliedFractals(data),
     heading1("3. Registro de Dados – Resultado"),
     fractalBlocks(data, content),
-    heading1("4. Síntese dos padrões relacionais"),
-    paragraphs(content.sintese_padroes),
-    heading1("5. Categorização dos padrões de comportamento (0 a 100%)"),
+    heading1("4. Entendendo a linguagem dos fractais"),
+    languageOfFractals(content),
+    heading1("5. Caracterização dos padrões"),
     table(attributeRows, { widths: [1800, 1400, 5000] }),
-    heading2("Leitura da métrica"),
     paragraphs(content.leitura_metrica),
-    heading1("6. Recomendações para desenvolvimento de habilidades"),
+    heading1("6. Síntese dos Resultados"),
+    paragraphs(content.sintese_padroes),
+    heading1("7. Recomendações para trilha de desenvolvimento"),
     paragraphs(content.recomendacoes_habilidades),
+    paragraph(""),
+    paragraph("Data:          /        /"),
+    paragraph("Assinatura:"),
   ].join("");
 
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -465,7 +477,7 @@ function coreXml() {
   const now = new Date().toISOString();
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title>RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO</dc:title>
+    <dc:title>RELATORIO LIFENERGY</dc:title>
     <dc:creator>Plataforma Lifenergy</dc:creator>
     <cp:lastModifiedBy>Plataforma Lifenergy</cp:lastModifiedBy>
     <cp:keywords>Motor ${LIFENERGY_REPORT_ENGINE_VERSION}; Prompt ${LIFENERGY_REPORT_PROMPT_VERSION}; Template ${LIFENERGY_REPORT_TEMPLATE_VERSION}</cp:keywords>
@@ -596,7 +608,7 @@ export function buildLifenergyV1Docx(
       name: "word/header1.xml",
       data: buildLogoHeaderXml(
         data,
-        "RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO",
+        "RELATORIO LIFENERGY",
         `Empresa: ${data.organization.name}`
       ),
     },
