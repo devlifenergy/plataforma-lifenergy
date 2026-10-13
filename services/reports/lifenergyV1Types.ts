@@ -1,8 +1,8 @@
-export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_5_9";
+export const LIFENERGY_REPORT_VERSION = "lifenergy_relatorio_canonico_v3_1_5_19";
 export const LIFENERGY_REPORT_FORMAT = "docx";
-export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.9";
-export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v1_motor_metrico_canonico_2026_08_30";
-export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_1_5_9_logo_configuravel";
+export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.19";
+export const LIFENERGY_REPORT_PROMPT_VERSION = "modelo_canonico_v3_2026_10_13";
+export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_modelo_canonico_v3_1_5_19";
 
 export type LifenergyFractalResponse = {
   index: number;
@@ -29,6 +29,7 @@ export type LifenergyV1ReportData = {
   organization: {
     id: string;
     name: string;
+    document_ai_provider?: "openai" | "claude" | string | null;
     logo_file_name?: string | null;
     logo_mime_type?: string | null;
     logo_content_base64?: string | null;
@@ -64,6 +65,22 @@ export type LifenergyV1ReportData = {
   fractals: LifenergyFractalData[];
 };
 
+
+export type LifenergyV1SkillRecommendation = {
+  habilidade: string;
+  descricao_integrada: string;
+  fractais_relacionados: string;
+  orientacao_pratica: string;
+};
+
+export type LifenergyV1DevelopmentTask = {
+  fractais: string;
+  habilidade: string;
+  tarefa_recomendada: string;
+  forma_de_aplicacao: string;
+  indicador_de_evolucao: string;
+};
+
 export type LifenergyV1GeneratedContent = {
   fractal_analyses: Array<{
     position: number;
@@ -75,6 +92,12 @@ export type LifenergyV1GeneratedContent = {
   }>;
   sintese_padroes: string;
   recomendacoes_habilidades: string;
+  /**
+   * Campos legados mantidos para compatibilidade com versões anteriores do motor.
+   * O Modelo Canônico V3 do DOCX não depende desses blocos.
+   */
+  recomendacoes_por_habilidade?: LifenergyV1SkillRecommendation[];
+  tarefas_desenvolvimento?: LifenergyV1DevelopmentTask[];
   atributos_percentuais: Array<{
     atributo: string;
     percentual: string;
