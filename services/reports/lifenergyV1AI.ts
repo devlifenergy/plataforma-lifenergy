@@ -1,6 +1,5 @@
 import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "./lifenergyV1Types";
 import {
-  buildCanonicalMetricReading,
   calculateLifenergyV1CanonicalMetric,
   type RuntimeMetricCalibration,
 } from "./lifenergyV1MetricEngine";
@@ -9,6 +8,66 @@ import {
   lifenergyV1JsonSchema,
   LIFENERGY_V1_SYSTEM_PROMPT,
 } from "./lifenergyV1Prompt";
+type DocumentAiProvider = "openai";
+
+async function generateJsonWithOpenAi(params: {
+  systemPrompt: string;
+  userPrompt: string;
+  jsonSchema: Record<string, unknown>;
+  schemaName: string;
+  model: string;
+}) {
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error(
+      "OPENAI_API_KEY não configurada. Cadastre a chave no ambiente antes de gerar documentos."
+    );
+  }
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: params.model,
+      input: [
+        {
+          role: "system",
+          content: [{ type: "input_text", text: params.systemPrompt }],
+        },
+        {
+          role: "user",
+          content: [{ type: "input_text", text: params.userPrompt }],
+        },
+      ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: params.schemaName,
+          schema: params.jsonSchema,
+          strict: true,
+        },
+      },
+    }),
+  });
+
+  const payload = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message = payload?.error?.message || "Erro ao gerar conteúdo com OpenAI.";
+    throw new Error(message);
+  }
+
+  const outputText = extractOutputText(payload);
+  if (!outputText) {
+    throw new Error("A OpenAI não retornou conteúdo textual para o Relatório Lifenergy.");
+  }
+
+  return { outputText, model: params.model, provider: "openai" as const };
+}
 
 const REQUIRED_ATTRIBUTES = ["Socialização", "Reflexão", "Lazer", "Propósito", "Sentimento"];
 
@@ -41,6 +100,25 @@ function normalizePercent(value: unknown) {
   const bounded = Math.max(0, Math.min(100, Math.round(numeric)));
 
   return `${bounded}%`;
+}
+
+
+function numericPercent(value: unknown) {
+  const numeric = Number(cleanText(value).replace("%", "").replace(",", ".").replace(/[^0-9.\-]/g, ""));
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
+function buildV3MetricReading(attributes: LifenergyV1GeneratedContent["atributos_percentuais"]) {
+  const sorted = [...attributes].sort((a, b) => numericPercent(b.percentual) - numericPercent(a.percentual));
+  const first = sorted[0];
+  const second = sorted[1];
+  const lower = sorted[sorted.length - 1];
+
+  if (!first || !second || !lower) {
+    return "O perfil apresenta uma composição de padrões que deve ser lida de forma integrada, considerando a relação entre respostas, hierarquias e recorrências simbólicas observadas nos fractais.";
+  }
+
+  return `O perfil apresenta predominância de ${first.atributo} (${first.percentual}) e ${second.atributo} (${second.percentual}), indicando que esses padrões organizam com maior intensidade o comportamento observado. ${lower.atributo} aparece com menor intensidade relativa (${lower.percentual}), representando uma dimensão menos central no conjunto analisado, embora ainda componha a leitura integrada do relatório.`;
 }
 
 function normalizeForMetricComparison(value: unknown) {
@@ -97,6 +175,16 @@ export function isLifenergyV1GeneratedContent(value: unknown): value is Lifenerg
   );
 }
 
+function buildFallbackLinguagemDosFractais(
+  analyses: LifenergyV1GeneratedContent["fractal_analyses"]
+) {
+  return analyses
+    .map((analysis) => cleanText(analysis.interpretacao))
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+}
+
 function normalizeFractalAnalyses(
   content: LifenergyV1GeneratedContent,
   data: LifenergyV1ReportData
@@ -147,6 +235,62 @@ function carolineNeryCalibrationAttributes(): LifenergyV1GeneratedContent["atrib
   ];
 }
 
+function normalizeSkillRecommendations(
+  content: LifenergyV1GeneratedContent,
+  analyses: LifenergyV1GeneratedContent["fractal_analyses"]
+): LifenergyV1GeneratedContent["recomendacoes_por_habilidade"] {
+  const source = Array.isArray(content.recomendacoes_por_habilidade)
+    ? content.recomendacoes_por_habilidade
+    : [];
+
+  const normalized = source
+    .map((item) => ({
+      habilidade: cleanText(item?.habilidade),
+      descricao_integrada: cleanText(item?.descricao_integrada),
+      fractais_relacionados: cleanText(item?.fractais_relacionados),
+      orientacao_pratica: cleanText(item?.orientacao_pratica),
+    }))
+    .filter((item) => item.habilidade && item.orientacao_pratica);
+
+  if (normalized.length > 0) return normalized;
+
+  return analyses.map((analysis) => ({
+    habilidade: "Desenvolvimento integrado",
+    descricao_integrada: cleanText(analysis.sugestoes) || "Recomendação integrada ao padrão identificado no fractal.",
+    fractais_relacionados: `Fractal ${analysis.position}`,
+    orientacao_pratica: cleanText(analysis.sugestoes) || "Converter o padrão observado em prática regular de desenvolvimento.",
+  }));
+}
+
+function normalizeDevelopmentTasks(
+  content: LifenergyV1GeneratedContent,
+  analyses: LifenergyV1GeneratedContent["fractal_analyses"]
+): LifenergyV1GeneratedContent["tarefas_desenvolvimento"] {
+  const source = Array.isArray(content.tarefas_desenvolvimento)
+    ? content.tarefas_desenvolvimento
+    : [];
+
+  const normalized = source
+    .map((item) => ({
+      fractais: cleanText(item?.fractais),
+      habilidade: cleanText(item?.habilidade),
+      tarefa_recomendada: cleanText(item?.tarefa_recomendada),
+      forma_de_aplicacao: cleanText(item?.forma_de_aplicacao),
+      indicador_de_evolucao: cleanText(item?.indicador_de_evolucao),
+    }))
+    .filter((item) => item.fractais && item.tarefa_recomendada);
+
+  if (normalized.length > 0) return normalized;
+
+  return analyses.map((analysis) => ({
+    fractais: `Fractal ${analysis.position}`,
+    habilidade: "Desenvolvimento integrado",
+    tarefa_recomendada: cleanText(analysis.sugestoes) || "Praticar uma ação de desenvolvimento associada ao padrão observado.",
+    forma_de_aplicacao: "Definir uma prática semanal simples, registrar a aplicação e revisar os aprendizados.",
+    indicador_de_evolucao: "Maior consciência do padrão e evidências práticas de mudança no comportamento cotidiano.",
+  }));
+}
+
 function normalizeAttributes(
   content: LifenergyV1GeneratedContent,
   data: LifenergyV1ReportData,
@@ -173,13 +317,18 @@ function normalizeGeneratedContent(
   runtimeCalibrations: RuntimeMetricCalibration[] = []
 ): LifenergyV1GeneratedContent {
   const metric = normalizeAttributes(content, data, runtimeCalibrations);
+  const fractalAnalyses = normalizeFractalAnalyses(content, data);
 
   return {
-    fractal_analyses: normalizeFractalAnalyses(content, data),
+    fractal_analyses: fractalAnalyses,
+    linguagem_dos_fractais:
+      cleanText(content.linguagem_dos_fractais) || buildFallbackLinguagemDosFractais(fractalAnalyses),
     sintese_padroes: cleanText(content.sintese_padroes),
     recomendacoes_habilidades: cleanText(content.recomendacoes_habilidades),
+    recomendacoes_por_habilidade: normalizeSkillRecommendations(content, fractalAnalyses),
+    tarefas_desenvolvimento: normalizeDevelopmentTasks(content, fractalAnalyses),
     atributos_percentuais: metric.atributos,
-    leitura_metrica: buildCanonicalMetricReading(metric.atributos),
+    leitura_metrica: buildV3MetricReading(metric.atributos),
     metric_calculation: metric.details,
   };
 }
@@ -206,70 +355,22 @@ function parseGeneratedContent(
 
 export async function generateLifenergyV1Content(
   data: LifenergyV1ReportData,
-  runtimeCalibrations: RuntimeMetricCalibration[] = []
-): Promise<{ content: LifenergyV1GeneratedContent; model: string }> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_REPORT_MODEL || "gpt-5.1";
+  runtimeCalibrations: RuntimeMetricCalibration[] = [],
+  _options: { provider?: string | null } = {}
+): Promise<{ content: LifenergyV1GeneratedContent; model: string; provider: DocumentAiProvider }> {
+  const openAiModel = process.env.OPENAI_REPORT_MODEL || "gpt-5.1";
 
-  if (!apiKey) {
-    throw new Error(
-      "OPENAI_API_KEY não configurada. Cadastre a chave no ambiente Sandbox antes de gerar relatórios."
-    );
-  }
-
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      input: [
-        {
-          role: "system",
-          content: [
-            {
-              type: "input_text",
-              text: LIFENERGY_V1_SYSTEM_PROMPT,
-            },
-          ],
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: buildLifenergyV1UserPrompt(data),
-            },
-          ],
-        },
-      ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "lifenergy_v1_report_canonico",
-          schema: lifenergyV1JsonSchema,
-          strict: true,
-        },
-      },
-    }),
+  const generated = await generateJsonWithOpenAi({
+    systemPrompt: LIFENERGY_V1_SYSTEM_PROMPT,
+    userPrompt: buildLifenergyV1UserPrompt(data),
+    jsonSchema: lifenergyV1JsonSchema,
+    schemaName: "lifenergy_v1_report_canonico",
+    model: openAiModel,
   });
 
-  const payload = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message = payload?.error?.message || "Erro ao gerar conteúdo com IA.";
-    throw new Error(message);
-  }
-
-  const outputText = extractOutputText(payload);
-  if (!outputText) {
-    throw new Error("A IA não retornou conteúdo textual para o relatório.");
-  }
-
   return {
-    content: parseGeneratedContent(outputText, data, runtimeCalibrations),
-    model,
+    content: parseGeneratedContent(generated.outputText, data, runtimeCalibrations),
+    model: generated.model,
+    provider: generated.provider,
   };
 }
