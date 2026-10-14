@@ -3,6 +3,7 @@ import {
   buildLifenergyPdiUserPrompt,
   lifenergyPdiJsonSchema,
   LIFENERGY_PDI_SYSTEM_PROMPT,
+  LIFENERGY_PDI_CORPORATE_V31_ADDENDUM,
 } from "./lifenergyPdiPrompt";
 
 const REQUIRED_ATTRIBUTES = ["Socialização", "Reflexão", "Lazer", "Propósito", "Sentimento"];
@@ -64,16 +65,33 @@ export function isLifenergyPdiGeneratedContent(value: unknown): value is Lifener
   );
 }
 
-function normalizeAttributes(content: LifenergyPdiGeneratedContent): LifenergyPdiGeneratedContent["avaliacao_atributos"] {
+function normalizeAttributes(
+  content: LifenergyPdiGeneratedContent,
+  data?: LifenergyPdiData
+): LifenergyPdiGeneratedContent["avaliacao_atributos"] {
   const byName = new Map(
     content.avaliacao_atributos.map((item) => [cleanText(item.atributo).toLowerCase(), item])
   );
 
+  const metricByName = new Map(
+    data?.pdiType === "corporate"
+      ? (data.reportContent.atributos_percentuais ?? []).map((item) => [
+          cleanText(item.atributo).toLocaleLowerCase("pt-BR"),
+          cleanText(item.percentual),
+        ] as const)
+      : []
+  );
+
   return REQUIRED_ATTRIBUTES.map((name) => {
     const found = byName.get(name.toLowerCase());
+    const sourceMetric = metricByName.get(name.toLocaleLowerCase("pt-BR"));
+    if (data?.pdiType === "corporate" && !sourceMetric) {
+      throw new Error(`Métrica Lifenergy ausente no Relatório de origem: ${name}.`);
+    }
     return {
       atributo: name,
-      avaliacao: normalizePercent(found?.avaliacao ?? "0%"),
+      // No PDI Corporativo V3.1 os percentuais são exclusivamente os do motor canônico.
+      avaliacao: sourceMetric ?? normalizePercent(found?.avaliacao ?? "0%"),
       observacoes: cleanText(found?.observacoes) || "Observação não gerada.",
     };
   });
@@ -105,7 +123,34 @@ function normalizeObjectives(
   }));
 }
 
-function normalizeGeneratedContent(content: LifenergyPdiGeneratedContent): LifenergyPdiGeneratedContent {
+function assertCorporateV31Complete(content: LifenergyPdiGeneratedContent) {
+  const expected: Array<[string, unknown, number]> = [
+    ["pontos fortes", content.pontos_fortes, 3],
+    ["oportunidades de melhoria", content.oportunidades_melhoria, 3],
+    ["competências", content.competencias_desenvolver, 3],
+    ["objetivos de curto prazo", content.objetivos_curto_prazo, 3],
+    ["objetivos de médio prazo", content.objetivos_medio_prazo, 3],
+    ["direcionamento de longo prazo", content.direcionamento_longo_prazo, 3],
+    ["plano 70-20-10", content.plano_acao_70_20_10, 3],
+    ["indicadores", content.indicadores_evidencias, 3],
+    ["checkpoints", content.cronograma_acompanhamento, 2],
+  ];
+  for (const [section, value, count] of expected) {
+    if (!Array.isArray(value) || value.length !== count) {
+      throw new Error(`PDI Corporativo V3.1 incompleto: ${section} exige ${count} registros (recebidos ${Array.isArray(value) ? value.length : 0}). Nenhum PDI foi armazenado.`);
+    }
+  }
+  for (let i = 0; i < 3; i++) {
+    const competency = cleanText(content.competencias_desenvolver[i]?.competencia);
+    const action = cleanText(content.plano_acao_70_20_10[i]?.competencia);
+    if (!competency || !action || competency.toLocaleLowerCase("pt-BR") !== action.toLocaleLowerCase("pt-BR")) {
+      throw new Error(`PDI Corporativo V3.1 inconsistente: a competência ${i + 1} da Seção 7 deve corresponder à Seção 5.`);
+    }
+  }
+}
+
+function normalizeGeneratedContent(content: LifenergyPdiGeneratedContent, data?: LifenergyPdiData): LifenergyPdiGeneratedContent {
+  if (data?.pdiType === "corporate") assertCorporateV31Complete(content);
   const competencies = take(
     content.competencias_desenvolver,
     3,
@@ -136,7 +181,7 @@ function normalizeGeneratedContent(content: LifenergyPdiGeneratedContent): Lifen
       cleanText(content.objetivo_carreira_desenvolvimento) ||
       "Fortalecer o desenvolvimento profissional por meio de ações práticas, acompanhamento e evidências de evolução.",
     diagnostico_perfil: cleanText(content.diagnostico_perfil),
-    avaliacao_atributos: normalizeAttributes(content),
+    avaliacao_atributos: normalizeAttributes(content, data),
     pontos_fortes: take(
       content.pontos_fortes?.map(cleanText),
       3,
@@ -149,10 +194,10 @@ function normalizeGeneratedContent(content: LifenergyPdiGeneratedContent): Lifen
     ),
     competencias_desenvolver: competencies,
     objetivos_curto_prazo: normalizeObjectives(content.objetivos_curto_prazo, 3, "Até 6 meses"),
-    objetivos_medio_prazo: normalizeObjectives(content.objetivos_medio_prazo, 2, "Até 12 meses"),
+    objetivos_medio_prazo: normalizeObjectives(content.objetivos_medio_prazo, data?.pdiType === "corporate" ? 3 : 2, "Até 12 meses"),
     direcionamento_longo_prazo: take(
       content.direcionamento_longo_prazo,
-      2,
+      data?.pdiType === "corporate" ? 3 : 2,
       [
         {
           foco: "Consolidação comportamental",
@@ -231,14 +276,14 @@ function normalizeGeneratedContent(content: LifenergyPdiGeneratedContent): Lifen
   };
 }
 
-function parseGeneratedContent(text: string): LifenergyPdiGeneratedContent {
+function parseGeneratedContent(text: string, data: LifenergyPdiData): LifenergyPdiGeneratedContent {
   const parsed = JSON.parse(text) as LifenergyPdiGeneratedContent;
 
   if (!isLifenergyPdiGeneratedContent(parsed)) {
     throw new Error("Resposta da IA fora do modelo Lifenergy PDI V2 esperado.");
   }
 
-  return normalizeGeneratedContent(parsed);
+  return normalizeGeneratedContent(parsed, data);
 }
 
 export async function generateLifenergyPdiContent(
@@ -267,7 +312,9 @@ export async function generateLifenergyPdiContent(
           content: [
             {
               type: "input_text",
-              text: LIFENERGY_PDI_SYSTEM_PROMPT,
+              text: data.pdiType === "corporate"
+                ? `${LIFENERGY_PDI_SYSTEM_PROMPT}\n${LIFENERGY_PDI_CORPORATE_V31_ADDENDUM}`
+                : LIFENERGY_PDI_SYSTEM_PROMPT,
             },
           ],
         },
@@ -305,7 +352,7 @@ export async function generateLifenergyPdiContent(
   }
 
   return {
-    content: parseGeneratedContent(outputText),
+    content: parseGeneratedContent(outputText, data),
     model,
   };
 }

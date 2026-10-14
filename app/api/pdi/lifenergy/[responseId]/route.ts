@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import {
   generateLifenergyPdiContent,
@@ -20,6 +20,10 @@ import {
   LIFENERGY_PDI_PROMPT_VERSION,
   LIFENERGY_PDI_TEMPLATE_VERSION,
   LIFENERGY_PDI_VERSION,
+  LIFENERGY_PDI_CORPORATE_VERSION,
+  LIFENERGY_PDI_CORPORATE_ENGINE_VERSION,
+  LIFENERGY_PDI_CORPORATE_PROMPT_VERSION,
+  LIFENERGY_PDI_CORPORATE_TEMPLATE_VERSION,
 } from "@/services/pdi/lifenergyPdiTypes";
 import { loadLifenergyV1ReportData } from "@/services/reports/lifenergyV1Data";
 import { assertLicenseAvailable } from "@/services/licensing/licenseGuard";
@@ -42,6 +46,11 @@ function readPdiType(url: URL): LifenergyPdiType {
   return url.searchParams.get("type") === "corporate" ? "corporate" : "relational";
 }
 
+function pdiVersion(pdiType: LifenergyPdiType) {
+  return pdiType === "corporate" ? LIFENERGY_PDI_CORPORATE_VERSION : LIFENERGY_PDI_VERSION;
+}
+
+
 async function findStoredPdi(responseId: string, pdiType: LifenergyPdiType) {
   const admin = createAdminClient();
 
@@ -52,7 +61,7 @@ async function findStoredPdi(responseId: string, pdiType: LifenergyPdiType) {
     )
     .eq("journey_response_id", responseId)
     .eq("pdi_type", pdiType)
-    .eq("pdi_version", LIFENERGY_PDI_VERSION)
+    .eq("pdi_version", pdiVersion(pdiType))
     .eq("format", LIFENERGY_PDI_FORMAT)
     .eq("status", "generated")
     .maybeSingle();
@@ -77,15 +86,15 @@ async function storePdi(params: {
       journey_id: reportData.journey.id,
       journey_response_id: reportData.response.id,
       pdi_type: params.data.pdiType,
-      pdi_version: LIFENERGY_PDI_VERSION,
+      pdi_version: pdiVersion(params.data.pdiType),
       format: LIFENERGY_PDI_FORMAT,
       status: "generated",
       generated_by: reportData.profile.id,
       source_report_id: params.data.sourceReportId,
       model: params.model,
-      engine_version: LIFENERGY_PDI_ENGINE_VERSION,
-      prompt_version: LIFENERGY_PDI_PROMPT_VERSION,
-      template_version: LIFENERGY_PDI_TEMPLATE_VERSION,
+      engine_version: params.data.pdiType === "corporate" ? LIFENERGY_PDI_CORPORATE_ENGINE_VERSION : LIFENERGY_PDI_ENGINE_VERSION,
+      prompt_version: params.data.pdiType === "corporate" ? LIFENERGY_PDI_CORPORATE_PROMPT_VERSION : LIFENERGY_PDI_PROMPT_VERSION,
+      template_version: params.data.pdiType === "corporate" ? LIFENERGY_PDI_CORPORATE_TEMPLATE_VERSION : LIFENERGY_PDI_TEMPLATE_VERSION,
       source_snapshot_json: params.data,
       generated_content_json: params.content,
       file_name: params.fileName,
@@ -159,7 +168,7 @@ export async function GET(request: Request, context: RouteContext) {
         regenerate: shouldRegenerate,
         reused_existing_document: Boolean(stored),
         pdi_type: pdiType,
-        pdi_version: LIFENERGY_PDI_VERSION,
+        pdi_version: pdiVersion(pdiType),
       },
     });
 

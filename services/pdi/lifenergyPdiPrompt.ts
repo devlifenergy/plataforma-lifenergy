@@ -1,4 +1,4 @@
-﻿import type { LifenergyPdiData } from "./lifenergyPdiTypes";
+import type { LifenergyPdiData } from "./lifenergyPdiTypes";
 import {
   LIFENERGY_PDI_ENGINE_VERSION,
   LIFENERGY_PDI_PROMPT_VERSION,
@@ -132,6 +132,38 @@ A reflexão final respondida após cada tarefa não faz parte do PDI.
 Ignore integralmente qualquer campo, dado ou conteúdo identificado como "Reflexão após essa tarefa", "final_feeling", "finalFeeling", "reflexão final", "como você está se sentindo após essa tarefa" ou equivalente.
 Não utilize esse conteúdo para diagnóstico, atributos, pontos fortes, oportunidades, competências, objetivos, suporte, indicadores ou cronograma.`;
 
+
+/** Instruções adicionais apenas para o PDI Corporativo V3.1. Não alterar o fluxo Relacional. */
+export const LIFENERGY_PDI_CORPORATE_V31_ADDENDUM = `
+PRIORIDADE MÁXIMA — MODELO CANÔNICO PDI DE DESENVOLVIMENTO CORPORATIVO V3.1
+Estas instruções complementam e, em caso de conflito, prevalecem sobre as regras de quantidade e conteúdo do modelo anterior. O modelo de referência é o PDI Corporativo V3.1 fornecido pela equipe Lifenergy.
+
+OBJETIVO DO DOCUMENTO
+Produza um plano verdadeiramente individualizado, com diagnóstico conectado à métrica Lifenergy JÁ CALCULADA, ao contexto documentado do cargo e à Biblioteca Corporativa Inteligente. Nenhum percentual da metodologia pode ser criado, recalculado ou ajustado. Preserve integralmente os valores de Socialização, Reflexão, Lazer, Propósito e Sentimento presentes no relatório de origem. Diferencie evidência comportamental inferida do fractal, responsabilidade do cargo segundo a Biblioteca e objetivo proposto para desenvolvimento. Não trate inferências ou metas propostas como fatos observados.
+
+ORGANIZAÇÃO CANÔNICA DAS SEÇÕES
+Seção 1 — Identificação: dados cadastrais serão inseridos pelo backend; não os gere no JSON.
+Seção 2 — Contexto do PDI: cargo, área, gestor e demais campos são do cadastro e da Biblioteca; não os invente.
+Seção 3 — Objetivo central do PDI: um parágrafo específico, unindo forças do perfil, demandas reais do cargo e prioridades da organização.
+3.1 — Objetivo de carreira/desenvolvimento profissional: um parágrafo coerente com o cargo atual. Não afirmar trilha de sucessão, promoção, cargo futuro ou validação de RH sem documentação explícita; quando ausente, orientar definição com gestor/RH, sem simular confirmação.
+Seção 4 — Diagnóstico e análise de perfil: dois ou três parágrafos profundos e coerentes com a linguagem interpretativa do Relatório Lifenergy V3, conectando TODOS os fractais e as cinco métricas, potencialidades, tensões e condições do trabalho sem diagnóstico clínico.
+4.1 — Avaliação dos cinco atributos: observações próprias do avaliado e coerentes com os percentuais. Escala é fixa (0–29 inferior; 30–49 média inferior; 50–69 média; 70–89 média superior; 90–100 superior). Não utilizar descritores como 'alto' ou 'superior' em 62% (faixa média).
+4.2/4.3 — Exatamente três pontos fortes e três oportunidades de melhoria em pares, fundamentados em evidências e hierarquias dos fractais, sem inventar desempenho observado.
+Seção 5 — Exatamente três competências a desenvolver. Cada linha deve conter nome, tipo, nível atual com qualificação prudente (inferido do perfil e não resultado de avaliação formal), competência organizacional citável da Biblioteca e estratégia de desenvolvimento concreta ligada às atribuições do cargo.
+Seção 6 — Exatamente três objetivos de curto prazo (até seis meses), três de médio prazo (até doze meses) e três direcionamentos de longo prazo (dois a três anos). O 'objetivo' deve representar um resultado, não só uma tarefa. Indicadores de sucesso devem ser verificáveis e coerentes com as ações da Seção 7. Não inventar linha de base, metas oficiais ou aprovação da liderança; metas numéricas propostas devem ser descritas como propostas a pactuar.
+Seção 7 — Exatamente três blocos 70-20-10, um para cada competência da Seção 5, na MESMA ordem e com o MESMO nome. Nas ações de 70%, use atividades concretas da descrição de cargo da organização quando houver; em 20%, feedback/mentoria entre papéis comprovados; em 10%, formação focal. Cada bloco precisa de frequência, responsável, recursos e evidência de conclusão. Não inventar nomes de colegas ou chefias.
+Seção 8 — Exatamente três indicadores SMART com KPI comportamental, evidências auditáveis e prazo consistentes com Seções 5 a 7. São propostas de acompanhamento, não dados históricos.
+Seção 9 — Em texto narrativo coeso, explicite apoio real da liderança e da organização, RH, estrutura, recursos, alinhamento de carga de trabalho e corresponsabilidade pela execução. Não atribua sobrecarga, risco psicossocial, sucessão ou iniciativa corporativa à empresa sem fonte identificável.
+Seção 10 — Exatamente dois checkpoints adequados a acompanhamento intermediário e consolidação, com participação/pauta/evidência. Não afirmar comparecimento ou aprovação.
+Seção 11 — Assinaturas e declaração são inseridas pelo backend; não gerar conteúdo adicional.
+
+REDAÇÃO E CONTROLE DE QUALIDADE
+Escreva em português formal, claro, de consultoria corporativa. Prefira parágrafos completos e conectados em seções narrativas; não introduza bullets no texto em prosa. Tabelas contêm frases objetivas e acionáveis. Não faça repetição mecânica entre Diagnóstico, Objetivos e Ações. Preserve as denominações de cargos, competências, cultura e procedimentos reais da Biblioteca. Não atribua ao avaliado cargo ou setor de outra pessoa. Se a Biblioteca trouxer apenas um resumo, não alegue validação formal de plano de sucessão ou desempenho. Ignore sempre o 'Objetivo de participação' e a reflexão pós-tarefa. Não acrescente textos grifados em amarelo: isso no documento de referência apenas indica revisão editorial.
+
+RETORNO
+Retorne unicamente o JSON do schema recebido, sem markdown, sem comentários, sem campos novos. Não acrescente percentuais de IA nem calcule métricas; o backend substituirá avaliações pelo valor real do relatório.
+`;
+
 function removeCamposForaDoEscopo(data: LifenergyPdiData): LifenergyPdiData {
   const response = data.reportData.response as typeof data.reportData.response & {
     participation_objective?: string;
@@ -166,10 +198,10 @@ function removeCamposForaDoEscopo(data: LifenergyPdiData): LifenergyPdiData {
 
 export function buildLifenergyPdiUserPrompt(data: LifenergyPdiData) {
   const safeData = removeCamposForaDoEscopo(data);
-
+  if (safeData.pdiType === "relational") {
   return `Gere o conteúdo canônico do Plano de Desenvolvimento Individual – PDI Lifenergy V3 para os dados abaixo.
 
-Tipo de PDI solicitado: ${safeData.pdiType === "corporate" ? "PDI de Desenvolvimento Corporativo" : "PDI de Desenvolvimento Relacional"}.
+Tipo de PDI solicitado: PDI de Desenvolvimento Relacional.
 
 O PDI deve ser objetivo, direto e conectado ao Relatório Lifenergy V1 já gerado.
 
@@ -184,6 +216,37 @@ Use principalmente:
 - Todos os formulários relacionados ao mesmo CPF presentes em relatedEvaluations, no PDI Corporativo.
 
 No PDI Corporativo, consolide os achados recorrentes e complementares de TODOS os formulários do mesmo CPF. Não trate apenas a avaliação mais recente como fonte exclusiva.
+Não use o campo "Objetivo de participação". Ele está fora do escopo do PDI V3.
+Não use a Reflexão após essa tarefa.
+Não exija Termo ou Política de uso do PDI.
+
+DADOS DO RELATÓRIO, CONTEXTO E BIBLIOTECA:
+${JSON.stringify(safeData, null, 2)}`;
+  }
+
+  const isCorporateV31 = safeData.pdiType === "corporate";
+  const relatorioV3 = isCorporateV31
+    ? `\nPARA ESTE PDI CORPORATIVO, o Relatório Lifenergy atual utiliza: Entendendo a linguagem dos fractais (linguagem_dos_fractais); Caracterização dos padrões (atributos_percentuais + leitura_metrica); Síntese dos Resultados (sintese_padroes); e Recomendações para trilha de desenvolvimento (recomendacoes_habilidades). Interprete essas chaves sem criar conteúdo clínico nem recalcular percentuais.\n`
+    : "";
+
+  return `Gere o conteúdo canônico do Plano de Desenvolvimento Individual – PDI Lifenergy ${isCorporateV31 ? "Corporativo V3.1" : "V3"} para os dados abaixo.${relatorioV3}
+
+Tipo de PDI solicitado: ${safeData.pdiType === "corporate" ? "PDI de Desenvolvimento Corporativo" : "PDI de Desenvolvimento Relacional"}.
+
+O PDI deve ser objetivo, direto e conectado ao Relatório Lifenergy V1 já gerado.
+
+Use principalmente:
+- ${isCorporateV31 ? "Entendendo a linguagem dos fractais e Síntese dos Resultados do Relatório Lifenergy V3" : "Síntese dos padrões relacionais"};
+- ${isCorporateV31 ? "Recomendações para trilha de desenvolvimento do Relatório Lifenergy V3" : "Recomendações para desenvolvimento de habilidades"};
+- Atributos percentuais;
+- Leitura da métrica;
+- Respostas, hierarquias e justificativas dos fractais;
+- Contexto operacional do PDI, quando informado;
+- Documentos da Biblioteca Corporativa, somente no PDI Corporativo.
+- Todos os formulários relacionados ao mesmo CPF presentes em relatedEvaluations, no PDI Corporativo.
+
+No PDI Corporativo, integre os formulários relacionados que estejam realmente presentes em relatedEvaluations; não afirme ter avaliado formulários que não foram fornecidos. Não trate apenas a avaliação mais recente como fonte exclusiva se houver outras avaliações disponíveis.
+No PDI Corporativo V3.1, gere exatamente: três pontos fortes, três oportunidades, três competências, três objetivos curtos, três médios, três direcionamentos longos, três planos 70-20-10, três indicadores e dois checkpoints. Os percentuais devem corresponder exatamente ao relatório de origem.
 Não use o campo "Objetivo de participação". Ele está fora do escopo do PDI V3.
 Não use a Reflexão após essa tarefa.
 Não exija Termo ou Política de uso do PDI.
