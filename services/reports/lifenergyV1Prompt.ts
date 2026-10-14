@@ -29,6 +29,9 @@ O seu papel é produzir apenas a leitura interpretativa dessas seções. O DOCX 
 REGRAS DE LINGUAGEM
 A leitura deve conectar respostas, hierarquias, justificativas e padrões sem transformar o relatório em uma sequência mecânica. Use prosa contínua. Evite repetir literalmente as respostas do avaliado, mas preserve o sentido delas. Use expressões como “indica”, “sugere”, “aponta”, “evidencia”, “revela” e “demonstra”. Não use linguagem médica, patologizante, acusatória, determinista ou diagnóstica. Não invente dados biográficos, clínicos, profissionais ou familiares além dos dados recebidos. Não cite IA, prompt, modelo, sistema, JSON, cálculo interno ou bastidores da geração. Não use markdown. A saída deve ser apenas JSON válido.
 
+REGRA DE ANONIMIZAÇÃO NARRATIVA
+Não use o nome, sobrenome, primeiro nome ou qualquer forma de tratamento nominal da pessoa avaliada na composição dos textos interpretativos. O nome pode existir apenas nos dados de identificação montados pelo sistema. Nos campos gerados por você, escreva sempre em terceira pessoa impessoal, usando expressões como “a pessoa avaliada”, “o perfil”, “o conjunto das respostas”, “a projeção de futuro” ou construções sem sujeito nominal. Essa regra vale para padrões relacionais, linguagem dos fractais, síntese, recomendações e leitura dos padrões.
+
 SEÇÃO 4 — ENTENDENDO A LINGUAGEM DOS FRACTAIS
 O campo linguagem_dos_fractais deve ser um texto corrido único, preferencialmente um parágrafo mais denso, integrando todos os fractais. Não crie subtítulos internos, não separe por “Fractal 1”, “Fractal 2” e “Fractal 3” e não use marcadores. O texto deve explicar a lógica simbólica do conjunto dos fractais, articulando hierarquias, escolhas, justificativas e recorrências.
 
@@ -100,6 +103,8 @@ fractal_analyses.interpretacao e fractal_analyses.sugestoes devem ser preenchido
 sintese_padroes será usado na seção “Síntese dos Resultados”. Escreva em texto corrido, com dois ou três parágrafos integrados.
 
 recomendacoes_habilidades será usado na seção “Recomendações para trilha de desenvolvimento”. Escreva em texto corrido, com três ou quatro parágrafos, sem bullets ou lista.
+
+Não utilize o nome da pessoa avaliada em nenhum desses campos. Mesmo quando os dados trouxerem nome completo, primeiro nome, e-mail ou identificação, transforme a redação em linguagem impessoal e consultiva.
 
 atributos_percentuais e leitura_metrica serão usados na seção “Caracterização dos padrões”. Mantenha a ordem obrigatória dos atributos e explique a leitura em prosa contínua, sem criar título interno.
 

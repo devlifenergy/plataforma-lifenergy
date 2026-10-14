@@ -1,8 +1,8 @@
 export const LIFENERGY_REPORT_VERSION = "lifenergy_relatorio_canonico_v3_1_5_19";
 export const LIFENERGY_REPORT_FORMAT = "docx";
 export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.19";
-export const LIFENERGY_REPORT_PROMPT_VERSION = "modelo_canonico_v3_2026_10_13_ajuste_estrutura";
-export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_modelo_canonico_v3_1_5_19_2";
+export const LIFENERGY_REPORT_PROMPT_VERSION = "modelo_canonico_v3_2026_10_13_sem_nome_no_texto";
+export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_modelo_canonico_v3_1_5_19_6";
 
 export type LifenergyFractalResponse = {
   index: number;

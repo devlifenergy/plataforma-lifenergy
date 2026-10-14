@@ -103,6 +103,67 @@ function normalizePercent(value: unknown) {
 }
 
 
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function uniqueNonEmpty(values: string[]) {
+  return Array.from(new Set(values.map((value) => cleanText(value)).filter(Boolean)));
+}
+
+function getParticipantNameTerms(data: LifenergyV1ReportData) {
+  const fullNames = uniqueNonEmpty([
+    data.response?.full_name,
+    data.journey?.participant_name,
+    data.profile?.name,
+  ].filter((value): value is string => typeof value === "string"));
+
+  const ignored = new Set([
+    "de",
+    "da",
+    "das",
+    "do",
+    "dos",
+    "e",
+    "a",
+    "o",
+    "as",
+    "os",
+  ]);
+
+  const firstNames = fullNames
+    .map((name) => name.split(/\s+/)[0])
+    .filter((name) => name.length > 2 && !ignored.has(name.toLowerCase()));
+
+  const firstTwoNames = fullNames
+    .map((name) => name.split(/\s+/).slice(0, 2).join(" "))
+    .filter((name) => name.length > 2);
+
+  return uniqueNonEmpty([...fullNames, ...firstTwoNames, ...firstNames]).sort(
+    (a, b) => b.length - a.length
+  );
+}
+
+function removeParticipantNameFromGeneratedText(value: unknown, data: LifenergyV1ReportData) {
+  let text = cleanText(value);
+  if (!text) return text;
+
+  for (const term of getParticipantNameTerms(data)) {
+    const pattern = new RegExp(`\\b${escapeRegExp(term)}\\b`, "gi");
+    text = text.replace(pattern, "a pessoa avaliada");
+  }
+
+  text = text
+    .replace(/\b[Aa] pessoa avaliada\s+a pessoa avaliada\b/g, "a pessoa avaliada")
+    .replace(/^a pessoa avaliada\b/, "A pessoa avaliada")
+    .replace(/([.!?]\s+)a pessoa avaliada\b/g, "$1A pessoa avaliada")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return text;
+}
+
 function numericPercent(value: unknown) {
   const numeric = Number(cleanText(value).replace("%", "").replace(",", ".").replace(/[^0-9.\-]/g, ""));
   return Number.isFinite(numeric) ? numeric : 0;
@@ -198,11 +259,21 @@ function normalizeFractalAnalyses(
 
     return {
       position: Number(fractal.position),
-      response_1_pattern: cleanText(found?.response_1_pattern) || "Padrão relacional não identificado.",
-      response_2_pattern: cleanText(found?.response_2_pattern) || "Padrão relacional não identificado.",
-      response_3_pattern: cleanText(found?.response_3_pattern) || "Padrão relacional não identificado.",
-      interpretacao: cleanText(found?.interpretacao) || "Interpretação não gerada para este fractal.",
-      sugestoes: cleanText(found?.sugestoes) || "Sugestões não geradas para este fractal.",
+      response_1_pattern:
+        removeParticipantNameFromGeneratedText(found?.response_1_pattern, data) ||
+        "Padrão relacional não identificado.",
+      response_2_pattern:
+        removeParticipantNameFromGeneratedText(found?.response_2_pattern, data) ||
+        "Padrão relacional não identificado.",
+      response_3_pattern:
+        removeParticipantNameFromGeneratedText(found?.response_3_pattern, data) ||
+        "Padrão relacional não identificado.",
+      interpretacao:
+        removeParticipantNameFromGeneratedText(found?.interpretacao, data) ||
+        "Interpretação não gerada para este fractal.",
+      sugestoes:
+        removeParticipantNameFromGeneratedText(found?.sugestoes, data) ||
+        "Sugestões não geradas para este fractal.",
     };
   });
 }
@@ -237,7 +308,8 @@ function carolineNeryCalibrationAttributes(): LifenergyV1GeneratedContent["atrib
 
 function normalizeSkillRecommendations(
   content: LifenergyV1GeneratedContent,
-  analyses: LifenergyV1GeneratedContent["fractal_analyses"]
+  analyses: LifenergyV1GeneratedContent["fractal_analyses"],
+  data: LifenergyV1ReportData
 ): LifenergyV1GeneratedContent["recomendacoes_por_habilidade"] {
   const source = Array.isArray(content.recomendacoes_por_habilidade)
     ? content.recomendacoes_por_habilidade
@@ -246,9 +318,9 @@ function normalizeSkillRecommendations(
   const normalized = source
     .map((item) => ({
       habilidade: cleanText(item?.habilidade),
-      descricao_integrada: cleanText(item?.descricao_integrada),
+      descricao_integrada: removeParticipantNameFromGeneratedText(item?.descricao_integrada, data),
       fractais_relacionados: cleanText(item?.fractais_relacionados),
-      orientacao_pratica: cleanText(item?.orientacao_pratica),
+      orientacao_pratica: removeParticipantNameFromGeneratedText(item?.orientacao_pratica, data),
     }))
     .filter((item) => item.habilidade && item.orientacao_pratica);
 
@@ -264,7 +336,8 @@ function normalizeSkillRecommendations(
 
 function normalizeDevelopmentTasks(
   content: LifenergyV1GeneratedContent,
-  analyses: LifenergyV1GeneratedContent["fractal_analyses"]
+  analyses: LifenergyV1GeneratedContent["fractal_analyses"],
+  data: LifenergyV1ReportData
 ): LifenergyV1GeneratedContent["tarefas_desenvolvimento"] {
   const source = Array.isArray(content.tarefas_desenvolvimento)
     ? content.tarefas_desenvolvimento
@@ -274,9 +347,9 @@ function normalizeDevelopmentTasks(
     .map((item) => ({
       fractais: cleanText(item?.fractais),
       habilidade: cleanText(item?.habilidade),
-      tarefa_recomendada: cleanText(item?.tarefa_recomendada),
-      forma_de_aplicacao: cleanText(item?.forma_de_aplicacao),
-      indicador_de_evolucao: cleanText(item?.indicador_de_evolucao),
+      tarefa_recomendada: removeParticipantNameFromGeneratedText(item?.tarefa_recomendada, data),
+      forma_de_aplicacao: removeParticipantNameFromGeneratedText(item?.forma_de_aplicacao, data),
+      indicador_de_evolucao: removeParticipantNameFromGeneratedText(item?.indicador_de_evolucao, data),
     }))
     .filter((item) => item.fractais && item.tarefa_recomendada);
 
@@ -322,11 +395,15 @@ function normalizeGeneratedContent(
   return {
     fractal_analyses: fractalAnalyses,
     linguagem_dos_fractais:
-      cleanText(content.linguagem_dos_fractais) || buildFallbackLinguagemDosFractais(fractalAnalyses),
-    sintese_padroes: cleanText(content.sintese_padroes),
-    recomendacoes_habilidades: cleanText(content.recomendacoes_habilidades),
-    recomendacoes_por_habilidade: normalizeSkillRecommendations(content, fractalAnalyses),
-    tarefas_desenvolvimento: normalizeDevelopmentTasks(content, fractalAnalyses),
+      removeParticipantNameFromGeneratedText(content.linguagem_dos_fractais, data) ||
+      buildFallbackLinguagemDosFractais(fractalAnalyses),
+    sintese_padroes: removeParticipantNameFromGeneratedText(content.sintese_padroes, data),
+    recomendacoes_habilidades: removeParticipantNameFromGeneratedText(
+      content.recomendacoes_habilidades,
+      data
+    ),
+    recomendacoes_por_habilidade: normalizeSkillRecommendations(content, fractalAnalyses, data),
+    tarefas_desenvolvimento: normalizeDevelopmentTasks(content, fractalAnalyses, data),
     atributos_percentuais: metric.atributos,
     leitura_metrica: buildV3MetricReading(metric.atributos),
     metric_calculation: metric.details,
