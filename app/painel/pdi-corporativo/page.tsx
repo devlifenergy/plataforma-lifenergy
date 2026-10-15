@@ -1,21 +1,14 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { GeneratePdiButton } from "@/components/application/GeneratePdiButton";
 import { LicenseBalanceCards } from "@/components/application/LicenseBalanceCards";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { listPdiPageData, savePdiContext } from "@/services/pdi/actions";
+import { listPdiPageData } from "@/services/pdi/actions";
+import { CorporatePdiContextForm } from "@/components/pdi/CorporatePdiContextForm";
 import { getCorporateDocumentCategoryLabel } from "@/services/pdi/corporateKnowledge";
 import { getCurrentOrganizationLicenseSummary } from "@/services/licensing/licenseGuard";
 
 function normalizeCpf(value: string | null) { return String(value ?? "").replace(/\D/g, ""); }
 function formatCpf(value: string | null) { const d = normalizeCpf(value); return d.length === 11 ? d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : "CPF não informado"; }
-
-function Field({ name, label, value, required = false }: { name: string; label: string; value?: string | null; required?: boolean }) {
-  return <label className="block"><span className="mb-2 block text-sm font-semibold text-slate-700">{label}{required ? " *" : ""}</span><input name={name} required={required} defaultValue={value ?? ""} className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-[#B8860B]" /></label>;
-}
-function Area({ name, label, value }: { name: string; label: string; value?: string | null }) {
-  return <label className="block"><span className="mb-2 block text-sm font-semibold text-slate-700">{label}</span><textarea name={name} rows={3} defaultValue={value ?? ""} className="w-full rounded-xl border border-slate-300 px-4 py-3 leading-6 outline-none focus:border-[#B8860B]" /></label>;
-}
 
 export default async function PdiCorporativoPage() {
   const [{ candidates, libraryStatus }, licenseSummary] = await Promise.all([
@@ -81,21 +74,7 @@ export default async function PdiCorporativoPage() {
 
                   <details className="mt-4 rounded-xl bg-slate-50 p-4">
                     <summary className="cursor-pointer list-none font-bold text-[#0F2D4A] underline">Contexto Operacional do PDI</summary>
-                    <form action={savePdiContext} className="mt-4 space-y-4">
-                      <input type="hidden" name="journey_response_id" value={candidate.responseId} />
-                      <input type="hidden" name="pdi_type" value="corporate" />
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <Field name="current_job_title" label="Cargo atual" value={ctx?.current_job_title} required />
-                        <Field name="current_area" label="Área" value={ctx?.current_area} />
-                        <Field name="manager_name" label="Gestor imediato" value={ctx?.manager_name} />
-                      </div>
-                      <Area name="context_summary" label="Contexto atual" value={ctx?.context_summary} />
-                      <Area name="current_situation" label="Situação atual" value={ctx?.current_situation} />
-                      <Area name="current_challenges" label="Desafios atuais" value={ctx?.current_challenges} />
-                      <Area name="development_priorities" label="Prioridades de desenvolvimento" value={ctx?.development_priorities} />
-                      <Area name="career_direction" label="Direcionamento de carreira / desenvolvimento" value={ctx?.career_direction} />
-                      <div className="flex justify-end"><Button type="submit">Salvar Contexto Operacional</Button></div>
-                    </form>
+                    <CorporatePdiContextForm responseId={candidate.responseId} context={ctx} />
                   </details>
                 </div>
               );

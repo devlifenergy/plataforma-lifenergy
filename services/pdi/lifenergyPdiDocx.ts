@@ -56,16 +56,17 @@ function run(text: unknown, options?: { bold?: boolean; italic?: boolean; color?
   const italic = options?.italic ? "<w:i/>" : "";
   const color = options?.color ? `<w:color w:val="${options.color}"/>` : "";
   const size = options?.size ? `<w:sz w:val="${options.size}"/>` : "";
-  return `<w:r><w:rPr>${bold}${italic}${color}${size}</w:rPr><w:t xml:space="preserve">${xml(text)}</w:t></w:r>`;
+  return `<w:r><w:rPr>${bold}${italic}${color}${size}</w:rPr>${xml(text).split(/\r?\n/).map((part) => `<w:t xml:space="preserve">${part}</w:t>`).join("<w:br/>")}</w:r>`;
 }
 
 function paragraph(
   text: unknown,
-  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean; keepNext?: boolean }
+  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean; keepNext?: boolean; tableText?: boolean }
 ) {
   const parts: string[] = [];
   if (options?.style) parts.push(`<w:pStyle w:val="${options.style}"/>`);
   if (options?.center) parts.push('<w:jc w:val="center"/>');
+  else if (options?.tableText) parts.push('<w:jc w:val="left"/>');
   if (options?.keepNext) parts.push("<w:keepNext/>");
   const paragraphProperties = parts.length > 0 ? `<w:pPr>${parts.join("")}</w:pPr>` : "";
 
@@ -142,7 +143,7 @@ function table(rows: Array<Array<string>>, options?: { headerRows?: number; widt
       const isHeader = rowIndex < headerRows;
       const renderedCells = row
         .map((cell, cellIndex) =>
-          tableCell(paragraph(cell, { bold: isHeader, keepNext: isHeader && Boolean(options?.compact) }), {
+          tableCell(paragraph(cell, { bold: isHeader, keepNext: isHeader && Boolean(options?.compact), tableText: true }), {
             header: isHeader,
             width: widths[cellIndex],
           })
@@ -265,10 +266,7 @@ function buildLogoHeaderXml(
     <w:pPr><w:jc w:val="center"/></w:pPr>
     <w:r><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="18"/></w:rPr><w:t>${xml(title)}</w:t></w:r>
   </w:p>
-  <w:p>
-    <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${xml(subtitle)}</w:t></w:r>
-  </w:p>
+  ${subtitle ? `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${xml(subtitle)}</w:t></w:r></w:p>` : ""}
 </w:hdr>`;
 }
 
@@ -419,7 +417,7 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     ...content.competencias_desenvolver.map((item) => [
       item.competencia,
       item.tipo,
-      item.nivel_atual,
+      corporateV31 ? item.nivel_atual.replace(/\s*\(inferência do perfil\)/gi, "").trim() : item.nivel_atual,
       item.competencia_organizacional_relacionada,
       item.estrategia_desenvolvimento,
     ]),
@@ -491,8 +489,14 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
 
   const signatureRows = [
     ["Função", "Nome Completo e Assinatura", "Data"],
-    ["Avaliado", response.full_name, "___/___/______"],
-    ["Aplicador", response.applicator_name || reportData.journey.applicator_name || "", "___/___/______"],
+    ...(corporateV31 ? [
+      ["Colaborador", response.full_name, "___/___/______"],
+      ["Gestor Imediato", data.pdiContext?.manager_name || "", "___/___/______"],
+      ["Representante do RH", "", "___/___/______"],
+    ] : [
+      ["Avaliado", response.full_name, "___/___/______"],
+      ["Aplicador", response.applicator_name || reportData.journey.applicator_name || "", "___/___/______"],
+    ]),
     ["Diretor / Responsável pela Área (quando aplicável)", "", "___/___/______"],
   ];
 
@@ -580,7 +584,7 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     ...(corporateV31 ? [
       pdiHeading2("Referências legais e institucionais"),
       paragraph(
-        "Fontes indicadas no Modelo Canônico PDI Corporativo V3.1: Lei nº 14.457/2022; Consolidação das Leis do Trabalho (CLT); Lei nº 10.224/2001 (assédio sexual); Lei Geral de Proteção de Dados Pessoais (LGPD); Norma Regulamentadora nº 1 (NR-1), com Portaria MTE nº 1.419/2024 e Portaria MTE nº 765/2025 (prorrogação indicada no modelo para 26/05/2026); Código de Ética do Psicólogo; Resoluções CFP nº 6/2019 e nº 1/2009; Cartilha do Ministério Público do Trabalho (MPT); orientações do Tribunal Superior do Trabalho (TST) e decisões sobre a valoração do depoimento da vítima.",
+        "Fontes de Referencia: Lei nº 14.457/2022; Consolidação das Leis do Trabalho (CLT); Lei nº 10.224/2001 (assédio sexual); Lei Geral de Proteção de Dados Pessoais (LGPD); Norma Regulamentadora nº 1 (NR-1), com Portaria MTE nº 1.419/2024 e Portaria MTE nº 765/2025 (prorrogação indicada no modelo para 26/05/2026); Código de Ética do Psicólogo; Resoluções CFP nº 6/2019 e nº 1/2009; Cartilha do Ministério Público do Trabalho (MPT); orientações do Tribunal Superior do Trabalho (TST) e decisões sobre a valoração do depoimento da vítima.",
         { size: 18, color: "666666" }
       ),
     ] : []),
@@ -632,6 +636,7 @@ const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 </w:styles>`;
 
 const corporateV31StylesXml = stylesXml
+  .replace('<w:pPrDefault><w:pPr><w:spacing', '<w:pPrDefault><w:pPr><w:jc w:val="both"/><w:spacing')
   .replace('<w:spacing w:after="140" w:line="260" w:lineRule="auto"/>', '<w:spacing w:after="90" w:line="256" w:lineRule="auto"/>')
   .replace('<w:spacing w:before="300" w:after="150"/>', '<w:spacing w:before="220" w:after="100"/>')
   .replace('<w:spacing w:before="200" w:after="100"/>', '<w:spacing w:before="140" w:after="70"/>');
@@ -643,6 +648,11 @@ const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente</w:t></w:r>
   </w:p>
 </w:ftr>`;
+
+const corporateFooterXml = footerXml.replace(
+  "Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente",
+  "Lifenergy Digital · PDI Corporativo · Biblioteca Corporativa Inteligente"
+);
 
 const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -802,13 +812,13 @@ export function buildLifenergyPdiDocx(
     { name: "word/_rels/document.xml.rels", data: documentRelsXml },
     { name: "word/_rels/header1.xml.rels", data: buildHeaderRelsXml(logoMedia) },
     { name: "word/styles.xml", data: data.pdiType === "corporate" ? corporateV31StylesXml : stylesXml },
-    { name: "word/footer1.xml", data: footerXml },
+    { name: "word/footer1.xml", data: data.pdiType === "corporate" ? corporateFooterXml : footerXml },
     {
       name: "word/header1.xml",
       data: buildLogoHeaderXml(
         data.reportData,
-        `PDI Lifenergy – ${data.reportData.response.full_name}`,
-        "Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente"
+        data.pdiType === "corporate" ? "PDI Corporativo Lifenergy" : `PDI Lifenergy – ${data.reportData.response.full_name}`,
+        data.pdiType === "corporate" ? "" : "Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente"
       ),
     },
     { name: "word/document.xml", data: buildDocumentXml(data, content) },

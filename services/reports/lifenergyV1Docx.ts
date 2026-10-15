@@ -85,12 +85,15 @@ function run(text: unknown, options?: { bold?: boolean; italic?: boolean; color?
 
 function paragraph(
   text: unknown,
-  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean; indent?: number }
+  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean; indent?: number; singleSpacing?: boolean; tableText?: boolean; keepNext?: boolean }
 ) {
   const parts: string[] = [];
   if (options?.style) parts.push(`<w:pStyle w:val="${options.style}"/>`);
   if (options?.center) parts.push('<w:jc w:val="center"/>');
+  else if (options?.tableText) parts.push('<w:jc w:val="left"/>');
+  if (options?.singleSpacing) parts.push('<w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>');
   if (options?.indent) parts.push(`<w:ind w:left="${options.indent}"/>`);
+  if (options?.keepNext) parts.push("<w:keepNext/>");
   const paragraphProperties = parts.length > 0 ? `<w:pPr>${parts.join("")}</w:pPr>` : "";
 
   return `<w:p>${paragraphProperties}${run(text, {
@@ -102,11 +105,11 @@ function paragraph(
 }
 
 function fieldLine(label: string, value: unknown) {
-  return paragraph(`${label}: ${cleanXmlText(value) || "-"}`, { indent: 360 });
+  return paragraph(`${label}: ${cleanXmlText(value) || "-"}`, { indent: 360, singleSpacing: true });
 }
 
 function indentedLine(text: unknown) {
-  return paragraph(cleanXmlText(text), { indent: 720 });
+  return paragraph(cleanXmlText(text), { indent: 720, singleSpacing: true });
 }
 
 function paragraphs(text: unknown) {
@@ -120,11 +123,11 @@ function paragraphs(text: unknown) {
 }
 
 function heading1(text: unknown) {
-  return paragraph(text, { style: "Heading1" });
+  return paragraph(text, { style: "Heading1", keepNext: true });
 }
 
 function heading2(text: unknown) {
-  return paragraph(text, { style: "Heading2" });
+  return paragraph(text, { style: "Heading2", keepNext: true });
 }
 
 function tableCell(content: string, options?: { header?: boolean; width?: number }) {
@@ -141,13 +144,13 @@ function table(rows: Array<Array<string>>, options?: { headerRows?: number; widt
       const isHeader = rowIndex < headerRows;
       const renderedCells = row
         .map((cell, cellIndex) =>
-          tableCell(paragraph(cell, { bold: isHeader }), {
+          tableCell(paragraph(cell, { bold: isHeader, tableText: true, keepNext: isHeader }), {
             header: isHeader,
             width: widths[cellIndex],
           })
         )
         .join("");
-      return `<w:tr>${renderedCells}</w:tr>`;
+      return `<w:tr>${isHeader ? "<w:trPr><w:tblHeader/></w:trPr>" : ""}${renderedCells}</w:tr>`;
     })
     .join("");
 
@@ -241,11 +244,11 @@ function appliedFractals(data: LifenergyV1ReportData) {
 
 function attributeMeaning(attribute: string) {
   const meanings: Record<string, string> = {
-    "socialização": "Padrão relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.",
-    "reflexão": "Padrão relacionado com a reflexão interior do Usuário sobre as suas questões de vida e aspectos maiores do contexto no qual ele habita.",
-    "lazer": "Padrão relacionado com a realização de atividades que promovem o prazer e a felicidade do Usuário, sejam elas ao ar livre ou em casa.",
-    "propósito": "Padrão relacionado com a motivação pessoal e os objetivos do Usuário, ditando suas ambições, perspectivas de futuro e conquistas.",
-    "sentimento": "Padrão relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos.",
+    "socialização": "Padrão relacionado com as interações com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.",
+    "reflexão": "Padrão relacionado com a reflexão interior sobre as suas questões de vida e aspectos maiores do contexto no qual ele habita.",
+    "lazer": "Padrão relacionado com a realização de atividades que promovem o prazer e a felicidade, sejam elas ao ar livre ou em casa.",
+    "propósito": "Padrão relacionado com a motivação pessoal e os próprios objetivos, ditando suas ambições, perspectivas de futuro e conquistas.",
+    "sentimento": "Padrão relacionado com o equilíbrio emocional e sua relação positiva com os aspectos sentimentais internos e externos.",
   };
   return meanings[String(attribute || "").trim().toLowerCase()] || "";
 }
@@ -328,14 +331,9 @@ function buildLogoHeaderXml(data: { organization?: { name?: string | null; logo_
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
   xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
   ${logoXml}
-  <w:p>
-    <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="18"/></w:rPr><w:t>${xml(title)}</w:t></w:r>
-  </w:p>
-  <w:p>
-    <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${xml(subtitle)}</w:t></w:r>
-  </w:p>
+  ${title ? `<w:p><w:pPr><w:jc w:val="center"/></w:pPr>${run(title, {bold: true})}</w:p>` : ""}
+  ${subtitle ? `<w:p><w:pPr><w:jc w:val="center"/></w:pPr>${run(subtitle)}</w:p>` : ""}
+  ${!logoXml && !title && !subtitle ? "<w:p/>" : ""}
 </w:hdr>`;
 }
 
@@ -348,6 +346,11 @@ function buildHeaderRelsXml(logoMedia: OrganizationLogoMedia | null) {
       : ""
   }
 </Relationships>`;
+}
+
+function reportDisplayOrganizationName(name: string) {
+  // Sufixo de ambiente de validação: não integra o nome institucional no DOCX.
+  return name.replace(/\s*[-–—]\s*Valida(?:ç|c)(?:ã|a)o\s+V3\s*$/i, "").trim();
 }
 
 function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1GeneratedContent) {
@@ -365,7 +368,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
 
   const body = [
     paragraph("RELATORIO LIFENERGY", { style: "Title" }),
-    paragraph(`Empresa: ${data.organization.name}`, { center: true, color: "666666", size: 20 }),
+    paragraph(`Empresa: ${reportDisplayOrganizationName(data.organization.name)}`, { center: true, color: "666666", size: 20 }),
     heading1("1. Identificação"),
     fieldLine("Nome", data.response.full_name),
     fieldLine("CPF", data.response.cpf),
@@ -379,7 +382,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: LifenergyV1Gener
     fieldLine("Escolha da atividade", labelActivityChoice(data.response.activity_choice)),
     fieldLine("Tempo de resposta", "Não informado"),
     fieldLine("Data de aplicação", formatDate(data.response.application_date)),
-    paragraph("Fractais de comportamento aplicados:", { bold: true, indent: 360 }),
+    paragraph("Fractais de comportamento aplicados:", { bold: true, indent: 360, singleSpacing: true }),
     appliedFractals(data),
     heading1("3. Registro de Dados – Resultado"),
     fractalBlocks(data, content),
@@ -430,7 +433,7 @@ const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:docDefaults>
     <w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
-    <w:pPrDefault><w:pPr><w:spacing w:after="150" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault>
+    <w:pPrDefault><w:pPr><w:jc w:val="both"/><w:spacing w:after="150" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault>
   </w:docDefaults>
   <w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="34"/></w:rPr><w:pPr><w:jc w:val="center"/><w:spacing w:after="240"/></w:pPr></w:style>
   <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="28"/></w:rPr><w:pPr><w:spacing w:before="320" w:after="160"/></w:pPr></w:style>
@@ -441,7 +444,7 @@ const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:p>
     <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · Desenvolvimento Humano</w:t></w:r>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Lifenergy Digital · Desenvolvimento Humano</w:t></w:r>
   </w:p>
 </w:ftr>`;
 
@@ -608,8 +611,8 @@ export function buildLifenergyV1Docx(
       name: "word/header1.xml",
       data: buildLogoHeaderXml(
         data,
-        "RELATORIO LIFENERGY",
-        `Empresa: ${data.organization.name}`
+        "",
+        ""
       ),
     },
     { name: "word/document.xml", data: buildDocumentXml(data, content) },
