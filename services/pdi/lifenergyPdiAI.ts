@@ -136,8 +136,14 @@ function assertCorporateV31Complete(content: LifenergyPdiGeneratedContent) {
     ["checkpoints", content.cronograma_acompanhamento, 2],
   ];
   for (const [section, value, count] of expected) {
-    if (!Array.isArray(value) || value.length !== count) {
-      throw new Error(`PDI Corporativo V3.1 incompleto: ${section} exige ${count} registros (recebidos ${Array.isArray(value) ? value.length : 0}). Nenhum PDI foi armazenado.`);
+    // O schema JSON da OpenAI garante o formato dos itens, mas nao o tamanho exato
+    // de cada array. Itens adicionais nao tornam o PDI incompleto: a normalizacao
+    // abaixo ja seleciona somente a quantidade prevista no modelo canonico.
+    if (!Array.isArray(value) || value.length < count) {
+      throw new Error(`PDI Corporativo V3.1 incompleto: ${section} exige pelo menos ${count} registros (recebidos ${Array.isArray(value) ? value.length : 0}). Nenhum PDI foi armazenado.`);
+    }
+    if (value.length > count) {
+      console.warn(`[PDI Corporativo V3.1] ${section}: recebidos ${value.length} registros; serao utilizados os ${count} primeiros.`);
     }
   }
   for (let i = 0; i < 3; i++) {
