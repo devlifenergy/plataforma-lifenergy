@@ -77,6 +77,31 @@ function paragraph(
   })}</w:p>`;
 }
 
+/**
+ * Reduz redundância em tabelas corporativas apenas quando há limite de frase
+ * completo. Nunca corta uma meta SMART, prazo, número ou evidência ao meio.
+ * Se o texto não possuir ponto seguro de condensação, mantém o conteúdo:
+ * a orientação de concisão da IA tem prioridade sobre abreviação arriscada.
+ */
+function corporateExecutiveCell(value: unknown, maxLength: number) {
+  const text = cleanXmlText(value).replace(/\s+/g, " ");
+  if (text.length <= maxLength) return text;
+  const floor = Math.round(maxLength * 0.55);
+  const sentenceEnd = /[.!?](?=\s|$)/g;
+  let boundary = -1;
+  for (const match of text.matchAll(sentenceEnd)) {
+    const candidate = (match.index ?? -1) + 1;
+    if (candidate >= floor && candidate <= maxLength) boundary = candidate;
+  }
+  if (boundary > 0) return text.slice(0, boundary).trim();
+  // Evita resultados como "...registradas em agenda e.".
+  return text;
+}
+
+function executiveRows(rows: string[][], limits: number[]): string[][] {
+  return [rows[0], ...rows.slice(1).map((r) => r.map((cell, i) => corporateExecutiveCell(cell, limits[i] ?? 180)))];
+}
+
 function fieldLine(label: string, value: unknown) {
   return paragraph(`${label}: ${cleanXmlText(value) || "-"}`);
 }
@@ -515,18 +540,18 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     paragraph(corporateV31
       ? "Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI."
       : "Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI. A estratégia de desenvolvimento descreve a prática ligada à competência; o resultado consolidado dessa prática está descrito na Seção 6."),
-    pdiTable(competencyRows, [2600, 1800, 2900, 2800, 4800]),
+    pdiTable(corporateV31 ? executiveRows(competencyRows, [82, 45, 126, 116, 165]) : competencyRows, [2600, 1800, 2900, 2800, 4800]),
 
     pdiHeading1("SEÇÃO 6 – OBJETIVOS DE DESENVOLVIMENTO"),
     paragraph("Cada objetivo expressa o resultado consolidado que a respectiva estratégia da Seção 5 deve produzir ao longo do tempo — não a ação em si."),
     pdiHeading2("6.1 – Objetivos de Curto Prazo (até 6 meses)"),
-    pdiTable(shortObjectiveRows, [650, 6000, 5550, 1650, 1050]),
+    pdiTable(corporateV31 ? executiveRows(shortObjectiveRows, [4, 166, 151, 33, 16]) : shortObjectiveRows, [650, 6000, 5550, 1650, 1050]),
 
     pdiHeading2("6.2 – Objetivos de Médio Prazo (até 12 meses)"),
-    pdiTable(mediumObjectiveRows, [650, 6000, 5550, 1650, 1050]),
+    pdiTable(corporateV31 ? executiveRows(mediumObjectiveRows, [4, 166, 151, 33, 16]) : mediumObjectiveRows, [650, 6000, 5550, 1650, 1050]),
 
     pdiHeading2("6.3 – Direcionamento de Longo Prazo (2 a 3 anos)"),
-    pdiTable(longTermRows, [4500, 5000, 5400]),
+    pdiTable(corporateV31 ? executiveRows(longTermRows, [110, 164, 153]) : longTermRows, [4500, 5000, 5400]),
 
     pdiHeading1("SEÇÃO 7 – PLANO DE AÇÃO 70-20-10"),
     paragraph(corporateV31
@@ -536,7 +561,7 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
 
     pdiHeading1("SEÇÃO 8 – INDICADORES E EVIDÊNCIAS DE EVOLUÇÃO"),
     ...(corporateV31 ? [] : [paragraph("Os indicadores abaixo devem apoiar o acompanhamento do progresso e a verificação objetiva da evolução comportamental.")]),
-    pdiTable(indicatorRows, [3400, 3600, 3000, 3300, 1600]),
+    pdiTable(corporateV31 ? executiveRows(indicatorRows, [111, 153, 112, 133, 48]) : indicatorRows, [3400, 3600, 3000, 3300, 1600]),
 
     pdiHeading1("SEÇÃO 9 – APOIO E SUPORTE NECESSÁRIO"),
     paragraphs(content.apoio_suporte_necessario),
@@ -544,13 +569,21 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     pdiHeading1("SEÇÃO 10 – MONITORAMENTO E AVALIAÇÃO"),
     pdiHeading2("10.1 – Cronograma de Acompanhamento"),
     ...(corporateV31 ? [] : [paragraph("Os checkpoints devem ocorrer com regularidade, preferencialmente a cada trimestre, para revisar objetivos, atualizar status das ações e registrar aprendizados.")]),
-    pdiTable(monitoringRows, [2700, 2250, 2900, 4600, 2450]),
+    pdiTable(corporateV31 ? executiveRows(monitoringRows, [83, 54, 95, 150, 108]) : monitoringRows, [2700, 2250, 2900, 4600, 2450]),
 
     pdiHeading1("SEÇÃO 11 – ASSINATURAS E APROVAÇÕES"),
     paragraph("Todas as partes envolvidas devem assinar este documento, confirmando ciência, concordância e comprometimento com o Plano de Desenvolvimento Individual."),
     pdiTable(signatureRows, [4600, 7600, 2700]),
     pdiHeading2("Declaração de Ciência e Comprometimento"),
     paragraph("Ao assinar este documento, todas as partes envolvidas declaram estar cientes dos objetivos, ações e responsabilidades definidos neste Plano de Desenvolvimento Individual, comprometendo-se a apoiar ativamente a execução e o acompanhamento das atividades previstas, em conformidade com as políticas e diretrizes de Gestão de Pessoas da organização."),
+
+    ...(corporateV31 ? [
+      pdiHeading2("Referências legais e institucionais"),
+      paragraph(
+        "Fontes indicadas no Modelo Canônico PDI Corporativo V3.1: Lei nº 14.457/2022; Consolidação das Leis do Trabalho (CLT); Lei nº 10.224/2001 (assédio sexual); Lei Geral de Proteção de Dados Pessoais (LGPD); Norma Regulamentadora nº 1 (NR-1), com Portaria MTE nº 1.419/2024 e Portaria MTE nº 765/2025 (prorrogação indicada no modelo para 26/05/2026); Código de Ética do Psicólogo; Resoluções CFP nº 6/2019 e nº 1/2009; Cartilha do Ministério Público do Trabalho (MPT); orientações do Tribunal Superior do Trabalho (TST) e decisões sobre a valoração do depoimento da vítima.",
+        { size: 18, color: "666666" }
+      ),
+    ] : []),
 
     paragraph(`Data de geração: ${corporateV31 ? formatDate(new Date().toISOString()) : (applicationDate || formatDate(new Date().toISOString()))}`, {
       italic: true,
