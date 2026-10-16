@@ -200,6 +200,13 @@ REDAÇÃO E CONTROLE DE QUALIDADE
 Escreva em português formal, claro, de consultoria corporativa. Prefira parágrafos completos e conectados em seções narrativas; não introduza bullets no texto em prosa. Tabelas contêm frases objetivas e acionáveis. Não faça repetição mecânica entre Diagnóstico, Objetivos e Ações. A cada conclusão interpretativa relevante deve corresponder uma aplicação de desenvolvimento concreta e coerente; não preencha o plano simplesmente com as competências escolhidas pelo gestor. Preserve as denominações de cargos, competências, cultura e procedimentos reais da Biblioteca. Não atribua ao avaliado cargo ou setor de outra pessoa. Se a Biblioteca trouxer apenas um resumo, não alegue validação formal de plano de sucessão ou desempenho. Ignore sempre o 'Objetivo de participação' e a reflexão pós-tarefa. Não acrescente textos grifados em amarelo: isso no documento de referência apenas indica revisão editorial.
 
 RETORNO
+REGRA EDITORIAL OBRIGATÓRIA — IDENTIDADE NA REDAÇÃO CORPORATIVA:
+- Nunca escreva nome completo, primeiro nome, apelido, iniciais identificáveis ou sobrenome da pessoa avaliada em qualquer campo de conteúdo gerado para o PDI Corporativo: objetivos, carreira, diagnóstico, observações de atributos, pontos fortes, oportunidades, competências, metas, plano 70-20-10, responsáveis, indicadores, suporte e monitoramento.
+- Prefira construção impessoal e executiva, iniciando diretamente pela competência, potencialidade, objetivo ou ação. Quando o sujeito for indispensável, utilize "a pessoa avaliada", "o perfil identificado", "o colaborador" ou "a profissional" conforme a frase. Não repita esses termos mecanicamente.
+- O nome permanece apenas nos campos administrativos de IDENTIFICAÇÃO e ASSINATURA, que são preenchidos pelo DOCX a partir do cadastro, não pela IA.
+- Na SEÇÃO 4 (diagnóstico, observações da avaliação 4.1, pontos fortes e oportunidades 4.2/4.3), não coloque percentuais entre parênteses no texto; use interpretação integrada sem repetições numéricas. A coluna "Avaliação" da tabela 4.1 DEVE conservar os cinco percentuais exatos do Relatório Lifenergy. Não alterar valores, escalas ou cálculo.
+- Preserve linguagem clara, objetiva e de consultoria executiva; NÃO modifique títulos, tabelas, quantidade de linhas, seções nem os vínculos metodológicos.
+
 Retorne unicamente o JSON do schema recebido, sem markdown, sem comentários, sem campos novos. Não acrescente percentuais de IA nem calcule métricas; o backend substituirá avaliações pelo valor real do relatório.
 `;
 
@@ -300,6 +307,8 @@ DIVERGÊNCIAS: preserve as conclusões Lifenergy, identifique a informação dis
 COERÊNCIA: as seções 3, 4 e 4.2/4.3 devem nascer do Relatório Lifenergy; as três competências da Seção 5 devem resultar dessa interpretação e encontrar aplicação na Biblioteca; as seções 6, 7, 8 e 10 devem desenvolver e acompanhar ESSAS competências, e não uma lista de preferências do gestor. O objetivo de carreira deve ser compatível com o potencial diagnosticado e considerar, sem automaticamente endossar, as perspectivas da empresa e do gestor.
 
 EXATIDÃO: conserve os cinco percentuais da Fonte A; não os confunda com as notas de 1 a 5 da Fonte C. Não invente avaliação de desempenho, sucessão aprovada, domínio técnico nem progresso já demonstrado. Não use o Objetivo de participação nem a Reflexão após a tarefa. Preserve o estilo executivo e a concisão das tabelas aprovada para o V3.1.
+
+ESTILO EDITORIAL V3.1: não mencione o nome da pessoa avaliada em NENHUM dos campos JSON. Redija com linguagem executiva, clara e impessoal, sem perder a análise Lifenergy. Na Seção 4, evite valores percentuais entre parênteses nos textos (inclusive nas observações e nos pontos fortes/oportunidades); os percentuais permanecem somente na coluna numérica da tabela 4.1, além de referências metodológicas que não são parte da narrativa.
 
 FONTE A — RESULTADOS E DADOS LIFENERGY (PRIMÁRIA):
 ${JSON.stringify(lifenergySource, null, 2)}

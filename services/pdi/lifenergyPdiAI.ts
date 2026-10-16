@@ -221,6 +221,7 @@ async function completeMissingCorporateSections(
                 `Mantenha a sequência de três competências Lifenergy, uma por objetivo de cada horizonte, ` +
                 `priorizando os objetivos ainda não contemplados. Não duplique objetivos anteriores. ` +
                 `Use linguagem corporativa, curta e verificável. Não invente desempenho, metas aprovadas ou resultados alcançados. ` +
+                `Não utilize o nome da pessoa avaliada em nenhum campo; redija de forma impessoal. ` +
                 `As metas numéricas, quando houver, são propostas a pactuar. ` +
                 `Responda somente com o JSON solicitado.`,
             }],
@@ -304,6 +305,80 @@ function assertCorporateV31Complete(content: LifenergyPdiGeneratedContent) {
       throw new Error(`PDI Corporativo V3.1 inconsistente: a competência ${i + 1} da Seção 7 deve corresponder à Seção 5.`);
     }
   }
+}
+
+/**
+ * Redação corporativa impessoal sem alterar campos de identificação, assinaturas
+ * ou dados brutos do Relatório Lifenergy. Atua apenas sobre o JSON gerado pela IA.
+ * O PDI Relacional mantém integralmente o seu comportamento anterior.
+ */
+function redactEvaluatedPersonName(text: string, fullName: string): string {
+  const tokens = fullName.trim().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return text;
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const variants = [
+    tokens.join(" "),
+    ...(tokens.length >= 3 ? [tokens.slice(0, 2).join(" ")] : []),
+    tokens[0],
+    // Tolera pequenas variações de grafia frequentes na redação (Camilla/Camila).
+    tokens[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/([a-z])\1/gi, "$1"),
+  ].filter((v) => v.length >= 3);
+  if (variants.length === 0) return text;
+  const alternatives = [...new Set(variants)]
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+    .join("|");
+  const nameMatcher = new RegExp(`(?<![\\p{L}\\p{N}])(?:${alternatives})(?![\\p{L}\\p{N}])`, "giu");
+  return text
+    .replace(nameMatcher, "a pessoa avaliada")
+    .replace(/\b(?:de|da|do)\s+a pessoa avaliada\b/giu, "da pessoa avaliada")
+    .replace(/\b(?:a|o)\s+a pessoa avaliada\b/giu, "a pessoa avaliada")
+    .replace(/\bpor\s+a pessoa avaliada\b/giu, "pela pessoa avaliada")
+    .replace(/\b(?:na|no|em)\s+a pessoa avaliada\b/giu, "na pessoa avaliada")
+    .replace(/(^|[.!?]\s+|\n)(a pessoa avaliada)/g, (_match, prefix: string) => `${prefix}A pessoa avaliada`);
+}
+
+/** Retira apenas menções como (95%), (90% e 75%) da redação da seção 4. */
+function removeParenthesizedPercentages(text: string): string {
+  return text
+    .replace(/\s*\(([^()]*)\)/g, (match, inner: string) => {
+      const containsPercent = /\d{1,3}(?:[.,]\d+)?\s*%/.test(inner);
+      const containsOnlyPercentValues = /^[\d\s%.,;/eE]+$/.test(inner.trim());
+      return containsPercent && containsOnlyPercentValues ? "" : match;
+    })
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
+function sanitizeCorporatePdiNarrative(
+  content: LifenergyPdiGeneratedContent,
+  fullName: string
+): LifenergyPdiGeneratedContent {
+  // Sanitiza todos os campos narrativos, inclusive as ações e responsáveis.
+  // Não toca nos dados da aplicação nem no DOCX de identificação/assinatura.
+  function sanitizeValue<T>(value: T, section4 = false): T {
+    if (typeof value === "string") {
+      const withoutName = redactEvaluatedPersonName(value, fullName);
+      return (section4 ? removeParenthesizedPercentages(withoutName) : withoutName) as T;
+    }
+    if (Array.isArray(value)) {
+      return value.map((item) => sanitizeValue(item, section4)) as T;
+    }
+    if (value !== null && typeof value === "object") {
+      const result = Object.fromEntries(
+        Object.entries(value as Record<string, unknown>).map(([key, item]) => [
+          key,
+          sanitizeValue(item, section4 || [
+            "diagnostico_perfil", "avaliacao_atributos",
+            "pontos_fortes", "oportunidades_melhoria",
+          ].includes(key)),
+        ])
+      );
+      return result as T;
+    }
+    return value;
+  }
+  return sanitizeValue(content);
 }
 
 function normalizeGeneratedContent(content: LifenergyPdiGeneratedContent, data?: LifenergyPdiData): LifenergyPdiGeneratedContent {
@@ -510,8 +585,9 @@ export async function generateLifenergyPdiContent(
   if (data.pdiType === "corporate") {
     generated = await completeMissingCorporateSections(generated, data, apiKey, model);
   }
-  return {
-    content: normalizeGeneratedContent(generated, data),
-    model,
-  };
+  const normalized = normalizeGeneratedContent(generated, data);
+  const content = data.pdiType === "corporate"
+    ? sanitizeCorporatePdiNarrative(normalized, data.reportData.response.full_name)
+    : normalized;
+  return { content, model };
 }
