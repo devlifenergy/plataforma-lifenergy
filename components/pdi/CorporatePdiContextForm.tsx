@@ -36,6 +36,26 @@ function Scale({ name, initial, required = true }: { name: string; initial?: str
     <option value="">Nota...</option>{[1,2,3,4,5].map((n) => <option value={n} key={n}>{n}</option>)}
   </select>;
 }
+/** Escala Likert de escolha única: os cinco valores continuam sendo enviados como 1..5. */
+function LikertScale({ name, label, initial, required = true }: {
+  name: string; label: string; initial?: string; required?: boolean;
+}) {
+  const labelId = `likert_${name}`;
+  return <div role="radiogroup" aria-labelledby={labelId} className="grid gap-3 rounded-xl bg-slate-50 px-3 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+    <span id={labelId} className="text-sm leading-5 text-slate-700">{label}</span>
+    <div className="flex flex-wrap gap-2" aria-label="Selecione uma nota de 1 a 5">
+      {[1, 2, 3, 4, 5].map((n) => <label key={n} className="cursor-pointer" title={`${n} de 5`}>
+        <input
+          type="radio" name={name} value={n} defaultChecked={initial === String(n)} required={required}
+          aria-label={`${n} de 5`} className="peer sr-only"
+        />
+        <span className="flex h-11 w-11 items-center justify-center rounded-lg border-2 border-slate-300 bg-white text-sm font-semibold text-slate-700 transition-colors hover:border-[#B8860B] hover:bg-amber-50 peer-checked:border-[#0F2D4A] peer-checked:bg-[#0F2D4A] peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#B8860B]">
+          {n}
+        </span>
+      </label>)}
+    </div>
+  </div>;
+}
 function Section({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
     <div><h3 className="font-bold text-[#0F2D4A]">{title}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{subtitle}</p></div>
@@ -75,8 +95,9 @@ export function CorporatePdiContextForm({ responseId, context }: { responseId: s
     </Section>
 
     <Section title="2. Situação atual" subtitle="Para cada afirmação, 1 = discordo totalmente; 5 = concordo totalmente.">
-      <div className="space-y-2">{PDI_RATINGS.map(([key, label]) => <div key={key} className="flex items-center justify-between gap-4 rounded-lg bg-slate-50 px-3 py-2"><label htmlFor={`rating_${key}`} className="text-sm text-slate-700">{label}</label>
-        <span id={`rating_${key}`}><Scale name={`q_rating_${key}`} initial={initial[`q_rating_${key}`]}/></span></div>)}</div>
+      <div className="space-y-2">{PDI_RATINGS.map(([key, label]) =>
+        <LikertScale key={key} name={`q_rating_${key}`} label={label} initial={initial[`q_rating_${key}`]} />
+      )}</div>
       <SelectField name="q_adaptation" label="Adaptação às rotinas do cargo *" values={PDI_ADAPTATION} initial={initial.q_adaptation}/>
     </Section>
 
@@ -105,7 +126,10 @@ export function CorporatePdiContextForm({ responseId, context }: { responseId: s
         </label>
         {succession === "Sim" && <TextField name="q_succession_name" label="Nome da posição ou trilha *" initial={initial.q_succession_name} required/>}
       </div>
-      <label className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-3 text-sm"><span>Prontidão percebida para o próximo passo (1 a 5) *</span><Scale name="q_readiness" initial={initial.q_readiness}/></label>
+      <div className="space-y-1.5">
+        <LikertScale name="q_readiness" label="Prontidão percebida para o próximo passo (1 a 5) *" initial={initial.q_readiness} />
+        <p className="px-1 text-xs text-slate-500">1 = nada pronto · 5 = totalmente pronto</p>
+      </div>
     </Section>
     <div className="flex justify-end"><Button type="submit">Salvar Contexto Operacional</Button></div>
   </form>;
