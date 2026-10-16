@@ -123,19 +123,170 @@ function normalizeObjectives(
   }));
 }
 
+// Quantidades canônicas somente do PDI Corporativo. O PDI Relacional preserva
+// seus próprios limites de estrutura e não utiliza esta recuperação.
+const CORPORATE_REQUIRED_ARRAYS = [
+  { key: "pontos_fortes", label: "pontos fortes", count: 3 },
+  { key: "oportunidades_melhoria", label: "oportunidades de melhoria", count: 3 },
+  { key: "competencias_desenvolver", label: "competências", count: 3 },
+  { key: "objetivos_curto_prazo", label: "objetivos de curto prazo", count: 3 },
+  { key: "objetivos_medio_prazo", label: "objetivos de médio prazo", count: 3 },
+  { key: "direcionamento_longo_prazo", label: "direcionamento de longo prazo", count: 3 },
+  { key: "plano_acao_70_20_10", label: "plano 70-20-10", count: 3 },
+  { key: "indicadores_evidencias", label: "indicadores", count: 3 },
+  { key: "cronograma_acompanhamento", label: "checkpoints", count: 2 },
+] as const;
+
+type CorporateArrayKey = (typeof CORPORATE_REQUIRED_ARRAYS)[number]["key"];
+
+function missingCorporateSections(content: LifenergyPdiGeneratedContent) {
+  return CORPORATE_REQUIRED_ARRAYS.flatMap((spec) => {
+    const rows = content[spec.key];
+    return Array.isArray(rows) && rows.length >= spec.count
+      ? []
+      : [{ ...spec, missing: spec.count - (Array.isArray(rows) ? rows.length : 0) }];
+  });
+}
+
+/**
+ * A resposta em JSON estruturado valida os CAMPOS, mas não obriga a quantidade
+ * de linhas de uma tabela. Em vez de inventar objetivos genéricos ou perder todo
+ * o PDI, solicite apenas os itens faltantes à IA a partir da leitura Lifenergy já
+ * feita. Nenhum documento pode ser persistido enquanto faltar alguma seção.
+ */
+async function completeMissingCorporateSections(
+  content: LifenergyPdiGeneratedContent,
+  data: LifenergyPdiData,
+  apiKey: string,
+  model: string
+): Promise<LifenergyPdiGeneratedContent> {
+  let candidate = content;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const missing = missingCorporateSections(candidate);
+    if (missing.length === 0) return candidate;
+
+    // Reutiliza exatamente a definição dos campos da geração principal.
+    // O complemento só pode conter as seções que ficaram incompletas.
+    const properties: Record<string, unknown> = {};
+    for (const section of missing) {
+      properties[section.key] = lifenergyPdiJsonSchema.properties[section.key];
+    }
+    const schema = {
+      type: "object",
+      additionalProperties: false,
+      properties,
+      required: missing.map((section) => section.key),
+    };
+    const instructions = missing.map((section) =>
+      `${section.key}: gerar somente ${section.missing} registro(s) NOVO(S). ` +
+      `O total final da tabela deve ser ${section.count}.`
+    ).join("\n");
+    const existing = Object.fromEntries(
+      missing.map(({ key }) => [key, candidate[key]])
+    );
+
+    const recoveryInput = {
+      perfilLifenergyPrimario: {
+        sinteseEInterpretacao: data.reportContent,
+        competenciasPriorizadasNoPDI: candidate.competencias_desenvolver,
+        analiseDoPdi: candidate.diagnostico_perfil,
+      },
+      aplicacaoNaEmpresa: {
+        cargo: data.pdiContext?.current_job_title ?? null,
+        area: data.pdiContext?.current_area ?? null,
+        competenciasEPlanoDeAcaoJaGerados: candidate.plano_acao_70_20_10,
+      },
+      objetivosDeCurtoPrazoJaGerados: candidate.objetivos_curto_prazo,
+      objetivosDeMedioPrazoJaGerados: candidate.objetivos_medio_prazo,
+      direcionamentosDeLongoPrazoJaGerados: candidate.direcionamento_longo_prazo,
+      registrosDasTabelasACompletar: existing,
+    };
+
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        input: [
+          {
+            role: "system",
+            content: [{
+              type: "input_text",
+              text: `Você revisa EXCLUSIVAMENTE um PDI Corporativo Lifenergy V3.1 parcialmente gerado. ` +
+                `Não reescreva o PDI inteiro. Complete só os registros faltantes. ` +
+                `A origem diagnóstica é o Relatório Lifenergy; a percepção do gestor não é diagnóstico. ` +
+                `Mantenha a sequência de três competências Lifenergy, uma por objetivo de cada horizonte, ` +
+                `priorizando os objetivos ainda não contemplados. Não duplique objetivos anteriores. ` +
+                `Use linguagem corporativa, curta e verificável. Não invente desempenho, metas aprovadas ou resultados alcançados. ` +
+                `As metas numéricas, quando houver, são propostas a pactuar. ` +
+                `Responda somente com o JSON solicitado.`,
+            }],
+          },
+          {
+            role: "user",
+            content: [{
+              type: "input_text",
+              text: `O PDI foi gerado com linhas insuficientes.\n${instructions}\n` +
+                `Não repita os itens existentes. Preserve a interpretação Lifenergy e a conexão entre competências, ` +
+                `objetivos, ações e indicadores. Cada objetivo e indicador deve ser curto, concreto e mensurável.\n` +
+                `${JSON.stringify(recoveryInput)}`,
+            }],
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "lifenergy_pdi_v31_complemento",
+            schema,
+            strict: true,
+          },
+        },
+      }),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      const message = payload?.error?.message || "Erro ao completar tabelas do PDI.";
+      throw new Error(`PDI Corporativo V3.1: a IA não conseguiu completar os objetivos. ${message} Nenhum PDI foi armazenado.`);
+    }
+    const outputText = extractOutputText(payload);
+    if (!outputText) {
+      throw new Error("PDI Corporativo V3.1: complemento vazio da IA. Nenhum PDI foi armazenado.");
+    }
+    let additional: Record<string, unknown>;
+    try {
+      additional = JSON.parse(outputText) as Record<string, unknown>;
+    } catch {
+      throw new Error("PDI Corporativo V3.1: complemento inválido da IA. Nenhum PDI foi armazenado.");
+    }
+    const updated = { ...candidate };
+    let added = 0;
+    for (const section of missing) {
+      const returned = additional[section.key];
+      if (!Array.isArray(returned)) continue;
+      const valid = returned.filter((row) => {
+        if (typeof row === "string") return row.trim().length > 0;
+        return Boolean(row && typeof row === "object" &&
+          Object.values(row).every((value) => typeof value === "string" && value.trim().length > 0));
+      });
+      // Não modificar as linhas anteriormente geradas; acrescentar apenas novas.
+      const current = candidate[section.key] as unknown[];
+      const combined = [...current, ...valid.slice(0, section.missing)];
+      (updated as unknown as Record<CorporateArrayKey, unknown>)[section.key] = combined;
+      added += combined.length - current.length;
+    }
+    if (added === 0) break; // Evita novas chamadas sem progresso.
+    candidate = updated;
+  }
+  // Se mesmo após complemento houver falha, aborta sem armazenar documento.
+  return candidate;
+}
+
 function assertCorporateV31Complete(content: LifenergyPdiGeneratedContent) {
-  const expected: Array<[string, unknown, number]> = [
-    ["pontos fortes", content.pontos_fortes, 3],
-    ["oportunidades de melhoria", content.oportunidades_melhoria, 3],
-    ["competências", content.competencias_desenvolver, 3],
-    ["objetivos de curto prazo", content.objetivos_curto_prazo, 3],
-    ["objetivos de médio prazo", content.objetivos_medio_prazo, 3],
-    ["direcionamento de longo prazo", content.direcionamento_longo_prazo, 3],
-    ["plano 70-20-10", content.plano_acao_70_20_10, 3],
-    ["indicadores", content.indicadores_evidencias, 3],
-    ["checkpoints", content.cronograma_acompanhamento, 2],
-  ];
-  for (const [section, value, count] of expected) {
+  for (const { key, label: section, count } of CORPORATE_REQUIRED_ARRAYS) {
+    const value = content[key];
     // O schema JSON da OpenAI garante o formato dos itens, mas nao o tamanho exato
     // de cada array. Itens adicionais nao tornam o PDI incompleto: a normalizacao
     // abaixo ja seleciona somente a quantidade prevista no modelo canonico.
@@ -282,16 +433,6 @@ function normalizeGeneratedContent(content: LifenergyPdiGeneratedContent, data?:
   };
 }
 
-function parseGeneratedContent(text: string, data: LifenergyPdiData): LifenergyPdiGeneratedContent {
-  const parsed = JSON.parse(text) as LifenergyPdiGeneratedContent;
-
-  if (!isLifenergyPdiGeneratedContent(parsed)) {
-    throw new Error("Resposta da IA fora do modelo Lifenergy PDI V2 esperado.");
-  }
-
-  return normalizeGeneratedContent(parsed, data);
-}
-
 export async function generateLifenergyPdiContent(
   data: LifenergyPdiData
 ): Promise<{ content: LifenergyPdiGeneratedContent; model: string }> {
@@ -357,8 +498,20 @@ export async function generateLifenergyPdiContent(
     throw new Error("A IA não retornou conteúdo textual para o PDI.");
   }
 
+  let generated: LifenergyPdiGeneratedContent;
+  try {
+    generated = JSON.parse(outputText) as LifenergyPdiGeneratedContent;
+  } catch {
+    throw new Error("A IA retornou JSON inválido para o PDI. Nenhum PDI foi armazenado.");
+  }
+  if (!isLifenergyPdiGeneratedContent(generated)) {
+    throw new Error("Resposta da IA fora do modelo Lifenergy PDI V2 esperado. Nenhum PDI foi armazenado.");
+  }
+  if (data.pdiType === "corporate") {
+    generated = await completeMissingCorporateSections(generated, data, apiKey, model);
+  }
   return {
-    content: parseGeneratedContent(outputText, data),
+    content: normalizeGeneratedContent(generated, data),
     model,
   };
 }

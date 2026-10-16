@@ -120,8 +120,8 @@ REGRAS DE REDAÇÃO
 13. Oportunidades de melhoria: gerar 3 itens objetivos.
 14. Competências a desenvolver: gerar 3 competências prioritárias.
 15. Objetivos de curto prazo: gerar 3 objetivos práticos para até 6 meses.
-16. Objetivos de médio prazo: gerar 2 objetivos práticos para até 12 meses.
-17. Direcionamento de longo prazo: gerar 2 a 3 linhas para horizonte de 2 a 3 anos.
+16. Objetivos de médio prazo: gerar exatamente 3 objetivos para PDI Corporativo V3.1; manter 2 apenas para PDI Relacional.
+17. Direcionamento de longo prazo: gerar exatamente 3 linhas para PDI Corporativo V3.1; manter 2 linhas para PDI Relacional.
 18. Plano 70-20-10: gerar 3 blocos, um para cada competência prioritária, com ações de prática, aprendizagem social, aprendizagem formal, frequência, responsável, recursos e evidência de conclusão.
 19. Indicadores e evidências: gerar 3 indicadores SMART/KPI comportamentais.
 20. Apoio e suporte necessário: gerar um parágrafo direto.
