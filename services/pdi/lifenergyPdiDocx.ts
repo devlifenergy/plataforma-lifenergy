@@ -332,24 +332,6 @@ function corporateContextNote(data: LifenergyPdiData) {
   );
 }
 
-/** Mantém cada competência e sua tabela na mesma página quando couber. */
-function keepCorporateActionBlockTogether(inner: string) {
-  return `<w:tbl>
-    <w:tblPr><w:tblW w:w="15000" w:type="dxa"/><w:tblBorders>
-      <w:top w:val="nil"/><w:bottom w:val="nil"/>
-      <w:left w:val="nil"/><w:right w:val="nil"/>
-      <w:insideH w:val="nil"/><w:insideV w:val="nil"/>
-    </w:tblBorders><w:tblCellMar><w:top w:w="0" w:type="dxa"/>
-      <w:bottom w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/>
-      <w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr>
-    <w:tblGrid><w:gridCol w:w="15000"/></w:tblGrid>
-    <w:tr><w:trPr><w:cantSplit/></w:trPr><w:tc>
-      <w:tcPr><w:tcW w:w="15000" w:type="dxa"/></w:tcPr>
-      ${inner}<w:p/>
-    </w:tc></w:tr>
-  </w:tbl>`;
-}
-
 function actionPlanBlock(content: LifenergyPdiGeneratedContent, corporateV31 = false) {
   return content.plano_acao_70_20_10
     .map((item, index) => {
@@ -373,7 +355,10 @@ function actionPlanBlock(content: LifenergyPdiGeneratedContent, corporateV31 = f
         ),
         paragraph(`Evidência de conclusão: ${cleanXmlText(item.evidencia_conclusao) || "-"}`),
       ].join("");
-      return corporateV31 ? keepCorporateActionBlockTogether(inner) : inner;
+      // Sem tabela contêiner com w:cantSplit: o Word pode aproveitar o espaço
+      // livre da página para as competências seguintes. O título mantém
+      // keepNext e as linhas da tabela interna continuam indivisíveis.
+      return inner;
     })
     .join("");
 }
@@ -560,7 +545,8 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     pdiHeading1("SEÇÃO 7 – PLANO DE AÇÃO 70-20-10"),
     paragraph(corporateV31
       ? `As ações abaixo estão vinculadas ao cargo de ${cleanXmlText(data.pdiContext?.current_job_title) || "referência"}, tomando como referência as atribuições descritas na Biblioteca Corporativa e os dados informados pela organização. Cada competência combina experiência prática (70%), aprendizagem social (20%) e aprendizagem formal (10%).`
-      : "As ações abaixo foram adaptadas às atividades reais do cargo e ao contexto de desenvolvimento informado, sempre que esses dados estiverem disponíveis. Cada competência combina experiência prática (70%), aprendizagem social (20%) e aprendizagem formal (10%)."),
+      : "As ações abaixo foram adaptadas às atividades reais do cargo e ao contexto de desenvolvimento informado, sempre que esses dados estiverem disponíveis. Cada competência combina experiência prática (70%), aprendizagem social (20%) e aprendizagem formal (10%).",
+      corporateV31 ? { keepNext: true } : undefined),
     actionPlanBlock(content, corporateV31),
 
     pdiHeading1("SEÇÃO 8 – INDICADORES E EVIDÊNCIAS DE EVOLUÇÃO"),
