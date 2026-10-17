@@ -196,6 +196,35 @@ Seção 10 (2 checkpoints): reunião até 9 palavras; data prevista até 7; part
 Nas seções 5, 6.1, 6.2, 6.3, 8 e 10, prefira UMA frase curta por célula. Não utilize parágrafos, justificativas, introduções, redundâncias, repetição do nome da pessoa ou descrição extensa da rotina. Mantenha títulos e número de linhas exatamente como o modelo. Preserve vínculos entre competência, objetivo, ação, evidência e checkpoint.
 Nas seções narrativas 3, 4 e 9, preserve a análise contextual integrada DERIVADA DO LIFENERGY; as restrições acima são destinadas às tabelas gerenciais, não a cortar a análise.
 
+PROFUNDIDADE PERSONALIZADA E CURADORIA DE EVIDÊNCIAS — PADRÃO V3.1, REVISÃO 1.5.19.13
+Antes de redigir o JSON, examine o CONTEÚDO INTERPRETADO de cada um dos quatro tipos de documento corporativo recebido, e não apenas seu título: descrição de cargos e funções; matriz de competências; cultura e valores; estratégia e prioridades. Forme mentalmente uma matriz de lastro, que NÃO deve aparecer como nova seção:
+- ACHADO LIFENERGY: detalhe específico do fractal, da hierarquia, de sua justificativa ou da síntese; diferencie potencial simbólico de proficiência demonstrada.
+- EVIDÊNCIA DOCUMENTAL: atividade, fluxo, ferramenta, sistema, indicador, prática, competência institucional ou prioridade efetivamente presente no conteúdo_texto da Biblioteca. Anote internamente o documento de origem. Não confunda o nome de uma categoria com prova de uma atividade.
+- TRANSFERÊNCIA PROFISSIONAL: como aquela potencialidade pode ser aplicada ou desenvolvida naquela atribuição, com resultado verificável e suporte organizacional apropriado.
+- VISÃO DO GESTOR: somente condição complementar, expectativa, restrição ou divergência a acompanhar; nunca a origem de um novo diagnóstico.
+
+ESPECIFICIDADE QUE SE PODE AUDITAR:
+1. Use com naturalidade termos, ferramentas e processos REAIS citados explicitamente nos textos disponíveis. Se a Descrição de Cargos trouxer ferramentas ou fluxos nominados, empregue esses nomes com precisão ao menos em uma competência da Seção 5 e nas ações práticas 70% ou evidências das Seções 7 e 8. Distribua referências concretas entre as seções, em vez de repeti-las em todas as linhas.
+2. Quando a Biblioteca de fato documentar um CRM, sistema de chamados, portal de operadora, planilha, indicador, rotina de conferência, faturamento ou movimentação cadastral, utilize a denominação EXATA e a atividade correspondente no cargo. Estes são apenas TIPOS DE EVIDÊNCIA, não uma lista de ferramentas presumidas. Se o texto não confirmar algum deles, não utilize esse exemplo.
+3. Use competências organizacionais conforme o texto da Matriz; explicite sua aplicação à prática concreta, não apenas cite palavras como 'colaboração' ou 'qualidade'. Conecte as prioridades estratégicas à consequência esperada na operação quando houver suporte explícito.
+4. Evite planos intercambiáveis que sirvam para qualquer empresa: 'fazer curso', 'aprimorar comunicação', 'acompanhar indicadores' não bastam sem identificar O QUÊ, EM QUAL FLUXO e QUE EVIDÊNCIA demonstrará avanço.
+5. Não use toda a Biblioteca como decoração. Escolha os 2 a 4 vínculos documentais mais relevantes para este cargo e para o diagnóstico; maximize densidade e pertinência, não quantidade de menções ou jargão.
+6. Se a Biblioteca for silenciosa sobre uma ferramenta ou metodologia, não a invente e não a substitua por detalhes externos; formule a ação em nível compatível com a documentação recebida. Fontes não verificadas nunca devem ser afirmadas como procedimentos oficiais.
+
+SEÇÃO 4 — SÍNTESE ANALÍTICA SEM REDUNDÂNCIA:
+Elabore 2 ou 3 parágrafos com FUNÇÕES DISTINTAS, em prosa executiva fluida:
+- Primeiro: explique o eixo decisório revelado pelos fractais (por exemplo, a prioridade relativa entre investir, estabilidade, lazer e conhecimento SOMENTE se as respostas de fato demonstrarem isso). Analise o sentido da hierarquia, sem repetir narrativamente as tabelas do Relatório.
+- Segundo: converta esse eixo em oportunidades e tensões de expressão no cargo, usando atribuições e processos explicitamente documentados. Uma associação simbólica a tecnologia não autoriza declarar domínio técnico de um sistema; ela pode orientar aprendizagem aplicada às ferramentas reais.
+- Terceiro, apenas quando acrescentar informação nova: apresente a tensão de desenvolvimento e condições de suporte; se houver divergência gerencial relevante e comprovada nos dados, atribua claramente a perspectiva ao gestor sem desfazer o diagnóstico.
+NÃO repita a mesma combinação de atributos ou as mesmas conclusões em dois parágrafos. Cada parágrafo precisa acrescentar significado novo. Nunca inclua comentários metalinguísticos como 'A leitura de desenvolvimento articula...', 'Este diagnóstico foi construído...', 'Segundo a metodologia aplicada...' ou ressalvas genéricas sobre elaboração do PDI. Não escreva nomes da pessoa nem percentuais em parênteses nesta seção.
+Nas observações da tabela 4.1, descreva um significado diferencial de cada atributo e uma aplicação concreta ou cautela, em UMA frase objetiva por linha. Nos pontos fortes/oportunidades, evite reescrever literalmente a Seção 4.
+
+SEÇÃO 6 — PROGRESSÃO E RESULTADO ESTRATÉGICO:
+A introdução estratégica da Seção 6 é fixada no template DOCX. No JSON, os objetivos devem funcionar como consequência dessa introdução: até 6 meses estabelecer competência em rotina concreta, até 12 meses consolidar contribuição confiável e, em 2 a 3 anos, orientar autonomia, especialização ou maior responsabilidade compatível com trajetória possível. Cada uma das três competências deve ter 1 objetivo em cada horizonte; o indicador comprova resultado, não apenas frequência de curso ou intenção. Não prometer promoção nem tratar nota do gestor como proficiência comprovada.
+
+REVISÃO EDITORIAL INTERNA OBRIGATÓRIA (NÃO RETORNAR A MATRIZ):
+Antes de devolver o JSON, verifique que: (a) o diagnóstico da Seção 4 não repete ideias e não tem comentário sobre como o PDI foi gerado; (b) cada competência possui lastro no Relatório Lifenergy E aplicação em algum documento corporativo; (c) ao menos duas referências operacionais distintas aparecem nas seções 5 a 8 SE estiverem realmente disponíveis na Biblioteca; (d) não existe ferramenta, cargo, indicador, processo ou política inventados; (e) as três cadeias de competência -> objetivo -> 70-20-10 -> KPI estão consistentes; (f) não se utilizou nome da pessoa no JSON; (g) o contexto do gestor não substituiu a fonte diagnóstica; (h) a redação tem informação original em cada seção, sem clichês e sem ampliar desnecessariamente as células de tabela. Reescreva campos insuficientes ANTES de responder.
+
 REDAÇÃO E CONTROLE DE QUALIDADE
 Escreva em português formal, claro, de consultoria corporativa. Prefira parágrafos completos e conectados em seções narrativas; não introduza bullets no texto em prosa. Tabelas contêm frases objetivas e acionáveis. Não faça repetição mecânica entre Diagnóstico, Objetivos e Ações. A cada conclusão interpretativa relevante deve corresponder uma aplicação de desenvolvimento concreta e coerente; não preencha o plano simplesmente com as competências escolhidas pelo gestor. Preserve as denominações de cargos, competências, cultura e procedimentos reais da Biblioteca. Não atribua ao avaliado cargo ou setor de outra pessoa. Se a Biblioteca trouxer apenas um resumo, não alegue validação formal de plano de sucessão ou desempenho. Ignore sempre o 'Objetivo de participação' e a reflexão pós-tarefa. Não acrescente textos grifados em amarelo: isso no documento de referência apenas indica revisão editorial.
 
@@ -283,7 +312,11 @@ ${JSON.stringify(safeData, null, 2)}`;
     cargoAtualInformado: safeData.pdiContext?.current_job_title ?? null,
     areaInformada: safeData.pdiContext?.current_area ?? null,
     gestorInformado: safeData.pdiContext?.manager_name ?? null,
-    documentosDaBibliotecaCorporativa: safeData.corporateDocuments,
+    documentosDaBibliotecaCorporativa: safeData.corporateDocuments.map((documento) => ({
+      categoria: documento.category,
+      tituloDocumento: documento.title,
+      conteudoInterpretadoIntegral: documento.content_text,
+    })),
   };
   const managerSource = {
     motivoEContextoSegundoGestor: safeData.pdiContext?.context_summary ?? null,
@@ -304,11 +337,11 @@ ORDEM DE LEITURA E VALIDADE DAS INFORMAÇÕES:
 
 DIVERGÊNCIAS: preserve as conclusões Lifenergy, identifique a informação discordante do gestor como percepção, evite afirmar desempenho real e proponha observação/feedback/experiências no trabalho. Não force a escolha das três competências ou o objetivo central a reproduzir as opções gerenciais.
 
-COERÊNCIA: as seções 3, 4 e 4.2/4.3 devem nascer do Relatório Lifenergy; as três competências da Seção 5 devem resultar dessa interpretação e encontrar aplicação na Biblioteca; as seções 6, 7, 8 e 10 devem desenvolver e acompanhar ESSAS competências, e não uma lista de preferências do gestor. O objetivo de carreira deve ser compatível com o potencial diagnosticado e considerar, sem automaticamente endossar, as perspectivas da empresa e do gestor.
+COERÊNCIA E PERSONALIZAÇÃO: as seções 3, 4 e 4.2/4.3 devem nascer do Relatório Lifenergy; as três competências da Seção 5 devem resultar dessa interpretação e encontrar aplicação na Biblioteca; as seções 6, 7, 8 e 10 devem desenvolver e acompanhar ESSAS competências, e não uma lista de preferências do gestor. O objetivo de carreira deve ser compatível com o potencial diagnosticado e considerar, sem automaticamente endossar, as perspectivas da empresa e do gestor. Examine integralmente cada documento da Fonte B para identificar atividades e ferramentas reais. Se os documentos informarem fluxo de atendimento, CRM, sistema, movimentações, faturamento, controles ou indicadores, cite apenas os que são sustentados pelos textos e compatíveis com o cargo; utilize-os nos objetivos, na prática 70% e nas evidências. Não transforme exemplos genéricos em fatos desta empresa. Cada uma das três competências deve estar conectada a uma atribuição corporativa específica.
 
 EXATIDÃO: conserve os cinco percentuais da Fonte A; não os confunda com as notas de 1 a 5 da Fonte C. Não invente avaliação de desempenho, sucessão aprovada, domínio técnico nem progresso já demonstrado. Não use o Objetivo de participação nem a Reflexão após a tarefa. Preserve o estilo executivo e a concisão das tabelas aprovada para o V3.1.
 
-ESTILO EDITORIAL V3.1: não mencione o nome da pessoa avaliada em NENHUM dos campos JSON. Redija com linguagem executiva, clara e impessoal, sem perder a análise Lifenergy. Na Seção 4, evite valores percentuais entre parênteses nos textos (inclusive nas observações e nos pontos fortes/oportunidades); os percentuais permanecem somente na coluna numérica da tabela 4.1, além de referências metodológicas que não são parte da narrativa.
+ESTILO EDITORIAL V3.1: não mencione o nome da pessoa avaliada em NENHUM dos campos JSON. Redija com linguagem executiva, clara e impessoal, sem perder a análise Lifenergy. Na Seção 4, não repita o mesmo achado em mais de um parágrafo; o primeiro explica padrões dos fractais, o seguinte mostra aplicação concreta no cargo, e um terceiro só existe se trouxer diferença relevante. NÃO inclua fechamento metalinguístico ('A leitura de desenvolvimento...'). Na Seção 4, evite valores percentuais entre parênteses nos textos (inclusive nas observações e nos pontos fortes/oportunidades); os percentuais permanecem somente na coluna numérica da tabela 4.1. Seções gerenciais: frases curtas com referências corporativas precisas, sem perder a relação entre resultado esperado e evidência.
 
 FONTE A — RESULTADOS E DADOS LIFENERGY (PRIMÁRIA):
 ${JSON.stringify(lifenergySource, null, 2)}

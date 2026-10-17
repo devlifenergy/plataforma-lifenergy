@@ -523,12 +523,10 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
 
     pdiHeading1("SEÇÃO 4 – DIAGNÓSTICO E ANÁLISE DE PERFIL"),
     paragraphs(content.diagnostico_perfil),
-    paragraph(
-      corporateV31
-        ? "A leitura de desenvolvimento articula os padrões do Relatório Lifenergy V3, os indicadores matemáticos originais e o contexto organizacional informado. A validação de desempenho e de trajetória de carreira cabe à liderança e aos processos formais da organização."
-        : "O diagnóstico está conectado à síntese dos padrões relacionais do Relatório Lifenergy V1 do avaliado.",
+    ...(corporateV31 ? [] : [paragraph(
+      "O diagnóstico está conectado à síntese dos padrões relacionais do Relatório Lifenergy V1 do avaliado.",
       { italic: true, color: "666666" }
-    ),
+    )]),
 
     pdiHeading2("4.1 – Avaliação do Colaborador / Avaliado"),
     pdiTable(attributeRows, [2200, 1800, 10900]),
@@ -547,7 +545,9 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     pdiTable(corporateV31 ? executiveRows(competencyRows, [82, 45, 126, 116, 165]) : competencyRows, [2600, 1800, 2900, 2800, 4800]),
 
     pdiHeading1("SEÇÃO 6 – OBJETIVOS DE DESENVOLVIMENTO"),
-    paragraph("Cada objetivo expressa o resultado consolidado que a respectiva estratégia da Seção 5 deve produzir ao longo do tempo — não a ação em si."),
+    paragraph(corporateV31
+      ? "Os objetivos traduzem as potencialidades identificadas pelo Lifenergy em entregas progressivas, conectadas às atribuições do cargo e às prioridades documentadas da organização. O curto prazo estabelece práticas aplicáveis à operação; o médio prazo consolida autonomia e consistência; o longo prazo orienta evolução profissional sustentável. Cada resultado deve ser acompanhado por evidências verificáveis, com metas pactuadas e apoio da liderança."
+      : "Cada objetivo expressa o resultado consolidado que a respectiva estratégia da Seção 5 deve produzir ao longo do tempo — não a ação em si."),
     pdiHeading2("6.1 – Objetivos de Curto Prazo (até 6 meses)"),
     pdiTable(corporateV31 ? executiveRows(shortObjectiveRows, [4, 166, 151, 33, 16]) : shortObjectiveRows, [650, 6000, 5550, 1650, 1050]),
 
