@@ -2,12 +2,6 @@ import type { LifenergyV1GeneratedContent, LifenergyV1ReportData } from "@/servi
 import type { OrganizationDocumentForPdi, PdiContextRecord } from "./corporateKnowledge";
 
 export const LIFENERGY_PDI_VERSION = "lifenergy_pdi_v4_2_1_5_9";
-/** Versão exclusiva do PDI Corporativo V3.1. A Trilha Relacional mantém a versão validada. */
-export const LIFENERGY_PDI_CORPORATE_VERSION = "lifenergy_pdi_corporativo_v3_1_1_5_19_13_1";
-export const LIFENERGY_PDI_CORPORATE_ENGINE_VERSION = "1.5.19.13";
-export const LIFENERGY_PDI_CORPORATE_PROMPT_VERSION = "pdi_corporativo_v3_1_evidencias_concretas_exec_2026_10_16";
-export const LIFENERGY_PDI_CORPORATE_TEMPLATE_VERSION = "docx_pdi_corporativo_v3_1_1_5_19_13_1";
-
 export const LIFENERGY_PDI_FORMAT = "docx";
 export const LIFENERGY_PDI_ENGINE_VERSION = "1.5.9";
 export const LIFENERGY_PDI_PROMPT_VERSION = "pdi_lifenergy_v4_2_cargo_logo_configuravel_2026_09_08";

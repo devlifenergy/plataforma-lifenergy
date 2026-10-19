@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { serializeCorporateQuestionnaire } from "./corporateContextQuestionnaire";
 import { createClient } from "@/lib/supabaseServer";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import {
@@ -67,7 +66,6 @@ function documentTitleForCategory(category: CorporateDocumentCategory) {
 
 function revalidatePdiAndLibrary() {
   revalidatePath("/painel/pdi");
-  revalidatePath("/painel/pdi-corporativo");
   revalidatePath("/painel/biblioteca");
 }
 
@@ -276,10 +274,6 @@ export async function savePdiContext(formData: FormData) {
     throw new Error("Você não tem permissão para atualizar este contexto de PDI.");
   }
 
-  const questionnaire = pdiType === "corporate" && clean(formData.get("corporate_questionnaire")) === "1"
-    ? serializeCorporateQuestionnaire(formData)
-    : null;
-
   const { error } = await supabase.from("pdi_contexts").upsert(
     {
       organization_id: response.organization_id,
@@ -289,11 +283,11 @@ export async function savePdiContext(formData: FormData) {
       current_job_title: nullable(formData.get("current_job_title")),
       current_area: nullable(formData.get("current_area")),
       manager_name: nullable(formData.get("manager_name")),
-      context_summary: questionnaire ? questionnaire.context_summary : nullable(formData.get("context_summary")),
-      current_situation: questionnaire ? questionnaire.current_situation : nullable(formData.get("current_situation")),
-      current_challenges: questionnaire ? questionnaire.current_challenges : nullable(formData.get("current_challenges")),
-      development_priorities: questionnaire ? questionnaire.development_priorities : nullable(formData.get("development_priorities")),
-      career_direction: questionnaire ? questionnaire.career_direction : nullable(formData.get("career_direction")),
+      context_summary: nullable(formData.get("context_summary")),
+      current_situation: nullable(formData.get("current_situation")),
+      current_challenges: nullable(formData.get("current_challenges")),
+      development_priorities: nullable(formData.get("development_priorities")),
+      career_direction: nullable(formData.get("career_direction")),
       updated_by: profile.id,
     },
     { onConflict: "journey_response_id" }

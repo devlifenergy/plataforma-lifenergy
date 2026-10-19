@@ -56,18 +56,16 @@ function run(text: unknown, options?: { bold?: boolean; italic?: boolean; color?
   const italic = options?.italic ? "<w:i/>" : "";
   const color = options?.color ? `<w:color w:val="${options.color}"/>` : "";
   const size = options?.size ? `<w:sz w:val="${options.size}"/>` : "";
-  return `<w:r><w:rPr>${bold}${italic}${color}${size}</w:rPr>${xml(text).split(/\r?\n/).map((part) => `<w:t xml:space="preserve">${part}</w:t>`).join("<w:br/>")}</w:r>`;
+  return `<w:r><w:rPr>${bold}${italic}${color}${size}</w:rPr><w:t xml:space="preserve">${xml(text)}</w:t></w:r>`;
 }
 
 function paragraph(
   text: unknown,
-  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean; keepNext?: boolean; tableText?: boolean }
+  options?: { style?: string; bold?: boolean; italic?: boolean; color?: string; size?: number; center?: boolean }
 ) {
   const parts: string[] = [];
   if (options?.style) parts.push(`<w:pStyle w:val="${options.style}"/>`);
   if (options?.center) parts.push('<w:jc w:val="center"/>');
-  else if (options?.tableText) parts.push('<w:jc w:val="left"/>');
-  if (options?.keepNext) parts.push("<w:keepNext/>");
   const paragraphProperties = parts.length > 0 ? `<w:pPr>${parts.join("")}</w:pPr>` : "";
 
   return `<w:p>${paragraphProperties}${run(text, {
@@ -76,31 +74,6 @@ function paragraph(
     color: options?.color,
     size: options?.size,
   })}</w:p>`;
-}
-
-/**
- * Reduz redundância em tabelas corporativas apenas quando há limite de frase
- * completo. Nunca corta uma meta SMART, prazo, número ou evidência ao meio.
- * Se o texto não possuir ponto seguro de condensação, mantém o conteúdo:
- * a orientação de concisão da IA tem prioridade sobre abreviação arriscada.
- */
-function corporateExecutiveCell(value: unknown, maxLength: number) {
-  const text = cleanXmlText(value).replace(/\s+/g, " ");
-  if (text.length <= maxLength) return text;
-  const floor = Math.round(maxLength * 0.55);
-  const sentenceEnd = /[.!?](?=\s|$)/g;
-  let boundary = -1;
-  for (const match of text.matchAll(sentenceEnd)) {
-    const candidate = (match.index ?? -1) + 1;
-    if (candidate >= floor && candidate <= maxLength) boundary = candidate;
-  }
-  if (boundary > 0) return text.slice(0, boundary).trim();
-  // Evita resultados como "...registradas em agenda e.".
-  return text;
-}
-
-function executiveRows(rows: string[][], limits: number[]): string[][] {
-  return [rows[0], ...rows.slice(1).map((r) => r.map((cell, i) => corporateExecutiveCell(cell, limits[i] ?? 180)))];
 }
 
 function fieldLine(label: string, value: unknown) {
@@ -135,7 +108,7 @@ function tableCell(content: string, options?: { header?: boolean; width?: number
   return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${shade}</w:tcPr>${content}</w:tc>`;
 }
 
-function table(rows: Array<Array<string>>, options?: { headerRows?: number; widths?: number[]; compact?: boolean }) {
+function table(rows: Array<Array<string>>, options?: { headerRows?: number; widths?: number[] }) {
   const headerRows = options?.headerRows ?? 1;
   const widths = options?.widths ?? [];
   const renderedRows = rows
@@ -143,23 +116,19 @@ function table(rows: Array<Array<string>>, options?: { headerRows?: number; widt
       const isHeader = rowIndex < headerRows;
       const renderedCells = row
         .map((cell, cellIndex) =>
-          tableCell(paragraph(cell, { bold: isHeader, keepNext: isHeader && Boolean(options?.compact), tableText: true }), {
+          tableCell(paragraph(cell, { bold: isHeader }), {
             header: isHeader,
             width: widths[cellIndex],
           })
         )
         .join("");
-      const rowProperties = options?.compact
-        ? `<w:trPr>${isHeader ? "<w:tblHeader/>" : ""}<w:cantSplit/></w:trPr>`
-        : "";
-      return `<w:tr>${rowProperties}${renderedCells}</w:tr>`;
+      return `<w:tr>${renderedCells}</w:tr>`;
     })
     .join("");
 
   return `<w:tbl>
     <w:tblPr>
-      <w:tblW w:w="${options?.compact ? widths.reduce((sum, width) => sum + width, 0) : 0}" w:type="${options?.compact ? "dxa" : "auto"}"/>
-      ${options?.compact ? '<w:tblLayout w:type="fixed"/>' : ""}
+      <w:tblW w:w="0" w:type="auto"/>
       <w:tblBorders>
         <w:top w:val="single" w:sz="6" w:space="0" w:color="888888"/>
         <w:left w:val="single" w:sz="6" w:space="0" w:color="888888"/>
@@ -175,7 +144,6 @@ function table(rows: Array<Array<string>>, options?: { headerRows?: number; widt
         <w:right w:w="80" w:type="dxa"/>
       </w:tblCellMar>
     </w:tblPr>
-    ${options?.compact && widths.length ? `<w:tblGrid>${widths.map((width) => `<w:gridCol w:w="${width}"/>`).join("")}</w:tblGrid>` : ""}
     ${renderedRows}
   </w:tbl>`;
 }
@@ -266,7 +234,10 @@ function buildLogoHeaderXml(
     <w:pPr><w:jc w:val="center"/></w:pPr>
     <w:r><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="18"/></w:rPr><w:t>${xml(title)}</w:t></w:r>
   </w:p>
-  ${subtitle ? `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${xml(subtitle)}</w:t></w:r></w:p>` : ""}
+  <w:p>
+    <w:pPr><w:jc w:val="center"/></w:pPr>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${xml(subtitle)}</w:t></w:r>
+  </w:p>
 </w:hdr>`;
 }
 
@@ -325,20 +296,19 @@ function corporateDocumentsBlock(_data: LifenergyPdiData) {
 
 
 function corporateContextNote(data: LifenergyPdiData) {
-  if (data.pdiType !== "corporate" || !data.pdiContext?.current_job_title) return "";
+  if (data.pdiType !== "corporate") return "";
+
   return paragraph(
-    "Cargo, área e demais informações funcionais refletem o contexto informado. Os alinhamentos com a Descrição de Cargos e Funções e os direcionamentos de carreira deverão ser confirmados pela liderança responsável.",
+    "Campos de cargo, área e gestor devem ser preenchidos com base na Descrição de Cargos e Funções e demais documentos da Biblioteca Corporativa, quando disponíveis.",
     { italic: true, color: "666666" }
   );
 }
 
-function actionPlanBlock(content: LifenergyPdiGeneratedContent, corporateV31 = false) {
+function actionPlanBlock(content: LifenergyPdiGeneratedContent) {
   return content.plano_acao_70_20_10
-    .map((item, index) => {
-      const inner = [
-        corporateV31
-          ? paragraph(`Competência ${index + 1} – ${item.competencia}`, { style: "Heading2", keepNext: true })
-          : heading2(`Competência ${index + 1} – ${item.competencia}`),
+    .map((item, index) =>
+      [
+        heading2(`Competência ${index + 1} – ${item.competencia}`),
         table(
           [
             ["Dimensão", "Ação"],
@@ -346,7 +316,7 @@ function actionPlanBlock(content: LifenergyPdiGeneratedContent, corporateV31 = f
             ["20% – Social", item.acao_20_social],
             ["10% – Formal", item.acao_10_formal],
           ],
-          { widths: corporateV31 ? [3000, 11900] : [2100, 8200], compact: corporateV31 }
+          { widths: [2100, 8200] }
         ),
         paragraph(
           `Frequência: ${cleanXmlText(item.frequencia) || "-"} · Responsável: ${
@@ -354,37 +324,13 @@ function actionPlanBlock(content: LifenergyPdiGeneratedContent, corporateV31 = f
           } · Recursos: ${cleanXmlText(item.recursos) || "-"}`
         ),
         paragraph(`Evidência de conclusão: ${cleanXmlText(item.evidencia_conclusao) || "-"}`),
-      ].join("");
-      // Sem tabela contêiner com w:cantSplit: o Word pode aproveitar o espaço
-      // livre da página para as competências seguintes. O título mantém
-      // keepNext e as linhas da tabela interna continuam indivisíveis.
-      return inner;
-    })
+      ].join("")
+    )
     .join("");
 }
 
 function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGeneratedContent) {
-  const corporateV31 = data.pdiType === "corporate";
-  const pdiHeading1 = (text: string) => corporateV31
-    ? paragraph(text, { style: "Heading1", keepNext: true })
-    : heading1(text);
-  const pdiHeading2 = (text: string) => corporateV31
-    ? paragraph(text, { style: "Heading2", keepNext: true })
-    : heading2(text);
   const reportData = data.reportData;
-  const pdiTable = (rows: Array<Array<string>>, corporateWidths: number[]) => {
-    if (corporateV31) return table(rows, { widths: corporateWidths, compact: true });
-    const headers = rows[0]?.join("|") ?? "";
-    const legacyWidths = headers.includes("Avaliação|Observações") ? [2200, 1600, 6200]
-      : headers.includes("Pontos Fortes Identificados") ? [5000, 5000]
-      : headers.startsWith("Competência|Tipo") ? [1900, 1400, 1400, 2600, 3300]
-      : headers.startsWith("Nº|Objetivo") ? [600, 3200, 3600, 1400, 1200]
-      : headers.startsWith("Foco|Resultado") ? [2800, 3700, 3700]
-      : headers.startsWith("Indicador|Critério") ? [2200, 3000, 2600, 2600, 1200]
-      : headers.startsWith("Reunião /") ? [2000, 1600, 2300, 3000, 2500]
-      : [3100, 4800, 2100];
-    return table(rows, { widths: legacyWidths });
-  };
   const response = reportData.response;
   const applicationDate = formatDate(response.application_date);
 
@@ -398,18 +344,18 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
   ];
 
   const competencyRows = [
-    ["Competência", "Tipo", "Nível Atual", corporateV31 ? "Competência organizacional" : "Competência organizacional relacionada", "Estratégia de Desenvolvimento"],
+    ["Competência", "Tipo", "Nível Atual", "Competência organizacional relacionada", "Estratégia de Desenvolvimento"],
     ...content.competencias_desenvolver.map((item) => [
       item.competencia,
       item.tipo,
-      corporateV31 ? item.nivel_atual.replace(/\s*\(inferência do perfil\)/gi, "").trim() : item.nivel_atual,
+      item.nivel_atual,
       item.competencia_organizacional_relacionada,
       item.estrategia_desenvolvimento,
     ]),
   ];
 
   const shortObjectiveRows = [
-    ["Nº", "Objetivo", corporateV31 ? "Indicador de Sucesso" : "Indicador SMART / Indicador de Sucesso", "Prazo", "Prioridade"],
+    ["Nº", "Objetivo", "Indicador SMART / Indicador de Sucesso", "Prazo", "Prioridade"],
     ...content.objetivos_curto_prazo.map((item) => [
       item.numero,
       item.objetivo,
@@ -420,7 +366,7 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
   ];
 
   const mediumObjectiveRows = [
-    ["Nº", "Objetivo", corporateV31 ? "Indicador de Sucesso" : "Indicador SMART / Indicador de Sucesso", "Prazo", "Prioridade"],
+    ["Nº", "Objetivo", "Indicador SMART / Indicador de Sucesso", "Prazo", "Prioridade"],
     ...content.objetivos_medio_prazo.map((item) => [
       item.numero,
       item.objetivo,
@@ -474,14 +420,8 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
 
   const signatureRows = [
     ["Função", "Nome Completo e Assinatura", "Data"],
-    ...(corporateV31 ? [
-      ["Colaborador", response.full_name, "___/___/______"],
-      ["Gestor Imediato", data.pdiContext?.manager_name || "", "___/___/______"],
-      ["Representante do RH", "", "___/___/______"],
-    ] : [
-      ["Avaliado", response.full_name, "___/___/______"],
-      ["Aplicador", response.applicator_name || reportData.journey.applicator_name || "", "___/___/______"],
-    ]),
+    ["Avaliado", response.full_name, "___/___/______"],
+    ["Aplicador", response.applicator_name || reportData.journey.applicator_name || "", "___/___/______"],
     ["Diretor / Responsável pela Área (quando aplicável)", "", "___/___/______"],
   ];
 
@@ -489,93 +429,78 @@ function buildDocumentXml(data: LifenergyPdiData, content: LifenergyPdiGenerated
     paragraph(pdiTypeLabel(data).toUpperCase(), { style: "Title" }),
     paragraph(`Empresa: ${reportData.organization.name}`, { center: true, color: "666666", size: 20 }),
 
-    pdiHeading1("SEÇÃO 1 – IDENTIFICAÇÃO DO COLABORADOR / AVALIADO"),
+    heading1("SEÇÃO 1 – IDENTIFICAÇÃO DO COLABORADOR / AVALIADO"),
     fieldLine("Nome", response.full_name),
     fieldLine("CPF", response.cpf),
     fieldLine("E-mail", response.email),
     fieldLine("Data de nascimento", formatDate(response.birth_date)),
     fieldLine("Naturalidade", response.naturalidade),
 
-    pdiHeading1("SEÇÃO 2 – CONTEXTO DO PDI"),
+    heading1("SEÇÃO 2 – CONTEXTO DO PDI"),
     contextBlock(data),
     corporateContextNote(data),
     corporateDocumentsBlock(data),
 
-    pdiHeading1("SEÇÃO 3 – OBJETIVO CENTRAL DO PDI"),
+    heading1("SEÇÃO 3 – OBJETIVO CENTRAL DO PDI"),
     paragraphs(content.objetivo_central_pdi),
-    pdiHeading2("3.1 – Objetivo de carreira / desenvolvimento profissional"),
+    heading2("3.1 – Objetivo de carreira / desenvolvimento profissional"),
     paragraphs(content.objetivo_carreira_desenvolvimento),
 
-    pdiHeading1("SEÇÃO 4 – DIAGNÓSTICO E ANÁLISE DE PERFIL"),
+    heading1("SEÇÃO 4 – DIAGNÓSTICO E ANÁLISE DE PERFIL"),
     paragraphs(content.diagnostico_perfil),
-    ...(corporateV31 ? [] : [paragraph(
-      "O diagnóstico está conectado à síntese dos padrões relacionais do Relatório Lifenergy V1 do avaliado.",
-      { italic: true, color: "666666" }
-    )]),
+    paragraph("O diagnóstico está conectado à síntese dos padrões relacionais do Relatório Lifenergy V1 do avaliado.", {
+      italic: true,
+      color: "666666",
+    }),
 
-    pdiHeading2("4.1 – Avaliação do Colaborador / Avaliado"),
-    pdiTable(attributeRows, [2200, 1800, 10900]),
+    heading2("4.1 – Avaliação do Colaborador / Avaliado"),
+    table(attributeRows, { widths: [2200, 1600, 6200] }),
     paragraph(
       "ⓘ Escala de Referência: 0% a 29% = Inferior / 30% a 49% = Média inferior / 50% a 69% = Média / 70% a 89% = Média Superior / 90% a 100% = Superior",
       { italic: true, color: "666666" }
     ),
 
-    pdiHeading2("4.2 e 4.3 – Pontos Fortes e Oportunidades de Melhoria"),
-    pdiTable(strengthsOpportunitiesRows, [7450, 7450]),
+    heading2("4.2 e 4.3 – Pontos Fortes e Oportunidades de Melhoria"),
+    table(strengthsOpportunitiesRows, { widths: [5000, 5000] }),
 
-    pdiHeading1("SEÇÃO 5 – COMPETÊNCIAS A DESENVOLVER"),
-    paragraph(corporateV31
-      ? "Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI."
-      : "Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI. A estratégia de desenvolvimento descreve a prática ligada à competência; o resultado consolidado dessa prática está descrito na Seção 6."),
-    pdiTable(corporateV31 ? executiveRows(competencyRows, [82, 45, 126, 116, 165]) : competencyRows, [2600, 1800, 2900, 2800, 4800]),
+    heading1("SEÇÃO 5 – COMPETÊNCIAS A DESENVOLVER"),
+    paragraph("Com base no diagnóstico, seguem as competências prioritárias a serem desenvolvidas no período de vigência deste PDI. A estratégia de desenvolvimento descreve a prática ligada à competência; o resultado consolidado dessa prática está descrito na Seção 6."),
+    table(competencyRows, { widths: [1900, 1400, 1400, 2600, 3300] }),
 
-    pdiHeading1("SEÇÃO 6 – OBJETIVOS DE DESENVOLVIMENTO"),
-    paragraph(corporateV31
-      ? "Os objetivos traduzem as potencialidades identificadas pelo Lifenergy em entregas progressivas, conectadas às atribuições do cargo e às prioridades documentadas da organização. O curto prazo estabelece práticas aplicáveis à operação; o médio prazo consolida autonomia e consistência; o longo prazo orienta evolução profissional sustentável. Cada resultado deve ser acompanhado por evidências verificáveis, com metas pactuadas e apoio da liderança."
-      : "Cada objetivo expressa o resultado consolidado que a respectiva estratégia da Seção 5 deve produzir ao longo do tempo — não a ação em si."),
-    pdiHeading2("6.1 – Objetivos de Curto Prazo (até 6 meses)"),
-    pdiTable(corporateV31 ? executiveRows(shortObjectiveRows, [4, 166, 151, 33, 16]) : shortObjectiveRows, [650, 6000, 5550, 1650, 1050]),
+    heading1("SEÇÃO 6 – OBJETIVOS DE DESENVOLVIMENTO"),
+    paragraph("Cada objetivo expressa o resultado consolidado que a respectiva estratégia da Seção 5 deve produzir ao longo do tempo — não a ação em si."),
+    heading2("6.1 – Objetivos de Curto Prazo (até 6 meses)"),
+    table(shortObjectiveRows, { widths: [600, 3200, 3600, 1400, 1200] }),
 
-    pdiHeading2("6.2 – Objetivos de Médio Prazo (até 12 meses)"),
-    pdiTable(corporateV31 ? executiveRows(mediumObjectiveRows, [4, 166, 151, 33, 16]) : mediumObjectiveRows, [650, 6000, 5550, 1650, 1050]),
+    heading2("6.2 – Objetivos de Médio Prazo (até 12 meses)"),
+    table(mediumObjectiveRows, { widths: [600, 3200, 3600, 1400, 1200] }),
 
-    pdiHeading2("6.3 – Direcionamento de Longo Prazo (2 a 3 anos)"),
-    pdiTable(corporateV31 ? executiveRows(longTermRows, [110, 164, 153]) : longTermRows, [4500, 5000, 5400]),
+    heading2("6.3 – Direcionamento de Longo Prazo (2 a 3 anos)"),
+    table(longTermRows, { widths: [2800, 3700, 3700] }),
 
-    pdiHeading1("SEÇÃO 7 – PLANO DE AÇÃO 70-20-10"),
-    paragraph(corporateV31
-      ? `As ações abaixo estão vinculadas ao cargo de ${cleanXmlText(data.pdiContext?.current_job_title) || "referência"}, tomando como referência as atribuições descritas na Biblioteca Corporativa e os dados informados pela organização. Cada competência combina experiência prática (70%), aprendizagem social (20%) e aprendizagem formal (10%).`
-      : "As ações abaixo foram adaptadas às atividades reais do cargo e ao contexto de desenvolvimento informado, sempre que esses dados estiverem disponíveis. Cada competência combina experiência prática (70%), aprendizagem social (20%) e aprendizagem formal (10%).",
-      corporateV31 ? { keepNext: true } : undefined),
-    actionPlanBlock(content, corporateV31),
+    heading1("SEÇÃO 7 – PLANO DE AÇÃO 70-20-10"),
+    paragraph("As ações abaixo foram adaptadas às atividades reais do cargo e ao contexto de desenvolvimento informado, sempre que esses dados estiverem disponíveis. Cada competência combina experiência prática (70%), aprendizagem social (20%) e aprendizagem formal (10%)."),
+    actionPlanBlock(content),
 
-    pdiHeading1("SEÇÃO 8 – INDICADORES E EVIDÊNCIAS DE EVOLUÇÃO"),
-    ...(corporateV31 ? [] : [paragraph("Os indicadores abaixo devem apoiar o acompanhamento do progresso e a verificação objetiva da evolução comportamental.")]),
-    pdiTable(corporateV31 ? executiveRows(indicatorRows, [111, 153, 112, 133, 48]) : indicatorRows, [3400, 3600, 3000, 3300, 1600]),
+    heading1("SEÇÃO 8 – INDICADORES E EVIDÊNCIAS DE EVOLUÇÃO"),
+    paragraph("Os indicadores abaixo devem apoiar o acompanhamento do progresso e a verificação objetiva da evolução comportamental."),
+    table(indicatorRows, { widths: [2200, 3000, 2600, 2600, 1200] }),
 
-    pdiHeading1("SEÇÃO 9 – APOIO E SUPORTE NECESSÁRIO"),
+    heading1("SEÇÃO 9 – APOIO E SUPORTE NECESSÁRIO"),
     paragraphs(content.apoio_suporte_necessario),
 
-    pdiHeading1("SEÇÃO 10 – MONITORAMENTO E AVALIAÇÃO"),
-    pdiHeading2("10.1 – Cronograma de Acompanhamento"),
-    ...(corporateV31 ? [] : [paragraph("Os checkpoints devem ocorrer com regularidade, preferencialmente a cada trimestre, para revisar objetivos, atualizar status das ações e registrar aprendizados.")]),
-    pdiTable(corporateV31 ? executiveRows(monitoringRows, [83, 54, 95, 150, 108]) : monitoringRows, [2700, 2250, 2900, 4600, 2450]),
+    heading1("SEÇÃO 10 – MONITORAMENTO E AVALIAÇÃO"),
+    heading2("10.1 – Cronograma de Acompanhamento"),
+    paragraph("Os checkpoints devem ocorrer com regularidade, preferencialmente a cada trimestre, para revisar objetivos, atualizar status das ações e registrar aprendizados."),
+    table(monitoringRows, { widths: [2000, 1600, 2300, 3000, 2500] }),
 
-    pdiHeading1("SEÇÃO 11 – ASSINATURAS E APROVAÇÕES"),
+    heading1("SEÇÃO 11 – ASSINATURAS E APROVAÇÕES"),
     paragraph("Todas as partes envolvidas devem assinar este documento, confirmando ciência, concordância e comprometimento com o Plano de Desenvolvimento Individual."),
-    pdiTable(signatureRows, [4600, 7600, 2700]),
-    pdiHeading2("Declaração de Ciência e Comprometimento"),
+    table(signatureRows, { widths: [3100, 4800, 2100] }),
+    heading2("Declaração de Ciência e Comprometimento"),
     paragraph("Ao assinar este documento, todas as partes envolvidas declaram estar cientes dos objetivos, ações e responsabilidades definidos neste Plano de Desenvolvimento Individual, comprometendo-se a apoiar ativamente a execução e o acompanhamento das atividades previstas, em conformidade com as políticas e diretrizes de Gestão de Pessoas da organização."),
 
-    ...(corporateV31 ? [
-      pdiHeading2("Referências legais e institucionais"),
-      paragraph(
-        "Fontes de Referencia: Lei nº 14.457/2022; Consolidação das Leis do Trabalho (CLT); Lei nº 10.224/2001 (assédio sexual); Lei Geral de Proteção de Dados Pessoais (LGPD); Norma Regulamentadora nº 1 (NR-1), com Portaria MTE nº 1.419/2024 e Portaria MTE nº 765/2025 (prorrogação indicada no modelo para 26/05/2026); Código de Ética do Psicólogo; Resoluções CFP nº 6/2019 e nº 1/2009; Cartilha do Ministério Público do Trabalho (MPT); orientações do Tribunal Superior do Trabalho (TST) e decisões sobre a valoração do depoimento da vítima.",
-        { size: 18, color: "666666" }
-      ),
-    ] : []),
-
-    paragraph(`Data de geração: ${corporateV31 ? formatDate(new Date().toISOString()) : (applicationDate || formatDate(new Date().toISOString()))}`, {
+    paragraph(`Data de geração: ${applicationDate || formatDate(new Date().toISOString())}`, {
       italic: true,
       color: "666666",
     }),
@@ -621,12 +546,6 @@ const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="23"/></w:rPr><w:pPr><w:spacing w:before="200" w:after="100"/></w:pPr></w:style>
 </w:styles>`;
 
-const corporateV31StylesXml = stylesXml
-  .replace('<w:pPrDefault><w:pPr><w:spacing', '<w:pPrDefault><w:pPr><w:jc w:val="both"/><w:spacing')
-  .replace('<w:spacing w:after="140" w:line="260" w:lineRule="auto"/>', '<w:spacing w:after="90" w:line="256" w:lineRule="auto"/>')
-  .replace('<w:spacing w:before="300" w:after="150"/>', '<w:spacing w:before="220" w:after="100"/>')
-  .replace('<w:spacing w:before="200" w:after="100"/>', '<w:spacing w:before="140" w:after="70"/>');
-
 const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:p>
@@ -634,11 +553,6 @@ const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente</w:t></w:r>
   </w:p>
 </w:ftr>`;
-
-const corporateFooterXml = footerXml.replace(
-  "Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente",
-  "Lifenergy Digital · PDI Corporativo · Biblioteca Corporativa Inteligente"
-);
 
 const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -797,14 +711,14 @@ export function buildLifenergyPdiDocx(
     { name: "docProps/app.xml", data: appXml },
     { name: "word/_rels/document.xml.rels", data: documentRelsXml },
     { name: "word/_rels/header1.xml.rels", data: buildHeaderRelsXml(logoMedia) },
-    { name: "word/styles.xml", data: data.pdiType === "corporate" ? corporateV31StylesXml : stylesXml },
-    { name: "word/footer1.xml", data: data.pdiType === "corporate" ? corporateFooterXml : footerXml },
+    { name: "word/styles.xml", data: stylesXml },
+    { name: "word/footer1.xml", data: footerXml },
     {
       name: "word/header1.xml",
       data: buildLogoHeaderXml(
         data.reportData,
-        data.pdiType === "corporate" ? "PDI Corporativo Lifenergy" : `PDI Lifenergy – ${data.reportData.response.full_name}`,
-        data.pdiType === "corporate" ? "" : "Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente"
+        `PDI Lifenergy – ${data.reportData.response.full_name}`,
+        "Plataforma Lifenergy · PDI Lifenergy · Biblioteca Corporativa Inteligente"
       ),
     },
     { name: "word/document.xml", data: buildDocumentXml(data, content) },

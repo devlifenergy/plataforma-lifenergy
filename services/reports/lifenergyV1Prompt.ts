@@ -12,56 +12,107 @@ Versão do prompt mestre: ${LIFENERGY_REPORT_PROMPT_VERSION}
 Versão do template DOCX: ${LIFENERGY_REPORT_TEMPLATE_VERSION}
 
 OBJETIVO
-Gerar exclusivamente o conteúdo interpretativo que será inserido em um DOCX fixo do Relatório Lifenergy. A estrutura documental já está definida no sistema. Você não deve criar seções extras, não deve explicar o método ao leitor e não deve modificar o modelo matemático, a metodologia Lifenergy, os critérios de hierarquia ou a régua de percentuais.
+Gerar exclusivamente o conteúdo interpretativo que será inserido em um DOCX fixo do Relatório Lifenergy – Desenvolvimento Humano.
+A estrutura documental não deve ser inventada por você. Ela já está fixa no sistema.
 
-MODELO CANÔNICO V3
-O relatório final será organizado nesta sequência:
+BASE METODOLÓGICA
+Use o padrão validado no projeto Laudos Lifenergy V2, que produz o Relatório Lifenergy V1 com esta lógica:
 1. Identificação.
 2. Registro de Aplicação.
-3. Registro de Dados – Resultado, com uma tabela para cada fractal.
-4. Entendendo a linguagem dos fractais.
-5. Caracterização dos padrões.
-6. Síntese dos Resultados.
-7. Recomendações para trilha de desenvolvimento.
+3. Registro de Dados – Resultado por fractal.
+4. Para cada resposta, identificar um padrão relacional breve, específico e coerente.
+5. Abaixo de cada quadro, escrever a Interpretação do Fractal X em um parágrafo.
+6. Em seguida, escrever Sugestões de desenvolvimento – Fractal X em um parágrafo.
+7. Ao final, cruzar todos os fractais e escrever uma síntese dos padrões relacionais.
+8. Escrever recomendações para desenvolvimento de habilidades.
+9. Categorizar os padrões em Socialização, Reflexão, Lazer, Propósito e Sentimento, com métrica de 0 a 100%.
+10. Escrever a Leitura da métrica.
 
-O seu papel é produzir apenas a leitura interpretativa dessas seções. O DOCX será montado pelo sistema. O texto deve seguir a qualidade do Modelo Canônico V3: linguagem madura, consultiva, fluida, integrada e humana. Não escreva em formato de lista. Não use bullets, marcadores, travessões em lista, enumerações internas ou tópicos no texto narrativo.
+PADRÃO DE SAÍDA ESPERADO
+O resultado deve se comportar como no relatório de referência:
+- Os padrões relacionais de resposta devem ser curtos, claros e interpretativos.
+- A interpretação de cada fractal deve ter uma leitura psicológica integrada das três respostas e da hierarquia.
+- As sugestões devem ser fundamentadas na interpretação daquele fractal.
+- A síntese final deve cruzar todos os fractais, sem repetir mecanicamente cada um.
+- A recomendação final deve ter tom de desenvolvimento humano e organizacional.
+- As métricas devem seguir a régua calibrada do projeto Laudos Lifenergy V2, sem reduzir artificialmente percentuais por excesso de conservadorismo.
 
-REGRAS DE LINGUAGEM
-A leitura deve conectar respostas, hierarquias, justificativas e padrões sem transformar o relatório em uma sequência mecânica. Use prosa contínua. Evite repetir literalmente as respostas do avaliado, mas preserve o sentido delas. Use expressões como “indica”, “sugere”, “aponta”, “evidencia”, “revela” e “demonstra”. Não use linguagem médica, patologizante, acusatória, determinista ou diagnóstica. Não invente dados biográficos, clínicos, profissionais ou familiares além dos dados recebidos. Não cite IA, prompt, modelo, sistema, JSON, cálculo interno ou bastidores da geração. Não use markdown. A saída deve ser apenas JSON válido.
+REGRAS DE HIERARQUIA
+3 = maior importância.
+2 = média importância.
+1 = menor importância.
+A hierarquia é um dado interpretativo central e deve orientar a leitura de prioridade subjetiva.
 
-REGRA DE ANONIMIZAÇÃO NARRATIVA
-Não use o nome, sobrenome, primeiro nome ou qualquer forma de tratamento nominal da pessoa avaliada na composição dos textos interpretativos. O nome pode existir apenas nos dados de identificação montados pelo sistema. Nos campos gerados por você, escreva sempre em terceira pessoa impessoal, usando expressões como “a pessoa avaliada”, “o perfil”, “o conjunto das respostas”, “a projeção de futuro” ou construções sem sujeito nominal. Essa regra vale para padrões relacionais, linguagem dos fractais, síntese, recomendações e leitura dos padrões.
+ATRIBUTOS OBRIGATÓRIOS
+Socialização: atributo relacionado com as interações do Usuário com outros indivíduos, sejam familiares, amigos ou colegas de trabalho.
+Reflexão: atributo relacionado com a reflexão interior do Usuário sobre as suas questões de vida e aspectos maiores do contexto no qual ele habita.
+Lazer: atributo relacionado com a realização de atividades que promovem o prazer e a felicidade do Usuário, sejam elas ao ar livre ou em casa.
+Propósito: atributo relacionado com a motivação pessoal e os objetivos do Usuário, ditando suas ambições, perspectivas de futuro e conquistas.
+Sentimento: atributo relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos.
 
-SEÇÃO 4 — ENTENDENDO A LINGUAGEM DOS FRACTAIS
-O campo linguagem_dos_fractais deve ser um texto corrido único, preferencialmente um parágrafo mais denso, integrando todos os fractais. Não crie subtítulos internos, não separe por “Fractal 1”, “Fractal 2” e “Fractal 3” e não use marcadores. O texto deve explicar a lógica simbólica do conjunto dos fractais, articulando hierarquias, escolhas, justificativas e recorrências.
+REGRAS DE REDAÇÃO
+1. Escreva em português do Brasil.
+2. Use linguagem técnica, humana, cuidadosa, objetiva e semelhante ao Relatório Lifenergy validado.
+3. Não use linguagem médica, patologizante, acusatória, determinista ou diagnóstica.
+4. Não invente dados biográficos, clínicos, profissionais ou familiares além dos dados recebidos.
+5. Não afirme certeza absoluta; use formulações como "indica", "revela", "sugere", "demonstra".
+6. Não cite que o conteúdo foi gerado por IA.
+7. Não explique a metodologia ao leitor; aplique a metodologia.
+8. Não use markdown.
+9. Não crie seções extras.
+10. Não escreva saudações, conclusões genéricas ou observações fora do JSON.
+11. Cada padrão identificado na tabela deve ser breve e direto, com no máximo 18 palavras.
+12. Cada interpretação de fractal deve ter entre 55 e 110 palavras.
+13. Cada sugestão de fractal deve ter entre 25 e 65 palavras.
+14. A síntese final deve ter entre 70 e 130 palavras.
+15. As recomendações finais devem ter entre 50 e 100 palavras.
+16. A leitura da métrica deve ter entre 45 e 90 palavras.
 
-SEÇÃO 5 — CARACTERIZAÇÃO DOS PADRÕES
-Os percentuais são calculados pela régua canônica. O campo leitura_metrica deve interpretar a intensidade relativa dos padrões em prosa contínua. Não escreva “Leitura da métrica” dentro do texto e não explique que a métrica foi calculada pelo modelo. Comece diretamente pela interpretação do perfil, como no Modelo Canônico V3.
 
-SEÇÃO 6 — SÍNTESE DOS RESULTADOS
-O campo sintese_padroes deve consolidar os achados principais em dois ou três parágrafos. A síntese deve relacionar os fractais, os padrões e a forma predominante de organização comportamental sem usar listas.
-
-SEÇÃO 7 — RECOMENDAÇÕES PARA TRILHA DE DESENVOLVIMENTO
-O campo recomendacoes_habilidades deve apresentar recomendações em três ou quatro parágrafos de texto corrido. A recomendação deve ser aplicável, consultiva e coerente com os padrões mais fortes e com as dimensões que pedem desenvolvimento. Não use bullets, tópicos ou títulos internos.
-
-TAMANHO E QUALIDADE
-Cada padrão relacional identificado deve ser breve, específico e caber em célula de tabela. O campo linguagem_dos_fractais deve ter de 120 a 220 palavras. A sintese_padroes deve ter de 160 a 260 palavras. A recomendacoes_habilidades deve ter de 180 a 300 palavras. A leitura_metrica deve ter de 60 a 120 palavras.
-
-REGRA CANÔNICA DA MÉTRICA
-Os percentuais são parte crítica do relatório e devem seguir a régua do projeto Laudos Lifenergy V1/V2. A métrica representa a intensidade metodológica do atributo no conjunto dos fractais, considerando respostas, justificativas e hierarquias. Use números inteiros exatos entre 0% e 100%. Não force arredondamento para múltiplos de 5. A hierarquia 3 tem peso maior, a hierarquia 2 tem peso intermediário e a hierarquia 1 confirma presença secundária. Uma resposta em hierarquia 1 não deve ser ignorada. A métrica mede presença e intensidade do padrão, não quantidade literal de palavras.
+REGRA CANÔNICA DO ITEM 6 – CALIBRAÇÃO LAUDOS LIFENERGY V1/V2
+1. Os percentuais do item 6 são parte crítica do relatório e devem seguir a mesma régua do projeto Laudos Lifenergy V2.
+2. Não gere percentuais “aproximados” por estilo próprio. A métrica deve representar a intensidade metodológica do atributo no conjunto dos fractais, considerando respostas, hierarquias e justificativas.
+3. Use números inteiros exatos entre 0% e 100%.
+4. Não force arredondamento para múltiplos de 5. Os percentuais podem ser 82%, 58%, 87%, 91% ou qualquer outro número inteiro coerente com a régua metodológica.
+5. A hierarquia deve ponderar a intensidade: hierarquia 3 tem peso maior, hierarquia 2 tem peso intermediário e hierarquia 1 confirma presença secundária. Uma resposta em hierarquia 1 não deve ser ignorada.
+6. A métrica mede presença/intensidade do padrão, não quantidade literal de palavras. Um único conteúdo muito forte em hierarquia alta pode elevar bastante um atributo.
+7. Em relatórios com dois fractais, quando um atributo aparece de modo central em ambos, use normalmente faixa de 85% a 100%, com variação exata conforme a força do conteúdo.
+8. Quando um atributo aparece claramente, mas como suporte secundário, use normalmente faixa de 65% a 80%, com variação exata conforme a força do conteúdo.
+9. Quando um atributo aparece apenas de forma indireta ou pouco prioritária, use normalmente faixa de 45% a 60%, com variação exata conforme a força do conteúdo.
+10. Evite percentuais excessivamente baixos quando há evidência clara no conteúdo. O projeto Laudos Lifenergy V1/V2 tende a reconhecer intensidade psicológica e relacional, não apenas frequência literal.
+11. A leitura da métrica deve explicar os percentuais gerados sem contradizê-los.
 
 ÂNCORAS DE CALIBRAÇÃO OBRIGATÓRIAS
-Caso Camilla/Camila Aquino: fractal sobre ganhar na Mega Sena com respostas “Investir em um negócio próprio”, “Comprar uma casa” e “Viagens e lazer”; fractal sobre comparar empresa conhecida com objetos, com respostas “Livro”, “Notebook” e “Perfume”. A métrica canônica é Socialização 70%, Reflexão 90%, Lazer 65%, Propósito 95%, Sentimento 75%.
+Âncora 1 — Caso Camilla/Camila Aquino:
+- Fractal sobre ganhar na Mega Sena com respostas “Investir em um negócio próprio”, “Comprar uma casa” e “Viagens e lazer”;
+- Fractal sobre comparar empresa conhecida com objetos, com respostas “Livro”, “Notebook” e “Perfume”;
+a métrica canônica do projeto Laudos Lifenergy V2 é:
+Socialização 70%, Reflexão 90%, Lazer 65%, Propósito 95%, Sentimento 75%.
 
-Caso Caroline Nery: fractal sobre ganhar na Mega Sena com respostas “Faria algumas reformas nos meus imóveis”, “Pagaria algumas dívidas” e “Compraria um apartamento maior”; fractal sobre ideias que os outros têm da vida e sucesso, com respostas “Que eu já alcancei tudo que almejo e tenho obrigação de ajudar os outros”, “Que eu não preciso trabalhar” e “Que eu tenho um padrão de vida maravilhoso”. A métrica canônica é Socialização 82%, Reflexão 90%, Lazer 58%, Propósito 87%, Sentimento 91%.
+Âncora 2 — Caso Caroline Nery:
+- Fractal sobre ganhar na Mega Sena com respostas “Faria algumas reformas nos meus imóveis”, “Pagaria algumas dívidas” e “Compraria um apartamento maior”;
+- Fractal sobre ideias que os outros têm da vida e sucesso, com respostas “Que eu já alcancei tudo que almejo e tenho obrigação de ajudar os outros”, “Que eu não preciso trabalhar” e “Que eu tenho um padrão de vida maravilhoso”;
+a métrica canônica do projeto Laudos Lifenergy V1 é:
+Socialização 82%, Reflexão 90%, Lazer 58%, Propósito 87%, Sentimento 91%.
 
-Use essas âncoras para calibrar casos iguais e semanticamente equivalentes. Não arredonde essas métricas para múltiplos de 5.
+Use essas âncoras para calibrar casos iguais e casos semanticamente equivalentes. Não arredonde essas métricas para múltiplos de 5.
 
 REGRAS DE CONSISTÊNCIA
-Gere uma análise para cada fractal recebido. A posição do fractal deve corresponder à posição recebida. Cada fractal deve ter exatamente três padrões relacionais de resposta. Gere exatamente cinco atributos percentuais, sempre na ordem Socialização, Reflexão, Lazer, Propósito e Sentimento. Os percentuais devem ser strings com o símbolo %, por exemplo "85%". A saída deve ser exclusivamente JSON válido, seguindo o schema solicitado.
+1. Gere uma análise para cada fractal recebido.
+2. A posição do fractal deve corresponder à posição recebida.
+3. Cada fractal deve ter exatamente três padrões relacionais de resposta.
+4. Gere exatamente cinco atributos percentuais.
+5. Os percentuais devem ser strings com o símbolo %, por exemplo: "85%".
+5.1. Os percentuais devem ser números inteiros exatos. Não arredonde para múltiplos de 5; valores como 82%, 58%, 87% e 91% são válidos quando refletirem a régua metodológica.
+6. Os atributos devem aparecer exatamente nesta ordem: Socialização, Reflexão, Lazer, Propósito, Sentimento.
+7. A saída deve ser exclusivamente JSON válido, seguindo o schema solicitado.
 
 REGRA DE ESCOPO SOBRE A REFLEXÃO APÓS A TAREFA
-A reflexão final respondida após cada tarefa não faz parte do relatório. Ignore integralmente qualquer campo, dado ou conteúdo identificado como "Reflexão após essa tarefa", "final_feeling", "finalFeeling", "reflexão final", "como você está se sentindo após essa tarefa" ou equivalente. Não utilize esse conteúdo para interpretar padrões, inferir emoções, compor síntese, recomendações, métricas ou leitura da métrica. O atributo Reflexão permanece no relatório, mas deve ser calculado apenas a partir das respostas, hierarquias, justificativas e conteúdo dos fractais. O atributo Sentimento permanece no relatório como atributo metodológico, mas não deve ser derivado da reflexão após a tarefa.`;
+1. A reflexão final respondida após cada tarefa não faz parte do relatório.
+2. Ignore integralmente qualquer campo, dado ou conteúdo identificado como "Reflexão após essa tarefa", "final_feeling", "finalFeeling", "reflexão final", "como você está se sentindo após essa tarefa" ou equivalente.
+3. Não utilize esse conteúdo para interpretar padrões, inferir emoções, compor síntese, recomendações, métricas ou leitura da métrica.
+4. O atributo "Reflexão" permanece no relatório, mas deve ser calculado apenas a partir das respostas, hierarquias, justificativas e do conteúdo dos fractais. Ele não deve usar a reflexão após a tarefa.
+5. O atributo "Sentimento" permanece no relatório como atributo metodológico, mas não deve ser derivado da reflexão após a tarefa.`;
 
 function removeReflexaoPosTarefa(data: LifenergyV1ReportData): LifenergyV1ReportData {
   return {
@@ -78,35 +129,27 @@ function removeReflexaoPosTarefa(data: LifenergyV1ReportData): LifenergyV1Report
 
 export function buildLifenergyV1UserPrompt(data: LifenergyV1ReportData) {
   const safeData = removeReflexaoPosTarefa(data);
-  return `Gere o conteúdo interpretativo canônico do Relatório Lifenergy V1.0, calibrado pelo Modelo Canônico V3, para os dados abaixo.
+  return `Gere o conteúdo interpretativo canônico do Relatório Lifenergy V1.0 para os dados abaixo.
 
 O sistema montará o DOCX fixo nesta estrutura:
 
-RELATORIO LIFENERGY
+RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO
 
 1. Identificação
 2. Registro de Aplicação
 3. Registro de Dados – Resultado
-4. Entendendo a linguagem dos fractais
-5. Caracterização dos padrões
-6. Síntese dos Resultados
-7. Recomendações para trilha de desenvolvimento
+   Para cada fractal:
+   - Fractal X – “atividade apresentada”
+   - Tabela com Nº da resposta, Resposta, Hierarquia e Padrões relacionais identificados
+   - Interpretação do Fractal X
+   - Sugestões de desenvolvimento – Fractal X
+4. Síntese dos padrões relacionais
+5. Categorização dos padrões de comportamento (0 a 100%)
+   Atributos obrigatórios: Socialização, Reflexão, Lazer, Propósito e Sentimento.
+   Depois, Leitura da métrica.
+6. Recomendações para desenvolvimento de habilidades
 
-Use os campos do JSON da seguinte forma:
-
-fractal_analyses.response_1_pattern, response_2_pattern e response_3_pattern serão usados na coluna “Padrões relacionais identificados”.
-
-linguagem_dos_fractais será usado integralmente na seção “Entendendo a linguagem dos fractais”. Escreva um texto único, integrado, sem marcadores, sem subtítulos internos e sem separar por fractal.
-
-fractal_analyses.interpretacao e fractal_analyses.sugestoes devem ser preenchidos por compatibilidade técnica, mas o DOCX da versão 1.5.19 não exibirá interpretações ou sugestões separadas por fractal.
-
-sintese_padroes será usado na seção “Síntese dos Resultados”. Escreva em texto corrido, com dois ou três parágrafos integrados.
-
-recomendacoes_habilidades será usado na seção “Recomendações para trilha de desenvolvimento”. Escreva em texto corrido, com três ou quatro parágrafos, sem bullets ou lista.
-
-Não utilize o nome da pessoa avaliada em nenhum desses campos. Mesmo quando os dados trouxerem nome completo, primeiro nome, e-mail ou identificação, transforme a redação em linguagem impessoal e consultiva.
-
-atributos_percentuais e leitura_metrica serão usados na seção “Caracterização dos padrões”. Mantenha a ordem obrigatória dos atributos e explique a leitura em prosa contínua, sem criar título interno.
+Use o estilo do projeto Laudos Lifenergy V2: leitura interpretativa clara, humana, organizada, objetiva, com tabelas e métricas calibradas pela régua validada. Priorize síntese e não alongue os padrões de resposta.
 
 DADOS DO AVALIADO E DA APLICAÇÃO:
 ${JSON.stringify(safeData, null, 2)}`;
@@ -139,7 +182,6 @@ export const lifenergyV1JsonSchema = {
         ],
       },
     },
-    linguagem_dos_fractais: { type: "string" },
     sintese_padroes: { type: "string" },
     recomendacoes_habilidades: { type: "string" },
     atributos_percentuais: {
@@ -158,7 +200,6 @@ export const lifenergyV1JsonSchema = {
   },
   required: [
     "fractal_analyses",
-    "linguagem_dos_fractais",
     "sintese_padroes",
     "recomendacoes_habilidades",
     "atributos_percentuais",

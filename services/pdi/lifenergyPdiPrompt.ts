@@ -1,4 +1,4 @@
-import type { LifenergyPdiData } from "./lifenergyPdiTypes";
+﻿import type { LifenergyPdiData } from "./lifenergyPdiTypes";
 import {
   LIFENERGY_PDI_ENGINE_VERSION,
   LIFENERGY_PDI_PROMPT_VERSION,
@@ -120,8 +120,8 @@ REGRAS DE REDAÇÃO
 13. Oportunidades de melhoria: gerar 3 itens objetivos.
 14. Competências a desenvolver: gerar 3 competências prioritárias.
 15. Objetivos de curto prazo: gerar 3 objetivos práticos para até 6 meses.
-16. Objetivos de médio prazo: gerar exatamente 3 objetivos para PDI Corporativo V3.1; manter 2 apenas para PDI Relacional.
-17. Direcionamento de longo prazo: gerar exatamente 3 linhas para PDI Corporativo V3.1; manter 2 linhas para PDI Relacional.
+16. Objetivos de médio prazo: gerar 2 objetivos práticos para até 12 meses.
+17. Direcionamento de longo prazo: gerar 2 a 3 linhas para horizonte de 2 a 3 anos.
 18. Plano 70-20-10: gerar 3 blocos, um para cada competência prioritária, com ações de prática, aprendizagem social, aprendizagem formal, frequência, responsável, recursos e evidência de conclusão.
 19. Indicadores e evidências: gerar 3 indicadores SMART/KPI comportamentais.
 20. Apoio e suporte necessário: gerar um parágrafo direto.
@@ -131,113 +131,6 @@ REGRA DE ESCOPO SOBRE A REFLEXÃO APÓS A TAREFA
 A reflexão final respondida após cada tarefa não faz parte do PDI.
 Ignore integralmente qualquer campo, dado ou conteúdo identificado como "Reflexão após essa tarefa", "final_feeling", "finalFeeling", "reflexão final", "como você está se sentindo após essa tarefa" ou equivalente.
 Não utilize esse conteúdo para diagnóstico, atributos, pontos fortes, oportunidades, competências, objetivos, suporte, indicadores ou cronograma.`;
-
-
-/** Instruções adicionais apenas para o PDI Corporativo V3.1. Não alterar o fluxo Relacional. */
-export const LIFENERGY_PDI_CORPORATE_V31_ADDENDUM = `
-PRIORIDADE MÁXIMA — MODELO CANÔNICO PDI DE DESENVOLVIMENTO CORPORATIVO V3.1
-HIERARQUIA METODOLÓGICA INEGOCIÁVEL — LIFENERGY É A BASE DO PDI
-Este PDI responde à pergunta: COMO a pessoa, à luz do Relatório Lifenergy, pode desenvolver seu potencial diante das perspectivas, responsabilidades e oportunidades da organização?
-A percepção do gestor NÃO é diagnóstico Lifenergy, NÃO mede as cinco métricas e NÃO pode substituir a leitura dos fractais. Não atribua pesos iguais às fontes. Não use percentuais artificiais para definir a importância das fontes.
-Ordem obrigatória de fundamentação:
-A) FONTE PRIMÁRIA — Relatório Lifenergy: respostas, hierarquias, justificativas, interpretação integrada dos fractais, síntese, recomendações e cinco percentuais calculados. Esta fonte determina a leitura do perfil comportamental e orienta a escolha das três competências a desenvolver.
-B) FONTE DE APLICAÇÃO — Biblioteca Corporativa: responsabilidades efetivas do cargo, competências institucionais, cultura e prioridades estratégicas. Indica ONDE e COMO aplicar as potencialidades e desenvolver competências, sem redefinir o diagnóstico individual.
-C) FONTE COMPLEMENTAR — Contexto Operacional: percepção do gestor sobre execução no cargo, desafios, urgências, expectativas e caminhos de carreira. É ponto de vista contextual sujeito a confirmação, não verdade diagnóstica, nem evidência de capacidade ou limitação psicológica. Serve para identificar demandas, estabelecer condições de desenvolvimento e propor acompanhamento.
-Sempre comece pelas conclusões interpretativas sustentadas em A; encontre possibilidades concretas em B; depois confronte C sem absorvê-la automaticamente. Se o gestor não preencheu o questionário, ainda assim deve ser possível gerar o PDI a partir de A e B.
-
-TRATAMENTO EXPLÍCITO DE CONVERGÊNCIAS E DIVERGÊNCIAS
-- Quando a percepção do gestor coincide com uma potencialidade identificada pelo Lifenergy, utilize-a apenas para contextualizar sua aplicação profissional; não trate coincidência como validação estatística do diagnóstico.
-- Quando o gestor percebe dificuldade em dimensão que o Lifenergy aponta como potencialidade, NÃO reduza o atributo, NÃO recalcule a métrica, NÃO afirme que a pessoa 'não possui' a competência. Distinga potencial comportamental de manifestação observada no ambiente. Sugira experiências, feedback e evidências futuras para entender as condições que favorecem ou dificultam sua expressão no cargo.
-- Quando o gestor assinala como urgente uma competência sem sustentação suficiente no Lifenergy, NÃO a transforme automaticamente em uma das três prioridades do PDI. Considere-a como demanda operacional a pactuar, como condição de trabalho ou como aspecto a observar durante o acompanhamento, se pertinente.
-- Quando a pretensão de promoção/sucessão do gestor diverge do desenvolvimento revelado no Lifenergy, formule uma trajetória gradual de preparação, sem forçar adequação do perfil à expectativa da empresa. Não prometa promoção, aptidão, prontidão objetiva ou aprovação de sucessão.
-- Escalas de 1 a 5 expressam somente a percepção do gestor, em separado das cinco métricas Lifenergy; NÃO convertê-las em percentuais, classificações de perfil, competências existentes ou constatações sobre desempenho real.
-- Quando houver discordância relevante, descreva-a com linguagem respeitosa e claramente atribuída ('na percepção do gestor...', 'a leitura Lifenergy sugere...'), preferencialmente em Diagnóstico/Análise ou Apoio e Suporte, sem inventar desacordo onde os dados não o sustentem. A divergência vira tema de desenvolvimento, nunca motivo para apagar o achado do Lifenergy ou desqualificar o gestor.
-
-ENCADENAMENTO ANALÍTICO OBRIGATÓRIO — EXECUTAR ANTES DE REDIGIR O JSON (NÃO EXIBIR)
-1. Identifique no Relatório Lifenergy as 3 a 5 características mais relevantes, fundamentadas nos fractais, hierarquias e métricas, com limites interpretativos explícitos. Não infira desempenho ou proficiência técnica a partir de preferências simbólicas.
-2. Derive delas potencialidades transferíveis e oportunidades genuínas de desenvolvimento, distinguindo inferências de observações verificadas.
-3. Relacione essas potencialidades às atividades reais do cargo e às competências e prioridades documentadas na Biblioteca. Escolha exatamente três competências por sua relevância ao perfil Lifenergy E à oportunidade de desenvolvimento na empresa. Se a percepção do gestor coincidir, contextualize; se divergir, não substitua a escolha por preferência gerencial.
-4. Leia o questionário do gestor como uma perspectiva operacional sobre o presente e uma indicação de destino possível. Considere as hipóteses do gestor de modo crítico e conciliatório, sem transformá-las em diagnóstico, nível real de desempenho ou comprovação de sucessão.
-5. Organize, para cada competência selecionada, uma cadeia coerente: achado Lifenergy -> competência a desenvolver -> aplicação nas responsabilidades do cargo -> resultado desejado -> ação 70-20-10 -> indicador/evidência -> acompanhamento. Faça essa conexão aparecer na qualidade e especificidade do plano, sem publicar a cadeia como seção ou campo novo.
-6. Revise a resposta: se qualquer prioridade, diagnóstico, objetivo central ou conclusão sobre o perfil tiver sido derivada apenas de uma nota ou expectativa do gestor, REESCREVA a partir do Lifenergy. Preserve o contexto operacional somente como hipótese, condicionante ou demanda de aplicação profissional.
-
-EXEMPLO DE DIVERGÊNCIA (ILUSTRATIVO, NÃO UTILIZAR COMO DADO REAL)
-Se Socialização no relatório é 80% e o gestor indica baixa frequência de participação em reuniões, não declare 'baixa socialização' nem 'excelente comunicação no trabalho' como fato. Registre que o potencial de interação apontado pelo Lifenergy pode não estar se expressando plenamente nas reuniões segundo a percepção do gestor; proponha práticas observáveis, feedback e condições para sua expressão.
-
-Estas instruções complementam e, em caso de conflito, prevalecem sobre as regras de quantidade e conteúdo do modelo anterior. O modelo de referência é o PDI Corporativo V3.1 fornecido pela equipe Lifenergy.
-
-OBJETIVO DO DOCUMENTO
-Produza um plano verdadeiramente individualizado, com diagnóstico conectado à métrica Lifenergy JÁ CALCULADA, ao contexto documentado do cargo e à Biblioteca Corporativa Inteligente. Nenhum percentual da metodologia pode ser criado, recalculado ou ajustado. Preserve integralmente os valores de Socialização, Reflexão, Lazer, Propósito e Sentimento presentes no relatório de origem. Diferencie evidência comportamental inferida do fractal, responsabilidade do cargo segundo a Biblioteca e objetivo proposto para desenvolvimento. Não trate inferências ou metas propostas como fatos observados.
-
-ORGANIZAÇÃO CANÔNICA DAS SEÇÕES
-Seção 1 — Identificação: dados cadastrais serão inseridos pelo backend; não os gere no JSON.
-Seção 2 — Contexto do PDI: cargo, área, gestor e demais campos são do cadastro e da Biblioteca; não os invente.
-Seção 3 — Objetivo central do PDI: um parágrafo específico, unindo forças do perfil, demandas reais do cargo e prioridades da organização.
-3.1 — Objetivo de carreira/desenvolvimento profissional: construa primeiro uma trajetória coerente com as potencialidades e necessidades de desenvolvimento inferidas do Lifenergy. Confronte-a com o cargo, as oportunidades documentadas na Biblioteca e o direcionamento dos próximos 12 meses informado pelo gestor. O plano do gestor indica uma perspectiva profissional a considerar, mas não deve determinar o diagnóstico nem forçar uma trajetória incompatível com o perfil. Se houver trilha/sucessão informada, avalie possibilidades de preparação gradual, sem afirmar aprovação, prontidão objetiva ou promoção garantida. Quando não houver direcionamento, proponha alinhamento com RH e liderança sem inventar posição.
-Seção 4 — Diagnóstico e análise de perfil: dois ou três parágrafos profundos e coerentes com a linguagem interpretativa do Relatório Lifenergy V3, conectando TODOS os fractais e as cinco métricas, potencialidades e tensões comportamentais. O eixo da análise é exclusivamente o Relatório Lifenergy; cargo e Biblioteca situam sua aplicação, e o relato do gestor, quando houver, é identificado como percepção externa, nunca como confirmação, refutação ou recalibração do perfil. Não emitir diagnóstico clínico nem afirmar fatos de desempenho não verificados.
-4.1 — Avaliação dos cinco atributos: observações próprias do avaliado e coerentes com os percentuais. Escala é fixa (0–29 inferior; 30–49 média inferior; 50–69 média; 70–89 média superior; 90–100 superior). Não utilizar descritores como 'alto' ou 'superior' em 62% (faixa média).
-4.2/4.3 — Exatamente três pontos fortes e três oportunidades de melhoria em pares, derivados da síntese Lifenergy e fundamentados nas respostas/hierarquias dos fractais. A oportunidade de melhoria deve aprimorar, equilibrar ou mobilizar uma potencialidade identificada, e não reproduzir mecanicamente críticas, notas ou prioridades do questionário gerencial. Não invente desempenho observado.
-ATENÇÃO AO QUESTIONÁRIO DO GESTOR: seus escores de situação e prontidão (1 a 5), frequências e urgências são percepções informadas pelo gestor, não percentuais Lifenergy, nem avaliação formal ou metas já alcançadas. A perspectiva de carreira ajuda a contextualizar um objetivo profissional originado no diagnóstico Lifenergy e conectado às possibilidades reais da empresa; não é determinante nem possui o mesmo nível de fundamentação que o Relatório Lifenergy.
-Seção 5 — Exatamente três competências a desenvolver, ESCOLHIDAS A PARTIR DO DIAGNÓSTICO LIFENERGY e relacionadas a competências da Biblioteca Corporativa e às possibilidades reais de aplicação no cargo. As prioridades e urgências declaradas pelo gestor são informações complementares; só devem coincidir com a escolha quando houver justificativa comportamental suficiente. Divergências não obrigam o sistema a aderir ao gestor. Cada linha deve conter nome, tipo, nível atual com qualificação prudente (inferido como potencial de desenvolvimento, nunca medição de proficiência ou resultado de avaliação formal), competência organizacional citável da Biblioteca e estratégia concreta ligada às atribuições do cargo.
-Seção 6 — Os objetivos devem traduzir as três competências derivadas do Lifenergy em resultados profissionais progressivos e úteis à organização. Considere as expectativas de carreira e a prontidão PERCEBIDA pelo gestor apenas para calibrar a viabilidade, o ritmo e as condições de suporte; não use suas notas como fundamento de desenvolvimento nem como indicador de competência do indivíduo. Exatamente três objetivos de curto prazo (até seis meses), três de médio prazo (até doze meses) e três direcionamentos de longo prazo (dois a três anos). O 'objetivo' representa resultado, não só tarefa. Indicadores verificáveis e coerentes com Seção 7. Não inventar linha de base, metas oficiais ou aprovação da liderança; metas numéricas são propostas a pactuar.
-Seção 7 — Exatamente três blocos 70-20-10, um para cada competência Lifenergy-orientada da Seção 5, na MESMA ordem e com o MESMO nome. A experiência prática (70%) deve ser a transferência da potencialidade ao trabalho concreto segundo a descrição do cargo; a interação social (20%) deve trazer feedback, colaboração ou mentoria entre papéis comprovados e pode ser usada para observar hipóteses divergentes do gestor; a formação (10%) aprofunda a competência. Cada bloco precisa de frequência, responsável, recursos e evidência de conclusão. Não inventar nomes de colegas ou chefias.
-Seção 8 — Exatamente três indicadores SMART para acompanhar a EXPRESSÃO PROFISSIONAL das competências Lifenergy trabalhadas nas Seções 5 a 7, com KPI comportamental, evidências observáveis e prazo. Não são medidas diagnósticas, não validam nem alteram percentuais Lifenergy e não devem tomar notas do gestor como linha de base objetiva. São propostas de acompanhamento, não dados históricos.
-Seção 9 — Em texto narrativo coeso, explicite apoio da liderança e da organização, RH, estrutura, recursos e corresponsabilidade para que potencialidades identificadas pelo Lifenergy possam se expressar no contexto profissional. Quando houver divergência relevante com a percepção do gestor, inclua diálogo, observação de situações reais e feedback, sem impor uma das perspectivas como verdade absoluta. Não atribua sobrecarga, risco psicossocial, sucessão ou iniciativa corporativa à empresa sem fonte identificável.
-Seção 10 — Exatamente dois checkpoints para verificar evolução na aplicação das competências escolhidas a partir do Lifenergy, resultados observáveis e, quando necessário, alinhar diferenças de percepção com o gestor; incluir participação, pauta e evidência. Não afirmar comparecimento ou aprovação.
-Seção 11 — Assinaturas, declaração e referências normativas são inseridas pelo backend; não gerar conteúdo adicional.
-
-PADRÃO EXECUTIVO DE CONCISÃO — OBRIGATÓRIO PARA OS CAMPOS DAS TABELAS
-O documento de referência utiliza frases curtas, indicadores mensuráveis e linguagem de gestão. Os limites abaixo valem INDIVIDUALMENTE por célula, sem excluir metas, prazos, evidências ou contexto necessário.
-Seção 5 (3 linhas): nome da competência até 9 palavras; tipo até 4; nível atual até 16 (qualificado como estimativa, jamais avaliação formal); competência organizacional até 12; estratégia até 22 palavras. Ex.: "Nível estimado: intermediário; desenvolver uso de indicadores." Não utilize a expressão literal "(inferência do perfil)". Mantenha a natureza estimada do nível quando não há avaliação formal. Evite justificar longamente a escolha.
-Seção 6.1 e 6.2 (3 objetivos por período): objetivo até 22 palavras, iniciando por resultado/entrega verificável; indicador de sucesso até 23 palavras, com evidência e meta proposta a pactuar quando houver número; prazo breve (ex. "Até 6 meses"); prioridade em uma palavra.
-Seção 6.3 (3 focos): foco até 12 palavras; resultado esperado até 21; evidência de evolução até 20. Resuma o resultado sem discursos motivacionais.
-Seção 8 (3 linhas): indicador até 14 palavras; critério SMART até 22; KPI comportamental até 15; evidência até 17; prazo até 6 palavras. Números são metas propostas para validação com a liderança, nunca linha de base ou resultado alcançado. Não comece células com "Propor, pactuar e acompanhar que" nem repita a descrição inteira do cargo.
-Seção 10 (2 checkpoints): reunião até 9 palavras; data prevista até 7; participantes até 11; pauta até 19; observações até 14. Use sintagmas gerenciais curtos: "Revisar KPIs, prazos e plano de ação." e "Registrar decisões e responsáveis."
-Nas seções 5, 6.1, 6.2, 6.3, 8 e 10, prefira UMA frase curta por célula. Não utilize parágrafos, justificativas, introduções, redundâncias, repetição do nome da pessoa ou descrição extensa da rotina. Mantenha títulos e número de linhas exatamente como o modelo. Preserve vínculos entre competência, objetivo, ação, evidência e checkpoint.
-Nas seções narrativas 3, 4 e 9, preserve a análise contextual integrada DERIVADA DO LIFENERGY; as restrições acima são destinadas às tabelas gerenciais, não a cortar a análise.
-
-PROFUNDIDADE PERSONALIZADA E CURADORIA DE EVIDÊNCIAS — PADRÃO V3.1, REVISÃO 1.5.19.13
-Antes de redigir o JSON, examine o CONTEÚDO INTERPRETADO de cada um dos quatro tipos de documento corporativo recebido, e não apenas seu título: descrição de cargos e funções; matriz de competências; cultura e valores; estratégia e prioridades. Forme mentalmente uma matriz de lastro, que NÃO deve aparecer como nova seção:
-- ACHADO LIFENERGY: detalhe específico do fractal, da hierarquia, de sua justificativa ou da síntese; diferencie potencial simbólico de proficiência demonstrada.
-- EVIDÊNCIA DOCUMENTAL: atividade, fluxo, ferramenta, sistema, indicador, prática, competência institucional ou prioridade efetivamente presente no conteúdo_texto da Biblioteca. Anote internamente o documento de origem. Não confunda o nome de uma categoria com prova de uma atividade.
-- TRANSFERÊNCIA PROFISSIONAL: como aquela potencialidade pode ser aplicada ou desenvolvida naquela atribuição, com resultado verificável e suporte organizacional apropriado.
-- VISÃO DO GESTOR: somente condição complementar, expectativa, restrição ou divergência a acompanhar; nunca a origem de um novo diagnóstico.
-
-ESPECIFICIDADE QUE SE PODE AUDITAR:
-1. Use com naturalidade termos, ferramentas e processos REAIS citados explicitamente nos textos disponíveis. Se a Descrição de Cargos trouxer ferramentas ou fluxos nominados, empregue esses nomes com precisão ao menos em uma competência da Seção 5 e nas ações práticas 70% ou evidências das Seções 7 e 8. Distribua referências concretas entre as seções, em vez de repeti-las em todas as linhas.
-2. Quando a Biblioteca de fato documentar um CRM, sistema de chamados, portal de operadora, planilha, indicador, rotina de conferência, faturamento ou movimentação cadastral, utilize a denominação EXATA e a atividade correspondente no cargo. Estes são apenas TIPOS DE EVIDÊNCIA, não uma lista de ferramentas presumidas. Se o texto não confirmar algum deles, não utilize esse exemplo.
-3. Use competências organizacionais conforme o texto da Matriz; explicite sua aplicação à prática concreta, não apenas cite palavras como 'colaboração' ou 'qualidade'. Conecte as prioridades estratégicas à consequência esperada na operação quando houver suporte explícito.
-4. Evite planos intercambiáveis que sirvam para qualquer empresa: 'fazer curso', 'aprimorar comunicação', 'acompanhar indicadores' não bastam sem identificar O QUÊ, EM QUAL FLUXO e QUE EVIDÊNCIA demonstrará avanço.
-5. Não use toda a Biblioteca como decoração. Escolha os 2 a 4 vínculos documentais mais relevantes para este cargo e para o diagnóstico; maximize densidade e pertinência, não quantidade de menções ou jargão.
-6. Se a Biblioteca for silenciosa sobre uma ferramenta ou metodologia, não a invente e não a substitua por detalhes externos; formule a ação em nível compatível com a documentação recebida. Fontes não verificadas nunca devem ser afirmadas como procedimentos oficiais.
-
-SEÇÃO 4 — SÍNTESE ANALÍTICA SEM REDUNDÂNCIA:
-Elabore 2 ou 3 parágrafos com FUNÇÕES DISTINTAS, em prosa executiva fluida:
-- Primeiro: explique o eixo decisório revelado pelos fractais (por exemplo, a prioridade relativa entre investir, estabilidade, lazer e conhecimento SOMENTE se as respostas de fato demonstrarem isso). Analise o sentido da hierarquia, sem repetir narrativamente as tabelas do Relatório.
-- Segundo: converta esse eixo em oportunidades e tensões de expressão no cargo, usando atribuições e processos explicitamente documentados. Uma associação simbólica a tecnologia não autoriza declarar domínio técnico de um sistema; ela pode orientar aprendizagem aplicada às ferramentas reais.
-- Terceiro, apenas quando acrescentar informação nova: apresente a tensão de desenvolvimento e condições de suporte; se houver divergência gerencial relevante e comprovada nos dados, atribua claramente a perspectiva ao gestor sem desfazer o diagnóstico.
-NÃO repita a mesma combinação de atributos ou as mesmas conclusões em dois parágrafos. Cada parágrafo precisa acrescentar significado novo. Nunca inclua comentários metalinguísticos como 'A leitura de desenvolvimento articula...', 'Este diagnóstico foi construído...', 'Segundo a metodologia aplicada...' ou ressalvas genéricas sobre elaboração do PDI. Não escreva nomes da pessoa nem percentuais em parênteses nesta seção.
-Nas observações da tabela 4.1, descreva um significado diferencial de cada atributo e uma aplicação concreta ou cautela, em UMA frase objetiva por linha. Nos pontos fortes/oportunidades, evite reescrever literalmente a Seção 4.
-
-SEÇÃO 6 — PROGRESSÃO E RESULTADO ESTRATÉGICO:
-A introdução estratégica da Seção 6 é fixada no template DOCX. No JSON, os objetivos devem funcionar como consequência dessa introdução: até 6 meses estabelecer competência em rotina concreta, até 12 meses consolidar contribuição confiável e, em 2 a 3 anos, orientar autonomia, especialização ou maior responsabilidade compatível com trajetória possível. Cada uma das três competências deve ter 1 objetivo em cada horizonte; o indicador comprova resultado, não apenas frequência de curso ou intenção. Não prometer promoção nem tratar nota do gestor como proficiência comprovada.
-
-REVISÃO EDITORIAL INTERNA OBRIGATÓRIA (NÃO RETORNAR A MATRIZ):
-Antes de devolver o JSON, verifique que: (a) o diagnóstico da Seção 4 não repete ideias e não tem comentário sobre como o PDI foi gerado; (b) cada competência possui lastro no Relatório Lifenergy E aplicação em algum documento corporativo; (c) ao menos duas referências operacionais distintas aparecem nas seções 5 a 8 SE estiverem realmente disponíveis na Biblioteca; (d) não existe ferramenta, cargo, indicador, processo ou política inventados; (e) as três cadeias de competência -> objetivo -> 70-20-10 -> KPI estão consistentes; (f) não se utilizou nome da pessoa no JSON; (g) o contexto do gestor não substituiu a fonte diagnóstica; (h) a redação tem informação original em cada seção, sem clichês e sem ampliar desnecessariamente as células de tabela. Reescreva campos insuficientes ANTES de responder.
-
-REDAÇÃO E CONTROLE DE QUALIDADE
-Escreva em português formal, claro, de consultoria corporativa. Prefira parágrafos completos e conectados em seções narrativas; não introduza bullets no texto em prosa. Tabelas contêm frases objetivas e acionáveis. Não faça repetição mecânica entre Diagnóstico, Objetivos e Ações. A cada conclusão interpretativa relevante deve corresponder uma aplicação de desenvolvimento concreta e coerente; não preencha o plano simplesmente com as competências escolhidas pelo gestor. Preserve as denominações de cargos, competências, cultura e procedimentos reais da Biblioteca. Não atribua ao avaliado cargo ou setor de outra pessoa. Se a Biblioteca trouxer apenas um resumo, não alegue validação formal de plano de sucessão ou desempenho. Ignore sempre o 'Objetivo de participação' e a reflexão pós-tarefa. Não acrescente textos grifados em amarelo: isso no documento de referência apenas indica revisão editorial.
-
-RETORNO
-REGRA EDITORIAL OBRIGATÓRIA — IDENTIDADE NA REDAÇÃO CORPORATIVA:
-- Nunca escreva nome completo, primeiro nome, apelido, iniciais identificáveis ou sobrenome da pessoa avaliada em qualquer campo de conteúdo gerado para o PDI Corporativo: objetivos, carreira, diagnóstico, observações de atributos, pontos fortes, oportunidades, competências, metas, plano 70-20-10, responsáveis, indicadores, suporte e monitoramento.
-- Prefira construção impessoal e executiva, iniciando diretamente pela competência, potencialidade, objetivo ou ação. Quando o sujeito for indispensável, utilize "a pessoa avaliada", "o perfil identificado", "o colaborador" ou "a profissional" conforme a frase. Não repita esses termos mecanicamente.
-- O nome permanece apenas nos campos administrativos de IDENTIFICAÇÃO e ASSINATURA, que são preenchidos pelo DOCX a partir do cadastro, não pela IA.
-- Na SEÇÃO 4 (diagnóstico, observações da avaliação 4.1, pontos fortes e oportunidades 4.2/4.3), não coloque percentuais entre parênteses no texto; use interpretação integrada sem repetições numéricas. A coluna "Avaliação" da tabela 4.1 DEVE conservar os cinco percentuais exatos do Relatório Lifenergy. Não alterar valores, escalas ou cálculo.
-- Preserve linguagem clara, objetiva e de consultoria executiva; NÃO modifique títulos, tabelas, quantidade de linhas, seções nem os vínculos metodológicos.
-
-Retorne unicamente o JSON do schema recebido, sem markdown, sem comentários, sem campos novos. Não acrescente percentuais de IA nem calcule métricas; o backend substituirá avaliações pelo valor real do relatório.
-`;
 
 function removeCamposForaDoEscopo(data: LifenergyPdiData): LifenergyPdiData {
   const response = data.reportData.response as typeof data.reportData.response & {
@@ -273,10 +166,10 @@ function removeCamposForaDoEscopo(data: LifenergyPdiData): LifenergyPdiData {
 
 export function buildLifenergyPdiUserPrompt(data: LifenergyPdiData) {
   const safeData = removeCamposForaDoEscopo(data);
-  if (safeData.pdiType === "relational") {
+
   return `Gere o conteúdo canônico do Plano de Desenvolvimento Individual – PDI Lifenergy V3 para os dados abaixo.
 
-Tipo de PDI solicitado: PDI de Desenvolvimento Relacional.
+Tipo de PDI solicitado: ${safeData.pdiType === "corporate" ? "PDI de Desenvolvimento Corporativo" : "PDI de Desenvolvimento Relacional"}.
 
 O PDI deve ser objetivo, direto e conectado ao Relatório Lifenergy V1 já gerado.
 
@@ -297,62 +190,6 @@ Não exija Termo ou Política de uso do PDI.
 
 DADOS DO RELATÓRIO, CONTEXTO E BIBLIOTECA:
 ${JSON.stringify(safeData, null, 2)}`;
-  }
-
-  // O PDI Corporativo mantém todas as informações existentes, mas apresenta cada
-  // fonte na sua função metodológica para evitar que a percepção do gestor
-  // substitua o diagnóstico Lifenergy. O PDI Relacional acima não foi alterado.
-  const lifenergySource = {
-    relatorioLifenergy: safeData.reportContent,
-    dadosDaAplicacaoEFractais: safeData.reportData,
-    outrasAvaliacoesRelacionadasDisponiveis: safeData.relatedEvaluations ?? [],
-  };
-  const corporateSource = {
-    empresa: safeData.reportData.organization,
-    cargoAtualInformado: safeData.pdiContext?.current_job_title ?? null,
-    areaInformada: safeData.pdiContext?.current_area ?? null,
-    gestorInformado: safeData.pdiContext?.manager_name ?? null,
-    documentosDaBibliotecaCorporativa: safeData.corporateDocuments.map((documento) => ({
-      categoria: documento.category,
-      tituloDocumento: documento.title,
-      conteudoInterpretadoIntegral: documento.content_text,
-    })),
-  };
-  const managerSource = {
-    motivoEContextoSegundoGestor: safeData.pdiContext?.context_summary ?? null,
-    situacaoAtualSegundoGestor: safeData.pdiContext?.current_situation ?? null,
-    desafiosSegundoGestor: safeData.pdiContext?.current_challenges ?? null,
-    prioridadesSegundoGestor: safeData.pdiContext?.development_priorities ?? null,
-    perspectivaDeCarreiraSegundoGestor: safeData.pdiContext?.career_direction ?? null,
-  };
-
-  return `Gere o conteúdo do PDI Corporativo V3.1 Lifenergy com a estrutura documental e o schema JSON já estabelecidos.
-
-FINALIDADE: apresentar como a pessoa, compreendida por meio da metodologia Lifenergy, poderá desenvolver suas potencialidades e trabalhar suas necessidades de desenvolvimento nas oportunidades concretas da empresa.
-
-ORDEM DE LEITURA E VALIDADE DAS INFORMAÇÕES:
-1) Fonte A, Relatório Lifenergy, é a base interpretativa primária do perfil e das três competências de desenvolvimento. Utilize a síntese, a linguagem dos fractais, as respostas e hierarquias e a métrica já calculada, sem alterá-las.
-2) Fonte B, Biblioteca Corporativa e cargo, é a base de adequação do desenvolvimento ao ambiente, atividades reais, cultura, competências e perspectivas da empresa. Não é diagnóstico individual.
-3) Fonte C, Contexto Operacional, apresenta APENAS a percepção e as intenções do gestor. Pode convergir ou divergir do Lifenergy. NÃO priorize nem equipare essa percepção ao diagnóstico. Use-a para contextualizar desafios, testar hipóteses, fornecer apoio e considerar uma possível trajetória profissional.
-
-DIVERGÊNCIAS: preserve as conclusões Lifenergy, identifique a informação discordante do gestor como percepção, evite afirmar desempenho real e proponha observação/feedback/experiências no trabalho. Não force a escolha das três competências ou o objetivo central a reproduzir as opções gerenciais.
-
-COERÊNCIA E PERSONALIZAÇÃO: as seções 3, 4 e 4.2/4.3 devem nascer do Relatório Lifenergy; as três competências da Seção 5 devem resultar dessa interpretação e encontrar aplicação na Biblioteca; as seções 6, 7, 8 e 10 devem desenvolver e acompanhar ESSAS competências, e não uma lista de preferências do gestor. O objetivo de carreira deve ser compatível com o potencial diagnosticado e considerar, sem automaticamente endossar, as perspectivas da empresa e do gestor. Examine integralmente cada documento da Fonte B para identificar atividades e ferramentas reais. Se os documentos informarem fluxo de atendimento, CRM, sistema, movimentações, faturamento, controles ou indicadores, cite apenas os que são sustentados pelos textos e compatíveis com o cargo; utilize-os nos objetivos, na prática 70% e nas evidências. Não transforme exemplos genéricos em fatos desta empresa. Cada uma das três competências deve estar conectada a uma atribuição corporativa específica.
-
-EXATIDÃO: conserve os cinco percentuais da Fonte A; não os confunda com as notas de 1 a 5 da Fonte C. Não invente avaliação de desempenho, sucessão aprovada, domínio técnico nem progresso já demonstrado. Não use o Objetivo de participação nem a Reflexão após a tarefa. Preserve o estilo executivo e a concisão das tabelas aprovada para o V3.1.
-
-ESTILO EDITORIAL V3.1: não mencione o nome da pessoa avaliada em NENHUM dos campos JSON. Redija com linguagem executiva, clara e impessoal, sem perder a análise Lifenergy. Na Seção 4, não repita o mesmo achado em mais de um parágrafo; o primeiro explica padrões dos fractais, o seguinte mostra aplicação concreta no cargo, e um terceiro só existe se trouxer diferença relevante. NÃO inclua fechamento metalinguístico ('A leitura de desenvolvimento...'). Na Seção 4, evite valores percentuais entre parênteses nos textos (inclusive nas observações e nos pontos fortes/oportunidades); os percentuais permanecem somente na coluna numérica da tabela 4.1. Seções gerenciais: frases curtas com referências corporativas precisas, sem perder a relação entre resultado esperado e evidência.
-
-FONTE A — RESULTADOS E DADOS LIFENERGY (PRIMÁRIA):
-${JSON.stringify(lifenergySource, null, 2)}
-
-FONTE B — ORGANIZAÇÃO, CARGO E BIBLIOTECA CORPORATIVA (APLICAÇÃO):
-${JSON.stringify(corporateSource, null, 2)}
-
-FONTE C — CONTEXTO OPERACIONAL, PERCEPÇÃO DO GESTOR (COMPLEMENTAR):
-${JSON.stringify(managerSource, null, 2)}
-
-Retorne exclusivamente o JSON do schema existente, sem novas seções, campos ou comentários.`;
 }
 
 export const lifenergyPdiJsonSchema = {
