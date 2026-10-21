@@ -1,8 +1,8 @@
-export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_canonico_1_5_9";
+export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_modelo_validado_fase_4_1_20261020";
 export const LIFENERGY_REPORT_FORMAT = "docx";
 export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.9";
-export const LIFENERGY_REPORT_PROMPT_VERSION = "laudos_lifenergy_v1_motor_metrico_canonico_2026_08_30";
-export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_lifenergy_v1_canonico_1_5_9_logo_configuravel";
+export const LIFENERGY_REPORT_PROMPT_VERSION = "modelo_camilla_validado_20261020";
+export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_modelo_camilla_validado_fase_4_1";
 
 export type LifenergyFractalResponse = {
   index: number;
@@ -73,6 +73,7 @@ export type LifenergyV1GeneratedContent = {
     interpretacao: string;
     sugestoes: string;
   }>;
+  linguagem_dos_fractais: string;
   sintese_padroes: string;
   recomendacoes_habilidades: string;
   atributos_percentuais: Array<{

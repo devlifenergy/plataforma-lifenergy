@@ -91,6 +91,7 @@ export function isLifenergyV1GeneratedContent(value: unknown): value is Lifenerg
     candidate &&
       Array.isArray(candidate.fractal_analyses) &&
       Array.isArray(candidate.atributos_percentuais) &&
+      typeof candidate.linguagem_dos_fractais === "string" &&
       typeof candidate.sintese_padroes === "string" &&
       typeof candidate.recomendacoes_habilidades === "string" &&
       typeof candidate.leitura_metrica === "string"
@@ -176,6 +177,7 @@ function normalizeGeneratedContent(
 
   return {
     fractal_analyses: normalizeFractalAnalyses(content, data),
+    linguagem_dos_fractais: cleanText(content.linguagem_dos_fractais),
     sintese_padroes: cleanText(content.sintese_padroes),
     recomendacoes_habilidades: cleanText(content.recomendacoes_habilidades),
     atributos_percentuais: metric.atributos,
