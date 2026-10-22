@@ -15,34 +15,27 @@ OBJETIVO
 Gerar exclusivamente o conteúdo interpretativo que será inserido em um DOCX fixo do Relatório Lifenergy – Desenvolvimento Humano.
 A estrutura documental não deve ser inventada por você. Ela já está fixa no sistema.
 
-CALIBRAÇÃO EDITORIAL RECUPERADA — MATRIZ 1.5.19.6, COMPATÍVEL COM A FASE 4.1
+BASE METODOLÓGICA
+Use o padrão validado no projeto Laudos Lifenergy V2, que produz o Relatório Lifenergy V1 com esta lógica:
+1. Identificação.
+2. Registro de Aplicação.
+3. Registro de Dados – Resultado por fractal.
+4. Para cada resposta, identificar um padrão relacional breve, específico e coerente.
+5. Abaixo de cada quadro, escrever a Interpretação do Fractal X em um parágrafo.
+6. Em seguida, escrever Sugestões de desenvolvimento – Fractal X em um parágrafo.
+7. Ao final, cruzar todos os fractais e escrever uma síntese dos padrões relacionais.
+8. Escrever recomendações para desenvolvimento de habilidades.
+9. Categorizar os padrões em Socialização, Reflexão, Lazer, Propósito e Sentimento, com métrica de 0 a 100%.
+10. Escrever a Leitura da métrica.
 
-MISSÃO E LEITOR
-Produza uma leitura interpretativa Lifenergy fundamentada nas escolhas e em suas relações, com a profundidade, maturidade, clareza e continuidade argumentativa do Relatório Lifenergy validado. O documento será lido por pessoas em autoconhecimento, empresários, gestores, profissionais de RH, recrutamento e psicologia. Ele deve ser compreensível sem banalizar a interpretação. Não constitui diagnóstico clínico ou certificação de aptidão profissional.
-
-MÉTODO INTERPRETATIVO
-A unidade de leitura é a relação entre situação proposta, resposta dada, JUSTIFICATIVA e HIERARQUIA, não a palavra isolada. Respeite cada escolha como preferência relativa naquele fractal. A terceira posição não indica rejeição nem insuficiência. Mostre a lógica que organiza as três respostas antes de generalizar; conecte fractais quando apresentarem convergência, complemento ou tensão. Diferencie sempre observação de possibilidade interpretativa; não converta símbolo em intenção biográfica comprovada.
-
-REFERÊNCIA DE QUALIDADE EDITORIAL RECUPERADA DA 1.5.19.6
-Escreva em português brasileiro, prosa analítica, consultiva, madura e fluida. A interpretação deve desenvolver o raciocínio: evidência concreta das respostas → importância relativa → possível significado humano → relação com outras escolhas → implicações proporcionais aos dados. Evite rótulos soltos, frases genéricas e repetições. Não transforme a síntese em uma sequência de características positivas nem confunda recomendações com instruções literais sobre objetos ou desejos hipotéticos.
-
-SEÇÃO 3 — QUARTA COLUNA: ENTENDENDO A LINGUAGEM DOS FRACTAIS
-Para cada resposta, produza uma frase de significado interpretativo específica e suficientemente desenvolvida para ser útil, normalmente 15 a 32 palavras. Interprete o que a escolha sugere NA ATIVIDADE apresentada e COMO se posiciona diante das outras duas respostas. Observe a justificativa informada; se faltar, não a invente. Evite começar todas as células da mesma maneira. Não limite o conteúdo a legendas, paráfrases ou adjetivos. Não prescreva desenvolvimento dentro das células. Exemplo de método, não de texto reutilizável: a escolha de um bem durável depois de uma iniciativa produtiva pode representar base e continuidade em plano secundário ao protagonismo, desde que a justificativa sustente essa leitura. Não projete significados desse exemplo em fractais diferentes.
-
-SEÇÃO 4 — ENTENDENDO A LINGUAGEM DOS FRACTAIS
-Elabore uma narrativa interpretativa, não um inventário de respostas. Revele a dinâmica de cada fractal e articule-os numa leitura simbólica integrada. Dê atenção ao primeiro lugar, ao papel mediador da segunda escolha e à função complementar da terceira, respeitando justificativas. Mostre significados que não são evidentes pela mera leitura literal da tabela. O texto deve progredir, do sentido das escolhas às relações entre elas, sem converter hipóteses em certezas. Referência histórica de densidade: aproximadamente 150 a 220 palavras quando existirem dois ou mais fractais com material suficiente. Um fractal único ou respostas pouco desenvolvidas autorizam texto proporcionalmente menor. Não inclua sugestões de desenvolvimento nesta seção. Prefira um ou dois parágrafos articulados, sem subtítulos internos.
-
-SEÇÃO 6 — SÍNTESE DOS RESULTADOS
-Esta é a INTEGRAÇÃO do perfil e precisa acrescentar valor à seção 4, sem recontá-la. Explique qual princípio parece orientar decisões, o que se repete entre fractais, como escolhas secundárias completam o quadro e que tensão ou oportunidade pode surgir. Faça o leitor compreender a organização das prioridades, não apenas reconhecer temas como propósito, reflexão, segurança e prazer. Evite inferir estado emocional, desempenho no trabalho ou planos de vida que não constem nas respostas. Como referência de qualidade da versão recuperada, desenvolva normalmente 160 a 260 palavras quando os dados sustentarem, com dois ou três movimentos argumentativos claros; não infle casos simples. Não preencha espaço com clichês ou metacomentários.
-
-SEÇÃO 7 — RECOMENDAÇÕES PARA TRILHA DE DESENVOLVIMENTO
-Traduza padrões interpretados em perspectivas consistentes de desenvolvimento humano. Cada eixo deve conectar explicitamente uma potencialidade ou ponto de atenção demonstrável, um tipo de aprendizagem ou experiência possível e o benefício esperado. Abranja, conforme o material, autonomia, planejamento, conhecimento, relações, participação, equilíbrio e satisfação; não force eixos irrelevantes. Não transforme “negócio próprio” hipotético em ordem para abrir uma empresa nem “livro” em prova de hábito de leitura. Preferir formação aplicada, troca de conhecimentos, reflexão orientada, integração entre entrega e descanso e iniciativas adequadas a distintas trajetórias pessoais e profissionais. A versão recuperada utilizava aproximadamente 180 a 300 palavras; use essa referência quando houver evidência, privilegiando profundidade sobre extensão artificial. Escreva em três ou quatro movimentos encadeados, sem listas, prescrições clínicas ou palavras vazias.
-
-PRUDÊNCIA, IDENTIFICAÇÃO E CONSISTÊNCIA
-Não usar nomes, sobrenomes, CPF, e-mail ou dados identificadores nos textos interpretativos. Não criar marcadores, listas ou subtítulos internos. Não aludir à IA, aos prompts ou à construção do relatório. Não inventar justificativas, intenções, traços estáveis, condições de saúde, diagnósticos clínicos ou decisões profissionais. Hierarquias 3/2/1 são posicionais e relativas. As cinco métricas calculadas pelo backend não devem ser alteradas ou aproximadas; os nomes e a ordem das colunas no DOCX são fixos e permanecem responsabilidade do gerador documental. A extensão é referência editorial, jamais justificativa para fabricar conteúdo.
-
-VERIFICAÇÃO FINAL DE QUALIDADE
-A quarta coluna da seção 3 interpretou as escolhas sem repeti-las? As seções 4 e 6 têm funções distintas e aprofundadas? A seção 7 decorre da leitura e oferece desenvolvimento concreto sem literalismo? A prosa é relevante para público técnico e compreensível para leigos? Há afirmações não sustentadas? Se houver, reescreva antes de devolver o JSON.
+PADRÃO DE SAÍDA ESPERADO
+O resultado deve se comportar como no relatório de referência:
+- Os padrões relacionais de resposta devem ser curtos, claros e interpretativos.
+- A interpretação de cada fractal deve ter uma leitura psicológica integrada das três respostas e da hierarquia.
+- As sugestões devem ser fundamentadas na interpretação daquele fractal.
+- A síntese final deve cruzar todos os fractais, sem repetir mecanicamente cada um.
+- A recomendação final deve ter tom de desenvolvimento humano e organizacional.
+- As métricas devem seguir a régua calibrada do projeto Laudos Lifenergy V2, sem reduzir artificialmente percentuais por excesso de conservadorismo.
 
 REGRAS DE HIERARQUIA
 3 = maior importância.
@@ -58,21 +51,26 @@ Propósito: atributo relacionado com a motivação pessoal e os objetivos do Usu
 Sentimento: atributo relacionado com o equilíbrio emocional do Usuário e sua relação positiva com os aspectos sentimentais internos e externos.
 
 REGRAS DE REDAÇÃO
-1. Redigir em português do Brasil, linguagem analítica, humana, consultiva, clara e precisa, sem tom promocional ou excesso de jargão.
-2. Não usar nome, primeiro nome, sobrenome, CPF ou e-mail nos textos interpretativos, padrões das tabelas, sínteses e recomendações. Dados pessoais ficam apenas no registro administrativo montado pelo DOCX.
-3. Não usar marcadores, enumeração, markdown ou novos subtítulos nos textos das seções. O formato das tabelas é responsabilidade do DOCX.
-4. Não afirmar diagnósticos clínicos, desempenho profissional, traços permanentes, intenções concretas, relações familiares ou emoções não declaradas.
-5. Não confundir hierarquia menor com ausência de valor. A leitura é relativa ao contexto do fractal.
-6. Não inventar justificativas quando ausentes nem extrapolar de símbolos para planos literais de vida.
-7. Evitar frases genéricas, redundância entre seções, repetição mecânica de palavras e inferências sobre a própria IA/metodologia.
-8. Cada padrão da Seção 3 descreve significado específico da escolha contextualizada. As interpretações e sugestões legadas por fractal seguem sendo campos internos necessários para compatibilidade do motor, mas não são exibidas no DOCX.
-9. Seções 4 e 6 têm funções distintas: interpretação das linguagens simbólicas versus síntese integrada do perfil. A Seção 7 propõe trilhas de desenvolvimento fundamentadas.
-10. Dar profundidade proporcional ao número e conteúdo dos fractais. Uma interpretação curta e bem fundamentada é melhor que conteúdo longo e especulativo; não encurtar a ponto de virar clichê.
-11. Não modificar ou sugerir porcentagens. O motor métrico pré-existente prevalece integralmente.
-12. Responder exclusivamente JSON válido no schema solicitado, sem prefácio ou comentários.
+1. Escreva em português do Brasil.
+2. Use linguagem técnica, humana, cuidadosa, objetiva e semelhante ao Relatório Lifenergy validado.
+3. Não use linguagem médica, patologizante, acusatória, determinista ou diagnóstica.
+4. Não invente dados biográficos, clínicos, profissionais ou familiares além dos dados recebidos.
+5. Não afirme certeza absoluta; use formulações como "indica", "revela", "sugere", "demonstra".
+6. Não cite que o conteúdo foi gerado por IA.
+7. Não explique a metodologia ao leitor; aplique a metodologia.
+8. Não use markdown.
+9. Não crie seções extras.
+10. Não escreva saudações, conclusões genéricas ou observações fora do JSON.
+11. Cada padrão identificado na tabela deve ser breve e direto, com no máximo 18 palavras.
+12. Cada interpretação de fractal deve ter entre 55 e 110 palavras.
+13. Cada sugestão de fractal deve ter entre 25 e 65 palavras.
+14. A síntese final deve ter entre 70 e 130 palavras.
+15. As recomendações finais devem ter entre 50 e 100 palavras.
+16. A leitura da métrica deve ter entre 45 e 90 palavras.
 
-REGRA CANÔNICA DA MÉTRICA DO ITEM 5 – CALIBRAÇÃO LAUDOS LIFENERGY V1/V2
-1. Os percentuais do item 5 são parte crítica do relatório e devem seguir a mesma régua do projeto Laudos Lifenergy V2.
+
+REGRA CANÔNICA DO ITEM 6 – CALIBRAÇÃO LAUDOS LIFENERGY V1/V2
+1. Os percentuais do item 6 são parte crítica do relatório e devem seguir a mesma régua do projeto Laudos Lifenergy V2.
 2. Não gere percentuais “aproximados” por estilo próprio. A métrica deve representar a intensidade metodológica do atributo no conjunto dos fractais, considerando respostas, hierarquias e justificativas.
 3. Use números inteiros exatos entre 0% e 100%.
 4. Não force arredondamento para múltiplos de 5. Os percentuais podem ser 82%, 58%, 87%, 91% ou qualquer outro número inteiro coerente com a régua metodológica.
@@ -131,18 +129,30 @@ function removeReflexaoPosTarefa(data: LifenergyV1ReportData): LifenergyV1Report
 
 export function buildLifenergyV1UserPrompt(data: LifenergyV1ReportData) {
   const safeData = removeReflexaoPosTarefa(data);
-  // Nao enviar dados pessoais ao modelo: texto interpretativo impessoal por construcao.
-  // O documento monta Identificacao e Registro de Aplicacao a partir dos dados originais.
-  const interpretiveInput = {
-    objetivo_de_participacao: safeData.response.participation_objective,
-    fractals: safeData.fractals,
-  };
-  return `Gere o conteúdo interpretativo do Relatório Lifenergy aprovado, composto de sete seções.
-O JSON precisa incluir linguagem_dos_fractais (seção 4), sintese_padroes (seção 6), recomendacoes_habilidades (seção 7), fractal_analyses (seção 3 e métrica), atributos_percentuais e leitura_metrica (métrica canônica).
-A seção 4 deve integrar todos os fractais sem duplicar a síntese da seção 6. A seção 7 deve recomendar desenvolvimento concreto, contextualizado e prudente. Não use nome ou identificadores da pessoa, nem marcadores.
+  return `Gere o conteúdo interpretativo canônico do Relatório Lifenergy V1.0 para os dados abaixo.
 
-DADOS ANONIMIZADOS PARA INTERPRETAÇÃO:
-${JSON.stringify(interpretiveInput, null, 2)}`;
+O sistema montará o DOCX fixo nesta estrutura:
+
+RELATORIO LIFENERGY - DESENVOLVIMENTO HUMANO
+
+1. Identificação
+2. Registro de Aplicação
+3. Registro de Dados – Resultado
+   Para cada fractal:
+   - Fractal X – “atividade apresentada”
+   - Tabela com Nº da resposta, Resposta, Hierarquia e Padrões relacionais identificados
+   - Interpretação do Fractal X
+   - Sugestões de desenvolvimento – Fractal X
+4. Síntese dos padrões relacionais
+5. Categorização dos padrões de comportamento (0 a 100%)
+   Atributos obrigatórios: Socialização, Reflexão, Lazer, Propósito e Sentimento.
+   Depois, Leitura da métrica.
+6. Recomendações para desenvolvimento de habilidades
+
+Use o estilo do projeto Laudos Lifenergy V2: leitura interpretativa clara, humana, organizada, objetiva, com tabelas e métricas calibradas pela régua validada. Priorize síntese e não alongue os padrões de resposta.
+
+DADOS DO AVALIADO E DA APLICAÇÃO:
+${JSON.stringify(safeData, null, 2)}`;
 }
 
 export const lifenergyV1JsonSchema = {
@@ -172,7 +182,6 @@ export const lifenergyV1JsonSchema = {
         ],
       },
     },
-    linguagem_dos_fractais: { type: "string" },
     sintese_padroes: { type: "string" },
     recomendacoes_habilidades: { type: "string" },
     atributos_percentuais: {
@@ -191,7 +200,6 @@ export const lifenergyV1JsonSchema = {
   },
   required: [
     "fractal_analyses",
-    "linguagem_dos_fractais",
     "sintese_padroes",
     "recomendacoes_habilidades",
     "atributos_percentuais",
