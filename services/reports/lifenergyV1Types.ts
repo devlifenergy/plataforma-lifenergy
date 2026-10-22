@@ -1,7 +1,7 @@
-export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_calibracao_interpretativa_fase_4_1_1_20261021";
+export const LIFENERGY_REPORT_VERSION = "lifenergy_v1_0_candidato_historico_15196_fase_4_1_2_20261021";
 export const LIFENERGY_REPORT_FORMAT = "docx";
 export const LIFENERGY_REPORT_ENGINE_VERSION = "1.5.9";
-export const LIFENERGY_REPORT_PROMPT_VERSION = "leitura_fractal_relacional_4_1_1_20261021";
+export const LIFENERGY_REPORT_PROMPT_VERSION = "leitura_fractal_historico_15196_4_1_2_20261021";
 export const LIFENERGY_REPORT_TEMPLATE_VERSION = "docx_modelo_camilla_validado_fase_4_1";
 
 export type LifenergyFractalResponse = {

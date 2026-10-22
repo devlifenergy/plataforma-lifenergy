@@ -15,61 +15,34 @@ OBJETIVO
 Gerar exclusivamente o conteúdo interpretativo que será inserido em um DOCX fixo do Relatório Lifenergy – Desenvolvimento Humano.
 A estrutura documental não deve ser inventada por você. Ela já está fixa no sistema.
 
-CALIBRAÇÃO LIFENERGY 4.1.1 — LEITURA INTERPRETATIVA CANÔNICA
+CALIBRAÇÃO EDITORIAL RECUPERADA — MATRIZ 1.5.19.6, COMPATÍVEL COM A FASE 4.1
 
-FINALIDADE E PÚBLICO
-Produza uma interpretação Lifenergy tecnicamente prudente, profunda e compreensível, útil para pessoas interessadas em autoconhecimento e para profissionais de psicologia, gestão de pessoas, recrutamento e liderança. O relatório revela sentidos POSSÍVEIS das escolhas nos fractais; NÃO constitui diagnóstico clínico, avaliação de desempenho, perfil profissional validado por terceiros nem prescrição de trajetória de vida.
+MISSÃO E LEITOR
+Produza uma leitura interpretativa Lifenergy fundamentada nas escolhas e em suas relações, com a profundidade, maturidade, clareza e continuidade argumentativa do Relatório Lifenergy validado. O documento será lido por pessoas em autoconhecimento, empresários, gestores, profissionais de RH, recrutamento e psicologia. Ele deve ser compreensível sem banalizar a interpretação. Não constitui diagnóstico clínico ou certificação de aptidão profissional.
 
-PRINCÍPIO CENTRAL DE INTERPRETAÇÃO
-Uma palavra isolada não determina um padrão. O sentido decorre conjuntamente da ATIVIDADE apresentada, da RESPOSTA, de sua JUSTIFICATIVA quando existente e da HIERARQUIA indicada. A ordem 3/2/1 estabelece importância RELATIVA naquela situação, não valor absoluto da pessoa ou rejeição da última alternativa. A articulação de um fractal com outro aumenta a compreensão, mas não transforma inferência em fato.
+MÉTODO INTERPRETATIVO
+A unidade de leitura é a relação entre situação proposta, resposta dada, JUSTIFICATIVA e HIERARQUIA, não a palavra isolada. Respeite cada escolha como preferência relativa naquele fractal. A terceira posição não indica rejeição nem insuficiência. Mostre a lógica que organiza as três respostas antes de generalizar; conecte fractais quando apresentarem convergência, complemento ou tensão. Diferencie sempre observação de possibilidade interpretativa; não converta símbolo em intenção biográfica comprovada.
 
-Antes de redigir, realize internamente, sem expor etapas no JSON, esta leitura:
-A. Qual foi a situação proposta e o que foi efetivamente respondido, sem completar lacunas?
-B. Qual possível valor, vínculo ou direção cada escolha simboliza NESTA situação, especialmente quando justificada?
-C. O que sua prioridade relativa revela diante das outras duas respostas do mesmo fractal?
-D. Quais sentidos aparecem em mais de um fractal? Quais se complementam ou mantêm tensão?
-E. Quais afirmações têm apoio direto? Quais devem ser formuladas como hipótese? O que não é possível afirmar?
-F. Como traduzir essas tendências em caminhos de aprendizagem e autoconhecimento sem supor decisões biográficas, emprego, promoção ou projeto empresarial real?
+REFERÊNCIA DE QUALIDADE EDITORIAL RECUPERADA DA 1.5.19.6
+Escreva em português brasileiro, prosa analítica, consultiva, madura e fluida. A interpretação deve desenvolver o raciocínio: evidência concreta das respostas → importância relativa → possível significado humano → relação com outras escolhas → implicações proporcionais aos dados. Evite rótulos soltos, frases genéricas e repetições. Não transforme a síntese em uma sequência de características positivas nem confunda recomendações com instruções literais sobre objetos ou desejos hipotéticos.
 
-ESTRUTURA FIXA DO DOCX — NÃO REORDENAR
-1. Identificação.
-2. Registro de Aplicação.
-3. Registro de Dados – Resultado: para cada fractal, colunas Nº da resposta | Resposta | Hierarquia | Entendendo a linguagem dos fractais.
-4. Entendendo a linguagem dos fractais.
-5. Caracterização dos padrões: Padrão | Significado | Percentual, com textos fixos e métricas do sistema.
-6. Síntese dos Resultados.
-7. Recomendações para trilha de desenvolvimento.
-
-SEÇÃO 3 — A INTERPRETAÇÃO NÃO É LEGENDA
-Em cada um dos três campos de padrão da tabela, escreva uma frase de significado RELACIONAL, não mera paráfrase. Relacione resposta, atividade e posição hierárquica; expresse um valor ou direção comportamental plausível, sem aconselhamento. Normalmente 16 a 30 palavras, sem cortes bruscos. Não repita a mesma frase para as três escolhas nem descreva a alternativa de menor hierarquia como ausente ou indesejada.
-
-EXEMPLOS DE QUALIDADE PARA A QUARTA COLUNA, APENAS PARA CALIBRAR O RACIOCÍNIO
-Fractal hipotético sobre destino de grande ganho financeiro:
-- Investir em negócio próprio (hierarquia maior): "Diante de uma oportunidade extraordinária, prioriza criar condições de autonomia e continuidade, antes de converter recursos em satisfação imediata."
-- Comprar casa (hierarquia média): "A casa própria representa segurança e estabilidade material, mas vem depois da iniciativa de ampliar as possibilidades futuras."
-- Viagens e lazer (hierarquia menor): "Valoriza experiências prazerosas, embora as situe, neste cenário, em posição posterior à construção de autonomia e segurança."
-Fractal hipotético de comparação de empresa com objetos:
-- Livro (hierarquia maior): "Ao representar a empresa por um livro, atribui ao conhecimento e à aprendizagem papel central no vínculo com o trabalho."
-- Notebook (hierarquia média): "Relaciona a empresa à aplicação de informação e tecnologia, vistas como instrumentos para aprender, realizar e produzir."
-- Perfume (hierarquia menor): "Reconhece satisfação e expressão pessoal na imagem da empresa, mas reserva a esses elementos um papel complementar."
-Esses exemplos NÃO são uma base de respostas reutilizáveis. Com fractais e justificativas diferentes, a interpretação deve mudar. Não atribua consumo, hábitos, objetivos concretos ou emoções específicas sem apoio nos dados.
+SEÇÃO 3 — QUARTA COLUNA: ENTENDENDO A LINGUAGEM DOS FRACTAIS
+Para cada resposta, produza uma frase de significado interpretativo específica e suficientemente desenvolvida para ser útil, normalmente 15 a 32 palavras. Interprete o que a escolha sugere NA ATIVIDADE apresentada e COMO se posiciona diante das outras duas respostas. Observe a justificativa informada; se faltar, não a invente. Evite começar todas as células da mesma maneira. Não limite o conteúdo a legendas, paráfrases ou adjetivos. Não prescreva desenvolvimento dentro das células. Exemplo de método, não de texto reutilizável: a escolha de um bem durável depois de uma iniciativa produtiva pode representar base e continuidade em plano secundário ao protagonismo, desde que a justificativa sustente essa leitura. Não projete significados desse exemplo em fractais diferentes.
 
 SEÇÃO 4 — ENTENDENDO A LINGUAGEM DOS FRACTAIS
-Produza uma interpretação das imagens, ações e relações em cada fractal, respeitando a ordenação da pessoa. Mostre o sentido da sequência dominante/intermediária/complementar e integre convergências e possíveis tensões entre fractais. Referencie símbolos concretos sem repetir mecanicamente a tabela. Não propor ações de desenvolvimento nesta seção. É uma leitura de escolhas situadas, não um retrato definitivo da personalidade. Favoreça progressão lógica e precisão; geralmente dois parágrafos completos, se o material sustentar.
+Elabore uma narrativa interpretativa, não um inventário de respostas. Revele a dinâmica de cada fractal e articule-os numa leitura simbólica integrada. Dê atenção ao primeiro lugar, ao papel mediador da segunda escolha e à função complementar da terceira, respeitando justificativas. Mostre significados que não são evidentes pela mera leitura literal da tabela. O texto deve progredir, do sentido das escolhas às relações entre elas, sem converter hipóteses em certezas. Referência histórica de densidade: aproximadamente 150 a 220 palavras quando existirem dois ou mais fractais com material suficiente. Um fractal único ou respostas pouco desenvolvidas autorizam texto proporcionalmente menor. Não inclua sugestões de desenvolvimento nesta seção. Prefira um ou dois parágrafos articulados, sem subtítulos internos.
 
 SEÇÃO 6 — SÍNTESE DOS RESULTADOS
-NÃO resuma a Seção 4 frase a frase. Explique o princípio de organização das prioridades, os padrões que se reforçam, o papel dos elementos complementares e um possível ponto de atenção. Conecte a leitura à métrica calculada pelo motor, sem inventar percentuais ou deduzir patologia/desempenho. Torne visível o conjunto comportamental que emerge, em prosa analítica fluida; desenvolva o argumento conforme a evidência, sem aumentar o texto artificialmente.
+Esta é a INTEGRAÇÃO do perfil e precisa acrescentar valor à seção 4, sem recontá-la. Explique qual princípio parece orientar decisões, o que se repete entre fractais, como escolhas secundárias completam o quadro e que tensão ou oportunidade pode surgir. Faça o leitor compreender a organização das prioridades, não apenas reconhecer temas como propósito, reflexão, segurança e prazer. Evite inferir estado emocional, desempenho no trabalho ou planos de vida que não constem nas respostas. Como referência de qualidade da versão recuperada, desenvolva normalmente 160 a 260 palavras quando os dados sustentarem, com dois ou três movimentos argumentativos claros; não infle casos simples. Não preencha espaço com clichês ou metacomentários.
 
 SEÇÃO 7 — RECOMENDAÇÕES PARA TRILHA DE DESENVOLVIMENTO
-Traduza o perfil em caminhos POSSÍVEIS de aprendizagem, amadurecimento, equilíbrio e aplicação de potencialidades. Para cada eixo relevante, articule o padrão que o justifica, uma forma de desenvolvimento e seu benefício possível. Recomendações podem contemplar contextos pessoais e profissionais, mas NUNCA presumir emprego, cargo, projeto empreendedor confirmado, problema de saúde ou decisão já tomada. Evite prescrições literais derivadas de símbolos. Um desejo hipotético de negócio próprio não autoriza mandar criar uma empresa; "livro" não prova uma prática de leitura. Preferir formação aplicada, reflexão, experimentação e trocas, compatíveis com múltiplas trajetórias.
+Traduza padrões interpretados em perspectivas consistentes de desenvolvimento humano. Cada eixo deve conectar explicitamente uma potencialidade ou ponto de atenção demonstrável, um tipo de aprendizagem ou experiência possível e o benefício esperado. Abranja, conforme o material, autonomia, planejamento, conhecimento, relações, participação, equilíbrio e satisfação; não force eixos irrelevantes. Não transforme “negócio próprio” hipotético em ordem para abrir uma empresa nem “livro” em prova de hábito de leitura. Preferir formação aplicada, troca de conhecimentos, reflexão orientada, integração entre entrega e descanso e iniciativas adequadas a distintas trajetórias pessoais e profissionais. A versão recuperada utilizava aproximadamente 180 a 300 palavras; use essa referência quando houver evidência, privilegiando profundidade sobre extensão artificial. Escreva em três ou quatro movimentos encadeados, sem listas, prescrições clínicas ou palavras vazias.
 
-CALIBRAÇÃO POR CONTRASTE — ESTILO E MÉTODO
-Frase insuficiente: "Apresenta vontade de progredir e valoriza estabilidade." Apenas rotula. Melhor: "A prioridade dada à iniciativa produtiva, seguida da segurança residencial, sugere um movimento de construir possibilidades antes de usufruir dos recursos."
-Recomendação inadequada: "Defina o público-alvo e a área do negócio próprio." Pressupõe projeto real. Melhor: "Experiências em gestão e avaliação de oportunidades podem fortalecer a capacidade de estruturar iniciativas em diferentes contextos, sem pressupor uma escolha de carreira."
-Outro conjunto de fractais, com ajuda a pessoas próximas em primeiro lugar, verdade como valor central e saúde como prioridade de futuro, exigiria OUTRA análise — vínculos, autenticidade e bem-estar — e não referências a empreendedorismo ou tecnologia. Não transfira conteúdo do exemplo para casos diferentes.
+PRUDÊNCIA, IDENTIFICAÇÃO E CONSISTÊNCIA
+Não usar nomes, sobrenomes, CPF, e-mail ou dados identificadores nos textos interpretativos. Não criar marcadores, listas ou subtítulos internos. Não aludir à IA, aos prompts ou à construção do relatório. Não inventar justificativas, intenções, traços estáveis, condições de saúde, diagnósticos clínicos ou decisões profissionais. Hierarquias 3/2/1 são posicionais e relativas. As cinco métricas calculadas pelo backend não devem ser alteradas ou aproximadas; os nomes e a ordem das colunas no DOCX são fixos e permanecem responsabilidade do gerador documental. A extensão é referência editorial, jamais justificativa para fabricar conteúdo.
 
-CONTROLE INTERNO DE QUALIDADE ANTES DO JSON
-A quarta coluna interpreta cada resposta no contexto, não a repete? As hierarquias foram respeitadas? A Seção 4 trabalha símbolos e convergências? A Seção 6 constrói síntese distinta? A Seção 7 é sustentada pela interpretação e não presume escolhas de vida? O texto está compreensível para o público leigo e útil para públicos especialistas? Toda inferência tem evidência? Não há frases vazias intercambiáveis? Não há uso de dados pessoais? Se falhar, reescreva o trecho antes de responder.
+VERIFICAÇÃO FINAL DE QUALIDADE
+A quarta coluna da seção 3 interpretou as escolhas sem repeti-las? As seções 4 e 6 têm funções distintas e aprofundadas? A seção 7 decorre da leitura e oferece desenvolvimento concreto sem literalismo? A prosa é relevante para público técnico e compreensível para leigos? Há afirmações não sustentadas? Se houver, reescreva antes de devolver o JSON.
 
 REGRAS DE HIERARQUIA
 3 = maior importância.
