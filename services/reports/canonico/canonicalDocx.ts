@@ -354,12 +354,13 @@ function paragrafoJustificado(t: string) {
 function blocosFractaisCanonicos(rel: RelatorioCanonico) {
   return rel.fractais.map(fr => {
     const rows = [
-      ["Nº da resposta", "Resposta", "Hierarquia", "Entendendo a linguagem dos fractais"],
+      ["Nº da resposta", "Resposta", "Hierarquia", "Justificativa", "Entendendo a linguagem dos fractais"],
       ...fr.respostas.map(r => [String(r.numero), r.resposta, r.hierarquia,
+        `“${r.justificativa || "A preencher"}”`,
         [r.padrao_nome, r.padrao_interpretacao].filter(Boolean).join(". ")]),
     ];
     return heading2('Fractal ' + fr.numero + ' – “' + fr.enunciado + '”') +
-      table(rows, { widths: [1270, 1790, 1470, 4140] });
+      table(rows, { widths: [900, 1380, 1510, 2100, 3170] });
   }).join("");
 }
 
