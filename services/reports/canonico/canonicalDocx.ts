@@ -122,6 +122,9 @@ function paragraphs(text: unknown) {
 function singleParagraph(text: unknown) {
   return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>${run(text)}</w:p>`;
 }
+function descricaoFractalAplicado(text: unknown) {
+  return `<w:p><w:pPr><w:ind w:left="720"/><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>${run(text)}</w:p>`;
+}
 function heading1(text: unknown) {
   return paragraph(text, { style: "Heading1" });
 }
@@ -140,7 +143,7 @@ function tableCell(content: string, options?: { header?: boolean; width?: number
   return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${shade}</w:tcPr>${content}</w:tc>`;
 }
 
-function table(rows: Array<Array<string>>, options?: { headerRows?: number; widths?: number[] }) {
+function table(rows: Array<Array<string>>, options?: { headerRows?: number; widths?: number[]; allowRowSplit?: boolean }) {
   const headerRows = options?.headerRows ?? 1;
   const widths = options?.widths ?? [];
   const renderedRows = rows
@@ -156,7 +159,7 @@ function table(rows: Array<Array<string>>, options?: { headerRows?: number; widt
           })
         )
         .join("");
-      return `<w:tr><w:trPr>${isHeader ? "<w:tblHeader/>" : ""}<w:cantSplit/></w:trPr>${renderedCells}</w:tr>`;
+      return `<w:tr><w:trPr>${isHeader ? "<w:tblHeader/>" : ""}${isHeader || !options?.allowRowSplit ? "<w:cantSplit/>" : ""}</w:trPr>${renderedCells}</w:tr>`;
     })
     .join("");
 
@@ -361,7 +364,7 @@ function blocosFractaisCanonicos(rel: RelatorioCanonico) {
         [r.padrao_nome, r.padrao_interpretacao].filter(Boolean).join(". ")]),
     ];
     return headingParaTabela('Fractal ' + fr.numero + ' – “' + fr.enunciado + '”', "Heading2") +
-      table(rows, { widths: [900, 1380, 1510, 2100, 3170] });
+      table(rows, { widths: [900, 1380, 1510, 2100, 3170], allowRowSplit: true });
   }).join("");
 }
 
@@ -390,8 +393,8 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: RelatorioCanonic
     singleParagraph('Tempo de resposta: ' + reg.tempo_resposta),
     singleParagraph('Data de aplicação: ' + reg.data_aplicacao),
     singleParagraph('Fractais aplicados:'),
-    ...reg.fractais_aplicados.map(x => singleParagraph(x)),
-    heading1("3. Registro de Dados – Resultado"),
+    ...reg.fractais_aplicados.map(x => descricaoFractalAplicado(x)),
+    headingParaTabela("3. Registro de Dados – Resultado", "Heading1"),
     blocosFractaisCanonicos(content),
     heading1("4. Entendendo a linguagem dos fractais"),
     paragrafoJustificado(content.sintese_fractais),
