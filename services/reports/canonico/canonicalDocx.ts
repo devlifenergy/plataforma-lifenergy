@@ -370,9 +370,10 @@ function blocosFractaisCanonicos(rel: RelatorioCanonico) {
 
 function buildDocumentXml(data: LifenergyV1ReportData, content: RelatorioCanonico) {
   const psicoRows = [
-    ["Padrão", "Significado", "Percentual"],
+    ["Padrão", "Definição", "Significado", "Percentual"],
     ...content.padroes_psicologicos.map(p => [p.atributo,
-      [p.definicao, p.rotulo + ': ' + p.manifestacao].filter(Boolean).join(' '),
+      p.definicao,
+      [p.rotulo + ': ' + p.manifestacao].filter(Boolean).join(' '),
       p.percentual + "%"]),
   ];
   const ident = content.identificacao;
@@ -399,7 +400,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: RelatorioCanonic
     heading1("4. Entendendo a linguagem dos fractais"),
     paragrafoJustificado(content.sintese_fractais),
     headingParaTabela("5. Caracterização dos padrões", "Heading1"),
-    table(psicoRows, { widths: [1800, 5600, 1270] }),
+    table(psicoRows, { widths: [1540, 2740, 3070, 1600] }),
     paragrafoJustificado(content.interpretacao_padroes),
     heading1("6. Síntese dos Resultados"),
     paragrafoJustificado(content.sintese_resultados),
