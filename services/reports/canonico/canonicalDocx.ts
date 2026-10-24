@@ -130,6 +130,10 @@ function heading2(text: unknown) {
   return paragraph(text, { style: "Heading2" });
 }
 
+function headingParaTabela(text: unknown, style: "Heading1" | "Heading2") {
+  return `<w:p><w:pPr><w:pStyle w:val="${style}"/><w:keepNext/></w:pPr>${run(text)}</w:p>`;
+}
+
 function tableCell(content: string, options?: { header?: boolean; width?: number }) {
   const shade = options?.header ? '<w:shd w:fill="F2F2F2"/>' : "";
   const width = options?.width ?? 2400;
@@ -144,13 +148,15 @@ function table(rows: Array<Array<string>>, options?: { headerRows?: number; widt
       const isHeader = rowIndex < headerRows;
       const renderedCells = row
         .map((cell, cellIndex) =>
-          tableCell(paragraph(cell, { bold: isHeader }), {
+          tableCell(isHeader
+            ? `<w:p><w:pPr><w:keepNext/></w:pPr>${run(cell, { bold: true })}</w:p>`
+            : paragraph(cell), {
             header: isHeader,
             width: widths[cellIndex],
           })
         )
         .join("");
-      return `<w:tr>${renderedCells}</w:tr>`;
+      return `<w:tr><w:trPr>${isHeader ? "<w:tblHeader/>" : ""}<w:cantSplit/></w:trPr>${renderedCells}</w:tr>`;
     })
     .join("");
 
@@ -306,7 +312,7 @@ function logoDrawingXml(relId: string, logoSize: string | null | undefined) {
   </wp:inline></w:drawing></w:r>`;
 }
 
-function buildLogoHeaderXml(data: { organization?: { name?: string | null; logo_mime_type?: string | null; logo_content_base64?: string | null; logo_size?: string | null; logo_position?: string | null } }, title: string, subtitle: string) {
+function buildLogoHeaderXml(data: { organization?: { name?: string | null; logo_mime_type?: string | null; logo_content_base64?: string | null; logo_size?: string | null; logo_position?: string | null } }, _title: string, _subtitle: string) {
   const logoMedia = getOrganizationLogoMedia(data);
   const logoAlignment = data.organization?.logo_position === "left"
     ? "left"
@@ -323,15 +329,7 @@ function buildLogoHeaderXml(data: { organization?: { name?: string | null; logo_
   xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
   xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-  ${logoXml}
-  <w:p>
-    <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="18"/></w:rPr><w:t>${xml(title)}</w:t></w:r>
-  </w:p>
-  <w:p>
-    <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${xml(subtitle)}</w:t></w:r>
-  </w:p>
+  ${logoXml || "<w:p/>"}
 </w:hdr>`;
 }
 
@@ -362,7 +360,7 @@ function blocosFractaisCanonicos(rel: RelatorioCanonico) {
         `“${r.justificativa || "A preencher"}”`,
         [r.padrao_nome, r.padrao_interpretacao].filter(Boolean).join(". ")]),
     ];
-    return heading2('Fractal ' + fr.numero + ' – “' + fr.enunciado + '”') +
+    return headingParaTabela('Fractal ' + fr.numero + ' – “' + fr.enunciado + '”', "Heading2") +
       table(rows, { widths: [900, 1380, 1510, 2100, 3170] });
   }).join("");
 }
@@ -397,13 +395,15 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: RelatorioCanonic
     blocosFractaisCanonicos(content),
     heading1("4. Entendendo a linguagem dos fractais"),
     paragrafoJustificado(content.sintese_fractais),
-    heading1("5. Caracterização dos padrões"),
+    headingParaTabela("5. Caracterização dos padrões", "Heading1"),
     table(psicoRows, { widths: [1800, 5600, 1270] }),
     paragrafoJustificado(content.interpretacao_padroes),
     heading1("6. Síntese dos Resultados"),
     paragrafoJustificado(content.sintese_resultados),
     heading1("7. Recomendações para trilha de desenvolvimento"),
     paragrafoJustificado(content.recomendacoes),
+    `<w:p><w:pPr><w:keepNext/><w:spacing w:before="320" w:after="120"/></w:pPr>${run("Data: ____ / ____ / ______")}</w:p>`,
+    `<w:p><w:pPr><w:spacing w:before="80" w:after="120"/></w:pPr>${run("Assinatura: __________________________________________")}</w:p>`,
   ].join("");
 
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -450,7 +450,7 @@ const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:p>
     <w:pPr><w:jc w:val="center"/></w:pPr>
-    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Plataforma Lifenergy · Desenvolvimento Humano</w:t></w:r>
+    <w:r><w:rPr><w:color w:val="666666"/><w:sz w:val="18"/></w:rPr><w:t>Lifenergy Digital - Relatorio Lifenergy</w:t></w:r>
   </w:p>
 </w:ftr>`;
 
