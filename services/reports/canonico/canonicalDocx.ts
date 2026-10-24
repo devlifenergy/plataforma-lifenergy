@@ -119,6 +119,9 @@ function paragraphs(text: unknown) {
     .join("");
 }
 
+function singleParagraph(text: unknown) {
+  return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>${run(text)}</w:p>`;
+}
 function heading1(text: unknown) {
   return paragraph(text, { style: "Heading1" });
 }
@@ -377,19 +380,19 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: RelatorioCanonic
     paragraph("RELATORIO LIFENERGY", { style: "Title" }),
     paragraph('Empresa: ' + data.organization.name, { center: true, color: "666666", size: 20 }),
     heading1("1. Identificação"),
-    paragraph('Nome: ' + ident.nome),
-    paragraph('CPF: ' + ident.cpf),
-    paragraph('E-mail: ' + ident.email),
-    paragraph('Data de nascimento: ' + ident.data_nascimento),
-    paragraph('Naturalidade: ' + ident.naturalidade),
-    paragraph('Objetivo de participação: ' + ident.objetivo_participacao),
+    singleParagraph('Nome: ' + ident.nome),
+    singleParagraph('CPF: ' + ident.cpf),
+    singleParagraph('E-mail: ' + ident.email),
+    singleParagraph('Data de nascimento: ' + ident.data_nascimento),
+    singleParagraph('Naturalidade: ' + ident.naturalidade),
+    singleParagraph('Objetivo de participação: ' + ident.objetivo_participacao),
     heading1("2. Registro de Aplicação"),
-    paragraph('Aplicador: ' + reg.aplicador),
-    paragraph('Escolha da atividade: ' + reg.escolha_atividade),
-    paragraph('Tempo de resposta: ' + reg.tempo_resposta),
-    paragraph('Data de aplicação: ' + reg.data_aplicacao),
-    paragraph('Fractais aplicados:'),
-    ...reg.fractais_aplicados.map(x => paragraph(x)),
+    singleParagraph('Aplicador: ' + reg.aplicador),
+    singleParagraph('Escolha da atividade: ' + reg.escolha_atividade),
+    singleParagraph('Tempo de resposta: ' + reg.tempo_resposta),
+    singleParagraph('Data de aplicação: ' + reg.data_aplicacao),
+    singleParagraph('Fractais aplicados:'),
+    ...reg.fractais_aplicados.map(x => singleParagraph(x)),
     heading1("3. Registro de Dados – Resultado"),
     blocosFractaisCanonicos(content),
     heading1("4. Entendendo a linguagem dos fractais"),
@@ -435,7 +438,7 @@ function buildDocumentXml(data: LifenergyV1ReportData, content: RelatorioCanonic
 const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:docDefaults>
-    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
+    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos" w:cs="Aptos" w:eastAsia="Aptos"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
     <w:pPrDefault><w:pPr><w:spacing w:after="150" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault>
   </w:docDefaults>
   <w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:rPr><w:b/><w:color w:val="0F2D4A"/><w:sz w:val="34"/></w:rPr><w:pPr><w:jc w:val="center"/><w:spacing w:after="240"/></w:pPr></w:style>
