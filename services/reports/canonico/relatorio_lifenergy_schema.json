@@ -1,0 +1,465 @@
+{
+  "name": "relatorio_lifenergy",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "identificacao": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome completo. Único lugar do relatório onde o nome aparece."
+          },
+          "cpf": {
+            "type": "string",
+            "description": "CPF no formato 000.000.000-00 ou 'A preencher'."
+          },
+          "email": {
+            "type": "string",
+            "description": "E-mail ou 'A preencher'."
+          },
+          "data_nascimento": {
+            "type": "string",
+            "description": "DD/MM/AAAA ou 'A preencher'."
+          },
+          "naturalidade": {
+            "type": "string",
+            "description": "Cidade – UF ou 'A preencher'."
+          },
+          "objetivo_participacao": {
+            "type": "string",
+            "description": "Objetivo declarado ou 'A preencher'."
+          }
+        },
+        "required": [
+          "nome",
+          "cpf",
+          "email",
+          "data_nascimento",
+          "naturalidade",
+          "objetivo_participacao"
+        ],
+        "additionalProperties": false
+      },
+      "registro_aplicacao": {
+        "type": "object",
+        "properties": {
+          "aplicador": {
+            "type": "string",
+            "description": "Nome do aplicador ou 'A preencher'."
+          },
+          "escolha_atividade": {
+            "type": "string",
+            "description": "Aplicador/instrutor ou a própria pessoa, ou 'A preencher'."
+          },
+          "tempo_resposta": {
+            "type": "string",
+            "description": "Tempo de resposta ou 'A preencher'."
+          },
+          "data_aplicacao": {
+            "type": "string",
+            "description": "DD/MM/AAAA."
+          },
+          "fractais_aplicados": {
+            "type": "array",
+            "description": "Um item por fractal, ex.: 'Fractal 1 — Megasena'.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "aplicador",
+          "escolha_atividade",
+          "tempo_resposta",
+          "data_aplicacao",
+          "fractais_aplicados"
+        ],
+        "additionalProperties": false
+      },
+      "fractais": {
+        "type": "array",
+        "description": "Item 3 — Registro de dados, um elemento por fractal, na ordem recebida.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "numero": {
+              "type": "integer",
+              "description": "Número do fractal (1, 2, 3...)."
+            },
+            "enunciado": {
+              "type": "string",
+              "description": "Enunciado completo do fractal, sem aspas."
+            },
+            "respostas": {
+              "type": "array",
+              "description": "Exatamente 3 respostas, na ordem Maior, Média, Menor importância.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "numero": {
+                    "type": "integer",
+                    "description": "1, 2 ou 3."
+                  },
+                  "resposta": {
+                    "type": "string",
+                    "description": "Resposta concisa, como dada."
+                  },
+                  "hierarquia": {
+                    "type": "string",
+                    "enum": [
+                      "Maior importância",
+                      "Média importância",
+                      "Menor importância"
+                    ]
+                  },
+                  "peso": {
+                    "type": "integer",
+                    "enum": [
+                      3,
+                      2,
+                      1
+                    ],
+                    "description": "Maior=3, Média=2, Menor=1."
+                  },
+                  "justificativa": {
+                    "type": "string",
+                    "description": "Justificativa da pessoa, com correções mínimas de digitação, sem aspas externas."
+                  },
+                  "padrao_nome": {
+                    "type": "string",
+                    "description": "Nome do padrão psicológico identificado, ex.: 'Orientação para realização e autonomia'."
+                  },
+                  "padrao_interpretacao": {
+                    "type": "string",
+                    "description": "2 a 3 frases: o que a escolha, a hierarquia e a linguagem da justificativa revelam. Usa 'a pessoa avaliada', nunca o nome."
+                  },
+                  "intensidades": {
+                    "type": "object",
+                    "properties": {
+                      "socializacao": {
+                        "type": "number",
+                        "description": "Intensidade de socializacao nesta resposta, 0.00 a 1.00, múltiplos de 0.05 (leitura por presença)."
+                      },
+                      "reflexao": {
+                        "type": "number",
+                        "description": "Intensidade de reflexao nesta resposta, 0.00 a 1.00, múltiplos de 0.05 (leitura por presença)."
+                      },
+                      "lazer": {
+                        "type": "number",
+                        "description": "Intensidade de lazer nesta resposta, 0.00 a 1.00, múltiplos de 0.05 (leitura por presença)."
+                      },
+                      "proposito": {
+                        "type": "number",
+                        "description": "Intensidade de proposito nesta resposta, 0.00 a 1.00, múltiplos de 0.05 (leitura por presença)."
+                      },
+                      "sentimento": {
+                        "type": "number",
+                        "description": "Intensidade de sentimento nesta resposta, 0.00 a 1.00, múltiplos de 0.05 (leitura por presença)."
+                      }
+                    },
+                    "required": [
+                      "socializacao",
+                      "reflexao",
+                      "lazer",
+                      "proposito",
+                      "sentimento"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "numero",
+                  "resposta",
+                  "hierarquia",
+                  "peso",
+                  "justificativa",
+                  "padrao_nome",
+                  "padrao_interpretacao",
+                  "intensidades"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "forca_por_atributo": {
+              "type": "object",
+              "properties": {
+                "socializacao": {
+                  "type": "number",
+                  "description": "F de socializacao neste fractal = Σ(peso×intensidade)/Σpeso, 3 casas."
+                },
+                "reflexao": {
+                  "type": "number",
+                  "description": "F de reflexao neste fractal = Σ(peso×intensidade)/Σpeso, 3 casas."
+                },
+                "lazer": {
+                  "type": "number",
+                  "description": "F de lazer neste fractal = Σ(peso×intensidade)/Σpeso, 3 casas."
+                },
+                "proposito": {
+                  "type": "number",
+                  "description": "F de proposito neste fractal = Σ(peso×intensidade)/Σpeso, 3 casas."
+                },
+                "sentimento": {
+                  "type": "number",
+                  "description": "F de sentimento neste fractal = Σ(peso×intensidade)/Σpeso, 3 casas."
+                }
+              },
+              "required": [
+                "socializacao",
+                "reflexao",
+                "lazer",
+                "proposito",
+                "sentimento"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "numero",
+            "enunciado",
+            "respostas",
+            "forca_por_atributo"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "sintese_fractais": {
+        "type": "string",
+        "description": "Item 4 — Entendendo a linguagem dos fractais — Síntese. Um parágrafo de 5 a 6 frases."
+      },
+      "calculo_atributos": {
+        "type": "object",
+        "properties": {
+          "socializacao": {
+            "type": "object",
+            "properties": {
+              "F_total": {
+                "type": "number",
+                "description": "Força ponderada em todas as respostas, 3 casas."
+              },
+              "R": {
+                "type": "number",
+                "description": "Recorrência = fractais com F ≥ 0.30 ÷ total de fractais."
+              },
+              "C": {
+                "type": "number",
+                "description": "Centralidade na síntese, 0.00 a 1.00."
+              },
+              "percentual": {
+                "type": "integer",
+                "description": "round(100×[0.60×F_total + 0.25×R + 0.15×C]), arredondamento comum."
+              }
+            },
+            "required": [
+              "F_total",
+              "R",
+              "C",
+              "percentual"
+            ],
+            "additionalProperties": false
+          },
+          "reflexao": {
+            "type": "object",
+            "properties": {
+              "F_total": {
+                "type": "number",
+                "description": "Força ponderada em todas as respostas, 3 casas."
+              },
+              "R": {
+                "type": "number",
+                "description": "Recorrência = fractais com F ≥ 0.30 ÷ total de fractais."
+              },
+              "C": {
+                "type": "number",
+                "description": "Centralidade na síntese, 0.00 a 1.00."
+              },
+              "percentual": {
+                "type": "integer",
+                "description": "round(100×[0.60×F_total + 0.25×R + 0.15×C]), arredondamento comum."
+              }
+            },
+            "required": [
+              "F_total",
+              "R",
+              "C",
+              "percentual"
+            ],
+            "additionalProperties": false
+          },
+          "lazer": {
+            "type": "object",
+            "properties": {
+              "F_total": {
+                "type": "number",
+                "description": "Força ponderada em todas as respostas, 3 casas."
+              },
+              "R": {
+                "type": "number",
+                "description": "Recorrência = fractais com F ≥ 0.30 ÷ total de fractais."
+              },
+              "C": {
+                "type": "number",
+                "description": "Centralidade na síntese, 0.00 a 1.00."
+              },
+              "percentual": {
+                "type": "integer",
+                "description": "round(100×[0.60×F_total + 0.25×R + 0.15×C]), arredondamento comum."
+              }
+            },
+            "required": [
+              "F_total",
+              "R",
+              "C",
+              "percentual"
+            ],
+            "additionalProperties": false
+          },
+          "proposito": {
+            "type": "object",
+            "properties": {
+              "F_total": {
+                "type": "number",
+                "description": "Força ponderada em todas as respostas, 3 casas."
+              },
+              "R": {
+                "type": "number",
+                "description": "Recorrência = fractais com F ≥ 0.30 ÷ total de fractais."
+              },
+              "C": {
+                "type": "number",
+                "description": "Centralidade na síntese, 0.00 a 1.00."
+              },
+              "percentual": {
+                "type": "integer",
+                "description": "round(100×[0.60×F_total + 0.25×R + 0.15×C]), arredondamento comum."
+              }
+            },
+            "required": [
+              "F_total",
+              "R",
+              "C",
+              "percentual"
+            ],
+            "additionalProperties": false
+          },
+          "sentimento": {
+            "type": "object",
+            "properties": {
+              "F_total": {
+                "type": "number",
+                "description": "Força ponderada em todas as respostas, 3 casas."
+              },
+              "R": {
+                "type": "number",
+                "description": "Recorrência = fractais com F ≥ 0.30 ÷ total de fractais."
+              },
+              "C": {
+                "type": "number",
+                "description": "Centralidade na síntese, 0.00 a 1.00."
+              },
+              "percentual": {
+                "type": "integer",
+                "description": "round(100×[0.60×F_total + 0.25×R + 0.15×C]), arredondamento comum."
+              }
+            },
+            "required": [
+              "F_total",
+              "R",
+              "C",
+              "percentual"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "socializacao",
+          "reflexao",
+          "lazer",
+          "proposito",
+          "sentimento"
+        ],
+        "additionalProperties": false,
+        "description": "Memória de cálculo dos percentuais (modelo canônico calibrado)."
+      },
+      "padroes_psicologicos": {
+        "type": "array",
+        "description": "Item 5 — tabela com os 5 atributos, do MAIOR para o MENOR percentual. Percentuais idênticos a calculo_atributos.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "atributo": {
+              "type": "string",
+              "enum": [
+                "Socialização",
+                "Reflexão",
+                "Lazer",
+                "Propósito",
+                "Sentimento"
+              ]
+            },
+            "definicao": {
+              "type": "string",
+              "description": "Definição canônica do atributo, exatamente como no prompt."
+            },
+            "rotulo": {
+              "type": "string",
+              "enum": [
+                "Predominante",
+                "Forte",
+                "Equilibrado",
+                "Alto",
+                "Bom nível",
+                "Bom nível, de forma implícita",
+                "Presente, porém secundário",
+                "Pouco expresso"
+              ],
+              "description": "Rótulo pela faixa do percentual (bloco <rotulos>)."
+            },
+            "manifestacao": {
+              "type": "string",
+              "description": "1 a 2 frases com as evidências nas respostas, sem repetir o rótulo."
+            },
+            "percentual": {
+              "type": "integer",
+              "description": "Inteiro de 0 a 100, igual ao de calculo_atributos."
+            }
+          },
+          "required": [
+            "atributo",
+            "definicao",
+            "rotulo",
+            "manifestacao",
+            "percentual"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "interpretacao_padroes": {
+        "type": "string",
+        "description": "Parágrafo de exatamente 4 frases abaixo da tabela 5, citando cada atributo com o percentual."
+      },
+      "sintese_resultados": {
+        "type": "string",
+        "description": "Item 6 — Síntese dos resultados. Um parágrafo de 4 a 5 frases."
+      },
+      "recomendacoes": {
+        "type": "string",
+        "description": "Item 7 — Recomendações de trilha de desenvolvimento de competências. Um parágrafo de 3 a 4 frases."
+      }
+    },
+    "required": [
+      "identificacao",
+      "registro_aplicacao",
+      "fractais",
+      "sintese_fractais",
+      "calculo_atributos",
+      "padroes_psicologicos",
+      "interpretacao_padroes",
+      "sintese_resultados",
+      "recomendacoes"
+    ],
+    "additionalProperties": false
+  }
+}

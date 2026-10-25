@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from "next/server";
+import { gerarRotaCanonica } from "@/services/reports/canonico/canonicalRoute";
 import { createAdminClient } from "@/lib/supabaseAdmin";
 import {
   generateLifenergyV1Content,
@@ -157,6 +158,9 @@ export async function GET(request: Request, context: RouteContext) {
     }
 
     const reportData = await loadLifenergyV1ReportData(responseId);
+    if (process.env.LIFENERGY_CANONICAL_JSON_ENABLED === "true") {
+      return await gerarRotaCanonica({ data: reportData, regenerar: shouldRegenerate });
+    }
     const runtimeCalibrations = await loadMetricCalibrations(reportData.organization.id);
 
     if (shouldRegenerate && reportData.profile.role !== "super_admin") {
