@@ -277,30 +277,28 @@ function LicenseChangeDetails({ metadata }: { metadata: Record<string, unknown> 
   if (keys.length === 0) return null;
 
   return (
-    <div className="mt-4 overflow-x-auto rounded-2xl border border-amber-200 bg-amber-50/60">
-      <table className="min-w-[560px] divide-y divide-amber-200 text-left text-xs">
-        <thead className="bg-amber-100/70 text-amber-900">
-          <tr>
-            <th className="px-3 py-2 font-semibold">Licença</th>
-            <th className="px-3 py-2 font-semibold">Antes</th>
-            <th className="px-3 py-2 font-semibold">Depois</th>
-            <th className="px-3 py-2 font-semibold">Variação</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-amber-100 bg-white/70">
-          {keys.map((key) => (
-            <tr key={key}>
-              <td className="px-3 py-2 font-medium text-slate-700">{licenseLabel(key)}</td>
-              <td className="px-3 py-2 text-slate-600">{formatMetadataValue(previous?.[key])}</td>
-              <td className="px-3 py-2 text-slate-600">{formatMetadataValue(current?.[key])}</td>
-              <td className="px-3 py-2 font-semibold text-[#0F2D4A]">{formatMetadataValue(delta?.[key])}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="mt-4 grid min-w-0 gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 p-3">
+      {keys.map((key) => (
+        <div key={key} className="min-w-0 rounded-xl border border-amber-100 bg-white p-3">
+          <p className="break-words text-xs font-semibold text-amber-900">{licenseLabel(key)}</p>
+          <dl className="mt-2 grid min-w-0 gap-3 text-xs sm:grid-cols-3">
+            <div className="min-w-0">
+              <dt className="font-medium text-slate-500">Antes</dt>
+              <dd className="mt-1 break-all text-slate-700">{formatMetadataValue(previous?.[key])}</dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="font-medium text-slate-500">Depois</dt>
+              <dd className="mt-1 break-all text-slate-700">{formatMetadataValue(current?.[key])}</dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="font-medium text-slate-500">Variação</dt>
+              <dd className="mt-1 break-all font-semibold text-[#0F2D4A]">{formatMetadataValue(delta?.[key])}</dd>
+            </div>
+          </dl>
+        </div>
+      ))}
     </div>
-  );
-}
+  );}
 
 function MetadataDetails({ log }: { log: AuditLogRow }) {
   const metadata = log.metadata ?? {};
@@ -313,8 +311,8 @@ function MetadataDetails({ log }: { log: AuditLogRow }) {
       <summary className="inline-flex cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-[#0F2A43] transition hover:border-[#B98A2E] hover:text-[#B98A2E]">
         Ver detalhes
       </summary>
-      <div className="mt-3 w-[min(720px,80vw)] rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-        <div className="grid gap-3 text-xs sm:grid-cols-2">
+      <div className="mt-3 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+        <div className="grid min-w-0 gap-3 text-xs sm:grid-cols-2">
           <div className="rounded-xl bg-white p-3">
             <p className="font-semibold text-slate-500">IP/origem</p>
             <p className="mt-1 break-words text-slate-800">{log.ip_address || "IP não informado"}</p>
@@ -334,9 +332,9 @@ function MetadataDetails({ log }: { log: AuditLogRow }) {
           ) : (
             <dl className="mt-2 grid gap-2 text-xs">
               {visibleEntries.map(([key, value]) => (
-                <div key={key} className="grid gap-1 rounded-lg border border-slate-100 p-2 sm:grid-cols-[180px_1fr]">
+                <div key={key} className="grid min-w-0 gap-1 rounded-lg border border-slate-100 p-2 sm:grid-cols-[180px_minmax(0,1fr)]">
                   <dt className="font-semibold text-slate-500">{key}</dt>
-                  <dd className="whitespace-pre-wrap break-words text-slate-800">{formatMetadataValue(value)}</dd>
+                  <dd className="min-w-0 whitespace-pre-wrap break-all text-slate-800">{formatMetadataValue(value)}</dd>
                 </div>
               ))}
             </dl>
@@ -397,7 +395,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
   const exportHref = buildExportHref(filters);
 
   return (
-    <div className="space-y-8">
+    <div className="min-w-0 max-w-full space-y-8">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
           Auditoria avançada
@@ -553,57 +551,49 @@ export default async function AuditPage({ searchParams }: PageProps) {
             Nenhum evento de auditoria encontrado.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-[1200px] divide-y divide-slate-200 text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                <tr>
-                  <th className="px-5 py-3 font-semibold">Data/hora</th>
-                  <th className="px-5 py-3 font-semibold">Ação</th>
-                  <th className="px-5 py-3 font-semibold">Usuário</th>
-                  <th className="px-5 py-3 font-semibold">Empresa</th>
-                  <th className="px-5 py-3 font-semibold">Entidade</th>
-                  <th className="px-5 py-3 font-semibold">IP/origem</th>
-                  <th className="px-5 py-3 font-semibold">Descrição</th>
-                  <th className="px-5 py-3 font-semibold">Detalhes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {logs.map((log) => (
-                  <tr key={log.id} className="align-top hover:bg-slate-50/70">
-                    <td className="whitespace-nowrap px-5 py-4 text-slate-600">
-                      {formatDate(log.created_at)}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${getBadgeClasses(log.action)}`}>
-                        {actionLabels[log.action] ?? log.action}
-                      </span>
-                      <p className="mt-1 text-xs text-slate-400">{log.action}</p>
-                    </td>
-                    <td className="px-5 py-4 text-slate-600">
-                      <p className="font-medium text-slate-700">{log.actor_name || "Sistema"}</p>
-                      <p className="mt-1 break-all text-xs text-slate-400">{log.actor_email || "-"}</p>
-                    </td>
-                    <td className="px-5 py-4 text-slate-600">{log.organization_name || "-"}</td>
-                    <td className="px-5 py-4 text-slate-600">
-                      <p>{log.entity_type || "-"}</p>
-                      <p className="mt-1 max-w-[180px] truncate text-xs text-slate-400">
-                        {log.entity_id || "-"}
-                      </p>
-                    </td>
-                    <td className="max-w-[200px] px-5 py-4 text-xs text-slate-500">
-                      <p className="font-semibold text-slate-700">{log.ip_address || "IP não informado"}</p>
-                      <p className="mt-1 line-clamp-2 break-words">{compactUserAgent(log.user_agent)}</p>
-                    </td>
-                    <td className="max-w-[280px] px-5 py-4 leading-6 text-slate-600">
-                      {log.description || "-"}
-                    </td>
-                    <td className="px-5 py-4">
-                      <MetadataDetails log={log} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid min-w-0 gap-3 p-4 sm:p-6">
+            {logs.map((log) => (
+              <article key={log.id} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-[#0F2A43]">
+                    <time dateTime={log.created_at}>{formatDate(log.created_at)}</time>
+                  </p>
+                  <span className={`max-w-full break-words rounded-full border px-3 py-1 text-xs font-semibold ${getBadgeClasses(log.action)}`}>
+                    {actionLabels[log.action] ?? log.action}
+                  </span>
+                </div>
+                <p className="mt-1 break-all text-xs text-slate-500">{log.action}</p>
+
+                <dl className="mt-4 grid min-w-0 gap-x-5 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="min-w-0">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Usuário</dt>
+                    <dd className="mt-1 break-words text-sm font-medium text-slate-700">{log.actor_name || "Sistema"}</dd>
+                    <dd className="mt-1 break-all text-xs text-slate-500">{log.actor_email || "-"}</dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Empresa</dt>
+                    <dd className="mt-1 break-words text-sm text-slate-700">{log.organization_name || "-"}</dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Entidade</dt>
+                    <dd className="mt-1 break-all text-sm text-slate-700">{log.entity_type || "-"}</dd>
+                    <dd className="mt-1 break-all text-xs text-slate-500">{log.entity_id || "-"}</dd>
+                  </div>
+                  <div className="min-w-0 sm:col-span-2 xl:col-span-3">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">IP/origem</dt>
+                    <dd className="mt-1 break-all text-xs font-medium text-slate-700">{log.ip_address || "IP não informado"}</dd>
+                    <dd className="mt-1 break-words text-xs text-slate-500">{compactUserAgent(log.user_agent)}</dd>
+                  </div>
+                  <div className="min-w-0 sm:col-span-2 xl:col-span-3">
+                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Descrição</dt>
+                    <dd className="mt-1 break-words text-sm leading-6 text-slate-700">{log.description || "-"}</dd>
+                  </div>
+                </dl>
+                <div className="mt-4 min-w-0 border-t border-slate-200 pt-3">
+                  <MetadataDetails log={log} />
+                </div>
+              </article>
+            ))}
           </div>
         )}
 
