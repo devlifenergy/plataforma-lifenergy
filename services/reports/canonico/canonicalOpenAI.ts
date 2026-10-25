@@ -3,6 +3,7 @@ import type { LifenergyV1ReportData } from "../lifenergyV1Types";
 import type { RelatorioCanonico } from "./canonicalTypes";
 import { prepararEntradaCanonica } from "./canonicalInput";
 import { recalcularCanonico } from "./canonicalCalc";
+import { harmonizarPercentuaisCanonicos } from "./canonicalConsistency";
 import { CANONICAL_SYSTEM_PROMPT } from "./systemPrompt";
 import schema from "./relatorio_lifenergy_schema.json";
 
@@ -77,8 +78,8 @@ export async function gerarRelatorioCanonico(data: LifenergyV1ReportData): Promi
   try { relatorio = JSON.parse(msg.content) as RelatorioCanonico; }
   catch { throw new Error("OpenAI retornou JSON inválido."); }
   validarSaida(data, relatorio);
-  const avisos = recalcularCanonico(relatorio);  // método Python original, portado fielmente
-  // O script Python original também alerta se os percentuais recalculados diferirem.
-  // Não alteramos automaticamente trechos interpretativos: são preservados e sinalizados.
+  const avisos = recalcularCanonico(relatorio);  // formula e intensidades canônicas preservadas
+  const corrigidos = harmonizarPercentuaisCanonicos(relatorio);
+  if (corrigidos > 0) avisos.push(`Referências percentuais harmonizadas no texto: ${corrigidos}.`);
   return { relatorio, modelo, avisos };
 }

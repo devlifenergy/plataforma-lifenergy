@@ -7,6 +7,7 @@ import type { LifenergyV1ReportData } from "../lifenergyV1Types";
 import type { RelatorioCanonico } from "./canonicalTypes";
 import { gerarRelatorioCanonico } from "./canonicalOpenAI";
 import { buildCanonicalDocx } from "./canonicalDocx";
+import { harmonizarPercentuaisCanonicos } from "./canonicalConsistency";
 
 const VERSAO = "lifenergy_schema_usuario_v1_20261022";
 const MOTOR = "canonico_py_json_port_node_v1";
@@ -79,6 +80,8 @@ export async function gerarRotaCanonica(params: {
     if (error) throw new Error(error.message);
   }
 
+  // Corrige também downloads de relatórios já armazenados, sem nova IA, licença ou escrita no banco.
+  const ajustesNoDownload = harmonizarPercentuaisCanonicos(documento);
   const buffer = buildCanonicalDocx(base, documento);
   await logAuditEvent({
     action: "report.relational_generated",
@@ -96,6 +99,7 @@ export async function gerarRotaCanonica(params: {
       regenerate: regenerar,
       reused_existing_document: Boolean(reutilizado),
       avisos_calculo: avisos,
+      referencias_percentuais_ajustadas_no_download: ajustesNoDownload,
     },
   });
   return new Response(buffer as unknown as BodyInit, {
