@@ -40,7 +40,7 @@ test("corrige divergencia real entre tabela e paragrafo, preservando texto", () 
   const calcAntes = JSON.stringify(r.calculo_atributos);
   const entradaAntes = JSON.stringify(r.fractais[0].respostas[0].intensidades);
   const justificativaAntes = r.fractais[0].respostas[0].justificativa;
-  assert.equal(harmonizarPercentuaisCanonicos(r), 8);
+  assert.equal(harmonizarPercentuaisCanonicos(r), 7);
   assert.equal(r.interpretacao_padroes,
     "Socialização (83%) é o atributo mais forte. Sentimento (80%) também se destaca. " +
     "Reflexão (73%) e Propósito (73%) aparecem em níveis altos. Lazer (39%) é o menor.");

@@ -19,7 +19,7 @@ const ASSOCIADO_DEPOIS = new RegExp(
   "(\\d{1,3})([ \\t]*%)([ \\t]+(?:(?:de|em|para|no|na)[ \\t]+)?)(" + REFERENCIA + ")",
   "gi",
 );
-const PORCENTAGENS_TEXTUAIS = /\\d+(?:[.,]\\d+)?\\s*(?:%|por cento)/gi;
+const PORCENTAGENS_TEXTUAIS = /\d+(?:[.,]\d+)?\s*(?:%|por cento)/gi;
 
 function atributoDe(nome: string): Atributo {
   const normalizado = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
