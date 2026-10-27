@@ -479,6 +479,11 @@ export const LIFENERGY_FRACTAL_MATRIX: LifenergyFractalMatrixVortex[] = [
             title: "4. Cite três ideias que você acha que os outros têm da sua vida e do seu sucesso. Hierarquize e justifique.",
             text: "4. Cite três ideias que você acha que os outros têm da sua vida e do seu sucesso. Hierarquize e justifique.",
           },
+          {
+            id: "v3_p4_f5",
+            title: "5. Sente-se calmamente em um lugar tranquilo e que não seja interrompido. Percorra fatos da sua vida por áreas iguais a deste instrumento Lifenergy. Em um papel dividido em três colunas, anote na segunda coluna os fatos que voce fez espontaneamnete como um chamamento de alma. Na terceira coluna, escreva os que você fez obrigado ou induzido por fatores externos e, na primeira coluna, hierarquize a sequência dos que você fez espontaneamente e justifique. Quando terminar, releia as duas primeiras colunas e descubra o padrão mais comum que seja indicativo do seu propósito de vida. Veja como você se sente.",
+            text: "5. Sente-se calmamente em um lugar tranquilo e que não seja interrompido. Percorra fatos da sua vida por áreas iguais a deste instrumento Lifenergy. Em um papel dividido em três colunas, anote na segunda coluna os fatos que voce fez espontaneamnete como um chamamento de alma. Na terceira coluna, escreva os que você fez obrigado ou induzido por fatores externos e, na primeira coluna, hierarquize a sequência dos que você fez espontaneamente e justifique. Quando terminar, releia as duas primeiras colunas e descubra o padrão mais comum que seja indicativo do seu propósito de vida. Veja como você se sente.",
+          },
         ],
       },
       {
