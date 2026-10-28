@@ -28,7 +28,7 @@ function SearchResultCard({ result }: { result: ExistingCompanySearchResult }) {
     <div className="rounded-2xl border border-amber-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm font-bold text-[#0F2D4A]">{result.name}</p>
+          <p className="text-sm font-bold text-[#173A40]">{result.name}</p>
           <p className="mt-1 text-xs text-slate-500">Encontrada por: {result.matchReason}</p>
         </div>
         <span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"}`}>
@@ -115,7 +115,7 @@ export function CompanyCreateForm() {
       className="grid gap-4 md:grid-cols-2"
     >
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 md:col-span-2">
-        <p className="text-sm font-bold text-[#0F2D4A]">Verificar se a empresa já existe</p>
+        <p className="text-sm font-bold text-[#173A40]">Verificar se a empresa já existe</p>
         <p className="mt-1 text-xs leading-5 text-slate-600">
           Busque antes do cadastro pelo nome da empresa ou pelo usuário administrador para evitar duplicidade acidental.
         </p>
@@ -132,13 +132,13 @@ export function CompanyCreateForm() {
             }}
             disabled={isSearching || isPending}
             placeholder="Nome da empresa ou e-mail do administrador"
-            className="rounded-xl border border-amber-200 bg-white p-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20 disabled:cursor-not-allowed disabled:bg-slate-100"
+            className="rounded-xl border border-amber-200 bg-white p-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20 disabled:cursor-not-allowed disabled:bg-slate-100"
           />
           <button
             type="button"
             onClick={handleDuplicateSearch}
             disabled={isSearching || isPending}
-            className="rounded-xl bg-[#0F2D4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl bg-[#215266] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSearching ? "Buscando..." : "Buscar"}
           </button>
@@ -174,7 +174,7 @@ export function CompanyCreateForm() {
         disabled={isPending}
         autoComplete="off"
         placeholder="Nome da empresa *"
-        className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+        className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#173A40] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
       />
 
       <input
@@ -183,7 +183,7 @@ export function CompanyCreateForm() {
         disabled={isPending}
         autoComplete="off"
         placeholder="Nome do administrador *"
-        className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+        className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#173A40] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
       />
 
       <input
@@ -194,7 +194,7 @@ export function CompanyCreateForm() {
         autoComplete="new-email"
         defaultValue=""
         placeholder="E-mail do administrador *"
-        className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+        className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#173A40] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
       />
 
       <div className="relative">
@@ -206,13 +206,13 @@ export function CompanyCreateForm() {
           autoComplete="new-password"
           defaultValue=""
           placeholder="Senha inicial *"
-          className="w-full rounded-xl border border-slate-300 p-3 pr-12 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+          className="w-full rounded-xl border border-slate-300 p-3 pr-12 outline-none transition focus:border-[#173A40] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
         />
         <button
           type="button"
           disabled={isPending}
           onClick={() => setShowPassword((current) => !current)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-500 transition hover:bg-slate-100 hover:text-[#0F2D4A] disabled:cursor-not-allowed disabled:opacity-60"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-500 transition hover:bg-slate-100 hover:text-[#173A40] disabled:cursor-not-allowed disabled:opacity-60"
           aria-label={showPassword ? "Ocultar senha inicial" : "Visualizar senha inicial"}
           title={showPassword ? "Ocultar senha" : "Visualizar senha"}
         >
@@ -220,9 +220,9 @@ export function CompanyCreateForm() {
         </button>
       </div>
 
-      <input name="license_individual_reports" required min="0" type="number" disabled={isPending} placeholder="Licenças - Relatório Individual *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:bg-slate-100" />
-      <input name="license_pdi_relational" required min="0" type="number" disabled={isPending} placeholder="Licenças - Trilha Lifenergy *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:bg-slate-100" />
-      <input name="license_pdi_corporate" required min="0" type="number" disabled={isPending} placeholder="Licenças - PDI Corporativo *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#0F2D4A] disabled:bg-slate-100 md:col-span-2" />
+      <input name="license_individual_reports" required min="0" type="number" disabled={isPending} placeholder="Licenças - Relatório Individual *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#173A40] disabled:bg-slate-100" />
+      <input name="license_pdi_relational" required min="0" type="number" disabled={isPending} placeholder="Licenças - Trilha Lifenergy *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#173A40] disabled:bg-slate-100" />
+      <input name="license_pdi_corporate" required min="0" type="number" disabled={isPending} placeholder="Licenças - PDI Corporativo *" className="rounded-xl border border-slate-300 p-3 outline-none transition focus:border-[#173A40] disabled:bg-slate-100 md:col-span-2" />
 
       <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
         <input name="send_access_email" type="checkbox" disabled={isPending} className="mt-1 h-4 w-4" />
@@ -244,7 +244,7 @@ export function CompanyCreateForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-xl bg-[#0F2D4A] px-6 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 md:col-span-2"
+        className="rounded-xl bg-[#215266] px-6 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 md:col-span-2"
       >
         {isPending ? "Cadastrando empresa..." : "Cadastrar Empresa"}
       </button>
