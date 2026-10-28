@@ -81,9 +81,9 @@ function DashboardCards({ actions }: { actions: DashboardAction[] }) {
         <Link
           key={action.href}
           href={action.href}
-          className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#B98A2E] hover:shadow-md"
+          className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#F0955A] hover:shadow-md"
         >
-          <h2 className="text-lg font-semibold text-[#0F2A43]">{action.title}</h2>
+          <h2 className="text-lg font-semibold text-[#173A40]">{action.title}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">{action.description}</p>
         </Link>
       ))}
@@ -117,11 +117,11 @@ export default async function PainelPage() {
   if (role === "super_admin") {
     return (
       <section>
-        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
           Painel Administrativo
         </p>
 
-        <h1 className="text-4xl font-bold text-[#0F2A43]">
+        <h1 className="text-4xl font-bold text-[#173A40]">
           Painel Inicial do Superusuário
         </h1>
 
@@ -136,11 +136,11 @@ export default async function PainelPage() {
 
   return (
     <section>
-      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+      <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
         Painel da Empresa
       </p>
 
-      <h1 className="text-4xl font-bold text-[#0F2A43]">
+      <h1 className="text-4xl font-bold text-[#173A40]">
         Bem-vindo ao Lifenergy Digital
       </h1>
 
