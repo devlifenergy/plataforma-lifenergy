@@ -127,7 +127,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
             name="applicator_id"
             required
             disabled={isPending}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
           >
             <option value="">Selecione</option>
             {applicators.map((item) => (
@@ -141,7 +141,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
         <Input name="participant_name" label="Nome completo do avaliado *" required disabled={isPending} />
         <label className="block">
           <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">E-mail *</span>
-          <input name="participant_email" type="email" required disabled={isPending} value={participantEmail} onChange={(event) => setParticipantEmail(event.target.value)} aria-invalid={participantEmail ? !isValidEmail(participantEmail) : undefined} className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20" />
+          <input name="participant_email" type="email" required disabled={isPending} value={participantEmail} onChange={(event) => setParticipantEmail(event.target.value)} aria-invalid={participantEmail ? !isValidEmail(participantEmail) : undefined} className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20" />
           {participantEmail && !isValidEmail(participantEmail) ? <span className="mt-1 block text-xs font-medium text-red-600">Informe um e-mail válido.</span> : null}
         </label>
         <label className="block">
@@ -157,7 +157,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
             inputMode="numeric"
             maxLength={14}
             aria-invalid={cpf.length === 14 ? !isValidCpf(cpf) : undefined}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
           />
           {cpf.length === 14 && !isValidCpf(cpf) ? <span className="mt-1 block text-xs font-medium text-red-600">CPF inválido.</span> : null}
         </label>
@@ -169,7 +169,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
         />
         <label className="block">
           <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">Estado *</span>
-          <select name="participant_state" required disabled={isPending} className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20">
+          <select name="participant_state" required disabled={isPending} className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20">
             <option value="">Selecione</option>
             {BRAZILIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
           </select>
@@ -187,7 +187,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
             inputMode="numeric"
             maxLength={10}
             placeholder="dd/mm/aaaa"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
           />
         </label>
         <label className="block md:col-span-3">
@@ -199,13 +199,13 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
             required
             rows={3}
             disabled={isPending}
-            className="min-h-24 w-full resize-y rounded-xl border border-slate-300 px-4 py-3 text-base leading-7 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+            className="min-h-24 w-full resize-y rounded-xl border border-slate-300 px-4 py-3 text-base leading-7 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
           />
         </label>
       </section>
 
       <fieldset className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <legend className="px-2 text-[15px] font-bold leading-6 text-[#0F2D4A]">
+        <legend className="px-2 text-[15px] font-bold leading-6 text-[#173A40]">
           Quantos Fractais de Comportamento deseja aplicar neste link?
         </legend>
         <div className="mt-3 flex flex-wrap gap-3">
@@ -214,8 +214,8 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
               key={option}
               className={`cursor-pointer rounded-xl border px-4 py-3 text-base font-semibold transition ${
                 fractalCount === option
-                  ? "border-[#0F2D4A] bg-[#0F2D4A] text-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:border-[#B8860B]"
+                  ? "border-[#173A40] bg-[#215266] text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:border-[#F0955A]"
               }`}
             >
               <input
@@ -245,7 +245,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
 
           return (
             <div key={position} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <h3 className="text-lg font-bold text-[#0F2D4A]">Fractal {position}</h3>
+              <h3 className="text-lg font-bold text-[#173A40]">Fractal {position}</h3>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <span className="mb-2 block text-[15px] font-semibold leading-6 text-slate-700">
@@ -263,7 +263,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                         fractalId: "",
                       })
                     }
-                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
                   >
                     <option value="">Selecione</option>
                     {LIFENERGY_FRACTAL_MATRIX.map((vortex) => (
@@ -289,7 +289,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                         fractalId: "",
                       })
                     }
-                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition disabled:bg-slate-100 disabled:text-slate-500 focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
                   >
                     <option value="">Selecione</option>
                     {selectedVortex?.connectionPoints.map((point) => (
@@ -323,7 +323,7 @@ export function CreateJourneyForm({ applicators }: CreateJourneyFormProps) {
                             key={fractal.id}
                             className={`block rounded-xl border px-4 py-4 text-[15px] leading-6 transition ${
                               checked
-                                ? "border-[#B8860B] bg-[#B8860B]/5 ring-2 ring-[#B8860B]/15"
+                                ? "border-[#F0955A] bg-[#215266]/5 ring-2 ring-[#F0955A]/15"
                                 : alreadySelected
                                   ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400 opacity-60"
                                   : "cursor-pointer border-slate-300 bg-white hover:border-slate-400"

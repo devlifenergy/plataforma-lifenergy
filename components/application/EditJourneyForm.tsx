@@ -53,7 +53,7 @@ export function EditJourneyForm(props: Props) {
         const point = vortex?.connectionPoints.find((item) => item.id === fractal.connection_point);
         return (
           <div key={fractal.position} className="rounded-xl border border-slate-200 bg-white p-3">
-            <p className="mb-3 font-semibold text-[#0F2D4A]">Fractal {fractal.position}</p>
+            <p className="mb-3 font-semibold text-[#173A40]">Fractal {fractal.position}</p>
             <div className="grid gap-3 md:grid-cols-2">
               <label className="block">
                 <span className="mb-2 block text-[15px] font-semibold text-slate-700">Vórtice *</span>
@@ -89,7 +89,7 @@ export function EditJourneyForm(props: Props) {
                           key={item.id}
                           className={`block rounded-xl border px-4 py-3 text-sm leading-6 transition ${
                             checked
-                              ? "border-[#B8860B] bg-[#B8860B]/5 ring-2 ring-[#B8860B]/15"
+                              ? "border-[#F0955A] bg-[#215266]/5 ring-2 ring-[#F0955A]/15"
                               : alreadySelected
                                 ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400 opacity-60"
                                 : "cursor-pointer border-slate-300 bg-white hover:border-slate-400"

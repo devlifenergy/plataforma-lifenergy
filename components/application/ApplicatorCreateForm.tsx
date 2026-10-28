@@ -33,7 +33,7 @@ export function ApplicatorCreateForm() {
   }
 
   const inputClass =
-    "w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-[#0F2D4A] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
+    "w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-[#173A40] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
 
   return (
     <form ref={formRef} action={handleSubmit} className="grid gap-4 md:grid-cols-4">
@@ -53,7 +53,7 @@ export function ApplicatorCreateForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-xl bg-[#0F2D4A] px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-xl bg-[#215266] px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Cadastrando..." : "+ Novo Aplicador"}
         </button>

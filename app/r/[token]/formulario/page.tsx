@@ -57,7 +57,7 @@ export default async function FormularioPage({ params }: PageProps) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-10">
         <section className="w-full max-w-xl rounded-3xl bg-white p-10 text-center shadow-sm">
-          <h1 className="text-3xl font-bold text-[#0F2D4A]">
+          <h1 className="text-3xl font-bold text-[#173A40]">
             Avaliação já concluída
           </h1>
           <p className="mt-4 text-slate-600">
@@ -65,11 +65,11 @@ export default async function FormularioPage({ params }: PageProps) {
           </p>
         </section>
         <footer className="mt-6 text-center text-sm text-slate-500">
-          <Link href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#0F6C87] underline">
+          <Link href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#00838F] underline">
             Termo de Participação
           </Link>
           <span className="mx-2">•</span>
-          <Link href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#0F6C87] underline">
+          <Link href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#00838F] underline">
             Política de Privacidade
           </Link>
         </footer>
@@ -98,11 +98,11 @@ export default async function FormularioPage({ params }: PageProps) {
         }}
       />
       <footer className="mx-auto mt-6 max-w-5xl text-center text-sm text-slate-500">
-        <Link href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#0F6C87] underline">
+        <Link href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#00838F] underline">
           Termo de Participação
         </Link>
         <span className="mx-2">•</span>
-        <Link href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#0F6C87] underline">
+        <Link href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`} className="font-semibold text-[#00838F] underline">
           Política de Privacidade
         </Link>
       </footer>

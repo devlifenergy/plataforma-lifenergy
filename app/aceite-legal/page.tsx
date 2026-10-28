@@ -61,33 +61,33 @@ export default async function LegalAcceptancePage({ searchParams }: PageProps) {
     : organizations?.name;
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F5F7FA] px-6 py-10">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#EEF5F5] px-6 py-10">
       <div
         aria-hidden="true"
-        className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#0F2A43]/5 blur-3xl"
+        className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#215266]/5 blur-3xl"
       />
       <div
         aria-hidden="true"
-        className="absolute -bottom-28 -right-24 h-80 w-80 rounded-full bg-[#B98A2E]/10 blur-3xl"
+        className="absolute -bottom-28 -right-24 h-80 w-80 rounded-full bg-[#215266]/10 blur-3xl"
       />
 
       <section className="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_24px_70px_-35px_rgba(15,42,67,0.35)] sm:p-10">
         <header className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
             Lifenergy Digital
           </p>
-          <h1 className="mt-3 text-3xl font-bold text-[#0F2A43]">
+          <h1 className="mt-3 text-3xl font-bold text-[#173A40]">
             Aceite legal da empresa
           </h1>
           <p className="mt-4 text-base leading-7 text-slate-600">
             Para acessar o painel da empresa, confirme a ciência e aceite dos Termos de Uso
             do Lifenergy Digital e da Política de Privacidade.
           </p>
-          <div className="mt-5 rounded-2xl border border-[#B98A2E]/25 bg-[#B98A2E]/5 px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[#B98A2E]">
+          <div className="mt-5 rounded-2xl border border-[#F0955A]/25 bg-[#215266]/5 px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#00838F]">
               Empresa
             </p>
-            <p className="mt-1 font-semibold text-[#0F2A43]">
+            <p className="mt-1 font-semibold text-[#173A40]">
               {organizationName || "Empresa não identificada"}
             </p>
           </div>
@@ -107,7 +107,7 @@ export default async function LegalAcceptancePage({ searchParams }: PageProps) {
             <input
               type="checkbox"
               name="accept_company_terms"
-              className="mt-1 h-5 w-5 rounded border-slate-300 text-[#0F2A43]"
+              className="mt-1 h-5 w-5 rounded border-slate-300 text-[#173A40]"
               required
             />
             <span>
@@ -115,7 +115,7 @@ export default async function LegalAcceptancePage({ searchParams }: PageProps) {
               <Link
                 href="/termos-de-uso?returnTo=/aceite-legal"
                 target="_blank"
-                className="font-bold text-[#0F6C87] underline"
+                className="font-bold text-[#00838F] underline"
               >
                 Termos de Uso
               </Link>{" "}
@@ -127,7 +127,7 @@ export default async function LegalAcceptancePage({ searchParams }: PageProps) {
             <input
               type="checkbox"
               name="accept_privacy_policy"
-              className="mt-1 h-5 w-5 rounded border-slate-300 text-[#0F2A43]"
+              className="mt-1 h-5 w-5 rounded border-slate-300 text-[#173A40]"
               required
             />
             <span>
@@ -135,7 +135,7 @@ export default async function LegalAcceptancePage({ searchParams }: PageProps) {
               <Link
                 href="/politica-de-privacidade?returnTo=/aceite-legal"
                 target="_blank"
-                className="font-bold text-[#0F6C87] underline"
+                className="font-bold text-[#00838F] underline"
               >
                 Política de Privacidade
               </Link>
@@ -145,7 +145,7 @@ export default async function LegalAcceptancePage({ searchParams }: PageProps) {
 
           <button
             type="submit"
-            className="flex w-full items-center justify-center rounded-xl bg-[#0F2A43] px-6 py-3.5 font-semibold text-white transition hover:opacity-90"
+            className="flex w-full items-center justify-center rounded-xl bg-[#215266] px-6 py-3.5 font-semibold text-white transition hover:opacity-90"
           >
             Aceitar e acessar o painel
           </button>

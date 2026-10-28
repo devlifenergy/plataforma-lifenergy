@@ -10,19 +10,19 @@ export default async function LoginPage({
   const params = await searchParams;
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F5F7FA] px-6 py-10">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#EEF5F5] px-6 py-10">
       <div
         aria-hidden="true"
-        className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#0F2A43]/5 blur-3xl"
+        className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#215266]/5 blur-3xl"
       />
       <div
         aria-hidden="true"
-        className="absolute -bottom-28 -right-24 h-80 w-80 rounded-full bg-[#B98A2E]/10 blur-3xl"
+        className="absolute -bottom-28 -right-24 h-80 w-80 rounded-full bg-[#215266]/10 blur-3xl"
       />
 
       <section className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_24px_70px_-35px_rgba(15,42,67,0.35)] sm:p-10">
         <header className="mb-8 text-center">
-          <h1 className="text-2xl font-bold tracking-[0.08em] text-[#B98A2E] sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-[0.08em] text-[#00838F] sm:text-3xl">
             LIFENERGY DIGITAL
           </h1>
 
@@ -52,7 +52,7 @@ export default async function LoginPage({
         <LoginForm />
 
         <footer className="mt-8 border-t border-slate-100 pt-5 text-center">
-          <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-semibold text-[#0F6C87]">
+          <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-semibold text-[#00838F]">
             <Link href="/termos-de-uso?returnTo=/login" className="underline-offset-4 hover:underline">
               Termos de Uso
             </Link>

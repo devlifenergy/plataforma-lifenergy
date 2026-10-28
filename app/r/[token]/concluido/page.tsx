@@ -21,10 +21,10 @@ export default async function JourneyCompletedPage({ params }: PageProps) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-6 py-10">
       <section className="w-full max-w-xl rounded-3xl bg-white p-10 text-center shadow-sm">
-        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
           {journey.organization_name}
         </p>
-        <h1 className="text-3xl font-bold text-[#0F2D4A]">
+        <h1 className="text-3xl font-bold text-[#173A40]">
           Avaliação concluída
         </h1>
         <p className="mt-4 text-lg leading-8 text-slate-700">
@@ -36,11 +36,11 @@ export default async function JourneyCompletedPage({ params }: PageProps) {
         </p>
       </section>
       <footer className="mt-6 text-center text-sm text-slate-500">
-        <Link href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/concluido`)}`} className="font-semibold text-[#0F6C87] underline">
+        <Link href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/concluido`)}`} className="font-semibold text-[#00838F] underline">
           Termo de Participação
         </Link>
         <span className="mx-2">•</span>
-        <Link href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/concluido`)}`} className="font-semibold text-[#0F6C87] underline">
+        <Link href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/concluido`)}`} className="font-semibold text-[#00838F] underline">
           Política de Privacidade
         </Link>
       </footer>

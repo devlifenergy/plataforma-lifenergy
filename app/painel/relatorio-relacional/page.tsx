@@ -47,8 +47,8 @@ export default async function RelatorioRelacionalPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#B98A2E]">Relatórios</p>
-        <h1 className="mt-1 text-3xl font-bold text-[#0F2D4A]">Relatório Lifenergy</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#00838F]">Relatórios</p>
+        <h1 className="mt-1 text-3xl font-bold text-[#173A40]">Relatório Lifenergy</h1>
         <p className="mt-2 max-w-4xl text-slate-500">Gere um relatório para cada aplicação concluída. Documentos já gerados podem ser baixados novamente sem consumir nova licença.</p>
       </div>
 
@@ -60,8 +60,8 @@ export default async function RelatorioRelacionalPage() {
         Array.from(groups.entries()).map(([cpfKey, items]) => (
           <Card key={cpfKey}>
             <div className="mb-5 border-b border-slate-200 pb-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">CPF</p>
-              <h2 className="mt-1 text-xl font-bold text-[#0F2D4A]">{formatCpf(items[0]?.cpf ?? null)}</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00838F]">CPF</p>
+              <h2 className="mt-1 text-xl font-bold text-[#173A40]">{formatCpf(items[0]?.cpf ?? null)}</h2>
             </div>
             <div className="space-y-3">
               {items.map((item) => {
@@ -71,8 +71,8 @@ export default async function RelatorioRelacionalPage() {
                 return (
                   <div key={item.id} className="grid gap-4 rounded-2xl border border-slate-200 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#B98A2E]">{item.code}</p>
-                      <h3 className="mt-1 text-lg font-bold text-[#0F2D4A]">{item.participant_name}</h3>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#00838F]">{item.code}</p>
+                      <h3 className="mt-1 text-lg font-bold text-[#173A40]">{item.participant_name}</h3>
                       <p className="mt-1 text-sm text-slate-500">{stored ? "Relatório já gerado e salvo" : "Novo relatório disponível para geração"}</p>
                     </div>
                     <GenerateReportButton

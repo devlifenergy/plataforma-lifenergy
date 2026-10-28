@@ -11,7 +11,7 @@ export function TechnicalLibraryForm() {
     <input name="external_url" type="url" placeholder="Link complementar (YouTube, site ou referência)" className="rounded-xl border border-slate-300 px-4 py-3 md:col-span-2"/>
     <p className="text-xs leading-5 text-slate-500 md:col-span-2">Envie um PDF ou DOCX. A Plataforma Lifenergy lerá o arquivo automaticamente e montará a página de visualização do conteúdo.</p>
     <label className="flex items-center gap-2 text-sm font-semibold text-slate-700"><input name="is_public" type="checkbox" defaultChecked/> Disponibilizar também ao público geral</label>
-    <button disabled={pending} className="rounded-xl bg-[#0F2D4A] px-5 py-3 font-bold text-white disabled:opacity-60">{pending?"Processando...":"Adicionar à Biblioteca Técnica"}</button>
+    <button disabled={pending} className="rounded-xl bg-[#215266] px-5 py-3 font-bold text-white disabled:opacity-60">{pending?"Processando...":"Adicionar à Biblioteca Técnica"}</button>
     {message?<p className="text-sm md:col-span-2">{message}</p>:null}
   </form>;
 }

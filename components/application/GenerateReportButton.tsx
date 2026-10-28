@@ -161,7 +161,7 @@ export function GenerateReportButton({
           type="button"
           disabled={isBusy || isBlocked}
           onClick={() => handleAction("generate")}
-          className={`rounded-full border border-[#B8860B] px-4 py-2 text-[14px] font-bold text-[#0F2D4A] transition hover:bg-[#B8860B]/10 ${
+          className={`rounded-full border border-[#F0955A] px-4 py-2 text-[14px] font-bold text-[#173A40] transition hover:bg-[#215266]/10 ${
             isBusy ? "cursor-not-allowed opacity-60" : ""
           }`}
         >

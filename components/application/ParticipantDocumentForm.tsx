@@ -9,7 +9,7 @@ export function ParticipantDocumentForm({candidates}:{candidates:Candidate[]}) {
     <input name="title" required placeholder="Título do documento *" className="rounded-xl border border-slate-300 px-4 py-3" />
     <input name="category" placeholder="Categoria (opcional)" className="rounded-xl border border-slate-300 px-4 py-3" />
     <input name="file" type="file" required className="rounded-xl border border-slate-300 px-4 py-3" />
-    <button disabled={pending} className="rounded-xl bg-[#0F2D4A] px-5 py-3 font-bold text-white md:col-span-2">{pending?"Salvando...":"Vincular documento ao avaliado"}</button>
+    <button disabled={pending} className="rounded-xl bg-[#215266] px-5 py-3 font-bold text-white md:col-span-2">{pending?"Salvando...":"Vincular documento ao avaliado"}</button>
     {message?<p className="text-sm md:col-span-2">{message}</p>:null}
   </form>;
 }

@@ -292,7 +292,7 @@ function LicenseChangeDetails({ metadata }: { metadata: Record<string, unknown> 
             </div>
             <div className="min-w-0">
               <dt className="font-medium text-slate-500">Variação</dt>
-              <dd className="mt-1 break-all font-semibold text-[#0F2D4A]">{formatMetadataValue(delta?.[key])}</dd>
+              <dd className="mt-1 break-all font-semibold text-[#173A40]">{formatMetadataValue(delta?.[key])}</dd>
             </div>
           </dl>
         </div>
@@ -308,7 +308,7 @@ function MetadataDetails({ log }: { log: AuditLogRow }) {
 
   return (
     <details className="group">
-      <summary className="inline-flex cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-[#0F2A43] transition hover:border-[#B98A2E] hover:text-[#B98A2E]">
+      <summary className="inline-flex cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-[#173A40] transition hover:border-[#F0955A] hover:text-[#00838F]">
         Ver detalhes
       </summary>
       <div className="mt-3 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
@@ -397,10 +397,10 @@ export default async function AuditPage({ searchParams }: PageProps) {
   return (
     <div className="min-w-0 max-w-full space-y-8">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
           Auditoria avançada
         </p>
-        <h1 className="mt-3 text-3xl font-bold text-[#0F2A43]">
+        <h1 className="mt-3 text-3xl font-bold text-[#173A40]">
           Eventos do Lifenergy Digital
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
@@ -422,7 +422,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
               <select
                 name="organization_id"
                 defaultValue={filters.organizationId}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
               >
                 <option value="">Todas as empresas</option>
                 {organizations.map((organization) => (
@@ -441,7 +441,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
               defaultValue={filters.user}
               list="audit-user-options"
               placeholder="Nome ou e-mail"
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             />
             <datalist id="audit-user-options">
               {userOptions.map((option) => (
@@ -455,7 +455,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
             <select
               name="action"
               defaultValue={filters.action}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             >
               <option value="">Todas as ações</option>
               {actionOptions.map((option) => (
@@ -470,7 +470,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
               name="start_date"
               type="date"
               defaultValue={filters.startDate}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             />
           </label>
 
@@ -480,7 +480,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
               name="end_date"
               type="date"
               defaultValue={filters.endDate}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             />
           </label>
 
@@ -490,7 +490,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
               name="entity"
               defaultValue={filters.entity}
               placeholder="organization, journey, report..."
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             />
           </label>
 
@@ -500,7 +500,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
               name="q"
               defaultValue={filters.q}
               placeholder="Descrição, e-mail do usuário, nome da empresa ou ação"
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             />
           </label>
 
@@ -509,7 +509,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
             <select
               name="page_size"
               defaultValue={String(filters.pageSize)}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#B98A2E] focus:ring-2 focus:ring-[#B98A2E]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             >
               {PAGE_SIZE_OPTIONS.map((size) => (
                 <option key={size} value={size}>{size}</option>
@@ -518,7 +518,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
           </label>
 
           <div className="flex flex-col gap-3 lg:col-span-6 sm:flex-row">
-            <button className="rounded-xl bg-[#0F2A43] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90">
+            <button className="rounded-xl bg-[#215266] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90">
               Aplicar filtros
             </button>
             <Link href="/painel/auditoria" className="rounded-xl border border-slate-300 px-5 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
@@ -534,7 +534,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
       <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col gap-2 border-b border-slate-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-[#0F2A43]">Registros de auditoria</h2>
+            <h2 className="text-lg font-semibold text-[#173A40]">Registros de auditoria</h2>
             <p className="mt-1 text-sm text-slate-500">
               {count === 0
                 ? "Nenhum evento encontrado com os filtros aplicados."
@@ -555,7 +555,7 @@ export default async function AuditPage({ searchParams }: PageProps) {
             {logs.map((log) => (
               <article key={log.id} className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
                 <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
-                  <p className="text-sm font-semibold text-[#0F2A43]">
+                  <p className="text-sm font-semibold text-[#173A40]">
                     <time dateTime={log.created_at}>{formatDate(log.created_at)}</time>
                   </p>
                   <span className={`max-w-full break-words rounded-full border px-3 py-1 text-xs font-semibold ${getBadgeClasses(log.action)}`}>
