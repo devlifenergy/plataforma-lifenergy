@@ -58,7 +58,7 @@ export function CorporateDocumentForm({ categories }: CorporateDocumentFormProps
           name="category"
           required
           disabled={isPending}
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 disabled:bg-slate-100"
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20 disabled:bg-slate-100"
         >
           <option value="">Selecione</option>
           {categories.map((category) => (
@@ -95,7 +95,7 @@ export function CorporateDocumentForm({ categories }: CorporateDocumentFormProps
         <div className="flex flex-col gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 sm:flex-row sm:items-center">
           <label
             htmlFor={fileInputId}
-            className={`inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#0F2D4A] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0F2D4A]/90 ${
+            className={`inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#215266] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#215266]/90 ${
               isPending ? "pointer-events-none opacity-60" : ""
             }`}
           >
