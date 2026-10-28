@@ -33,6 +33,11 @@ const superAdminActions: DashboardAction[] = [
 
 const organizationActions: DashboardAction[] = [
   {
+    title: "Cadastro da Logomarca",
+    description: "Cadastre ou atualize a logomarca utilizada nos relatórios da empresa.",
+    href: "/painel/logomarca",
+  },
+  {
     title: "Aplicadores Autorizados",
     description: "Cadastre e gerencie pessoas autorizadas a conduzir aplicações.",
     href: "/painel/aplicadores",
@@ -48,24 +53,24 @@ const organizationActions: DashboardAction[] = [
     href: "/painel/relatorio-relacional",
   },
   {
-    title: "Trilha Lifenergy",
-    description: "Gere trilhas de desenvolvimento individual a partir dos relatórios.",
-    href: "/painel/pdi",
-  },
-  {
-    title: "PDI Corporativo",
-    description: "Crie PDIs corporativos usando a biblioteca e o contexto da organização.",
-    href: "/painel/pdi-corporativo",
-  },
-  {
     title: "Biblioteca Corporativa",
     description: "Cadastre documentos corporativos para alimentar a inteligência da empresa.",
     href: "/painel/biblioteca",
   },
   {
+    title: "PDI Lifenergy",
+    description: "Acesse o PDI Corporativo a partir da biblioteca e do contexto da organização.",
+    href: "/painel/pdi-corporativo",
+  },
+  {
     title: "Biblioteca Técnica",
     description: "Acesse materiais técnicos e orientações disponíveis no Lifenergy Digital.",
     href: "/painel/biblioteca-tecnica",
+  },
+  {
+    title: "Trilha Lifenergy",
+    description: "Gere trilhas de desenvolvimento individual a partir dos relatórios.",
+    href: "/painel/pdi",
   },
 ];
 
