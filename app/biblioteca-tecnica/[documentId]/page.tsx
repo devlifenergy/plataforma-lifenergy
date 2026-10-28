@@ -149,14 +149,14 @@ function PdfEditorialContent({ text }: { text: string }) {
           return block.level === 2 ? (
             <h2
               key={index}
-              className="mb-4 mt-10 border-b border-slate-200 pb-3 text-xl font-bold tracking-tight text-[#0F2A43] first:mt-0"
+              className="mb-4 mt-10 border-b border-slate-200 pb-3 text-xl font-bold tracking-tight text-[#173A40] first:mt-0"
             >
               {block.text}
             </h2>
           ) : (
             <h3
               key={index}
-              className="mb-3 mt-8 text-lg font-semibold text-[#0F2A43]"
+              className="mb-3 mt-8 text-lg font-semibold text-[#173A40]"
             >
               {block.text}
             </h3>
@@ -168,7 +168,7 @@ function PdfEditorialContent({ text }: { text: string }) {
             <ul key={index} className="my-5 space-y-2 pl-1">
               {block.items.map((item, itemIndex) => (
                 <li key={itemIndex} className="flex gap-3">
-                  <span className="mt-[2px] font-bold text-[#B98A2E]">•</span>
+                  <span className="mt-[2px] font-bold text-[#00838F]">•</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -184,7 +184,7 @@ function PdfEditorialContent({ text }: { text: string }) {
                   key={itemIndex}
                   className="flex gap-3 rounded-lg bg-slate-50 px-4 py-2"
                 >
-                  <span className="text-[#B98A2E]">□</span>
+                  <span className="text-[#00838F]">□</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -221,20 +221,20 @@ export default async function TechnicalLibraryDocumentPage({
   const isDocx = document.source_format === "docx" && document.extracted_html;
 
   return (
-    <main className="min-h-screen bg-[#F7F5EF] px-5 py-10 md:px-8">
+    <main className="min-h-screen bg-[#EEF5F5] px-5 py-10 md:px-8">
       <div className="mx-auto max-w-6xl">
         <Link
           href={backHref}
-          className="text-sm font-semibold text-[#0F2A43] hover:underline"
+          className="text-sm font-semibold text-[#173A40] hover:underline"
         >
           {backLabel}
         </Link>
 
         <header className="mt-8 border-b border-slate-200 pb-8">
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#B98A2E]">
+          <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#00838F]">
             Biblioteca Técnica Lifenergy
           </p>
-          <h1 className="mt-3 max-w-5xl text-3xl font-bold tracking-tight text-[#0F2A43] md:text-4xl">
+          <h1 className="mt-3 max-w-5xl text-3xl font-bold tracking-tight text-[#173A40] md:text-4xl">
             {document.title}
           </h1>
           {document.description ? (
@@ -248,14 +248,14 @@ export default async function TechnicalLibraryDocumentPage({
           {isDocx ? (
             <article
               className="mx-auto max-w-4xl text-[16px] leading-8 text-slate-700
-                [&_h1]:mb-5 [&_h1]:mt-10 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-[#0F2A43]
-                [&_h2]:mb-4 [&_h2]:mt-9 [&_h2]:border-b [&_h2]:border-slate-200 [&_h2]:pb-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-[#0F2A43]
-                [&_h3]:mb-3 [&_h3]:mt-7 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-[#0F2A43]
+                [&_h1]:mb-5 [&_h1]:mt-10 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-[#173A40]
+                [&_h2]:mb-4 [&_h2]:mt-9 [&_h2]:border-b [&_h2]:border-slate-200 [&_h2]:pb-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-[#173A40]
+                [&_h3]:mb-3 [&_h3]:mt-7 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-[#173A40]
                 [&_p]:my-4
                 [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-7
                 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-7
                 [&_table]:my-7 [&_table]:w-full [&_table]:border-collapse
-                [&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-50 [&_th]:p-3 [&_th]:text-left [&_th]:font-semibold [&_th]:text-[#0F2A43]
+                [&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-50 [&_th]:p-3 [&_th]:text-left [&_th]:font-semibold [&_th]:text-[#173A40]
                 [&_td]:border [&_td]:border-slate-200 [&_td]:p-3 [&_td]:align-top"
               dangerouslySetInnerHTML={{ __html: document.extracted_html! }}
             />
@@ -270,7 +270,7 @@ export default async function TechnicalLibraryDocumentPage({
 
         {youtubeEmbedUrl ? (
           <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
-            <h2 className="mb-4 text-lg font-semibold text-[#0F2A43]">
+            <h2 className="mb-4 text-lg font-semibold text-[#173A40]">
               Conteúdo complementar
             </h2>
             <div className="aspect-video overflow-hidden rounded-xl bg-black">
@@ -285,14 +285,14 @@ export default async function TechnicalLibraryDocumentPage({
           </section>
         ) : document.external_url ? (
           <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-[#0F2A43]">
+            <h2 className="text-lg font-semibold text-[#173A40]">
               Referência complementar
             </h2>
             <a
               href={document.external_url}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 inline-flex rounded-xl bg-[#0F2A43] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+              className="mt-4 inline-flex rounded-xl bg-[#215266] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
             >
               Acessar conteúdo externo
             </a>
