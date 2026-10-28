@@ -63,7 +63,7 @@ export default async function EntrevistadosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#0F2D4A]">Aplicação on-line</h1>
+        <h1 className="text-3xl font-bold text-[#173A40]">Aplicação on-line</h1>
         <p className="mt-1 text-slate-500">
           {journeys.length === 1
             ? "1 convite cadastrado"
@@ -78,7 +78,7 @@ export default async function EntrevistadosPage() {
       {journeys.length === 0 ? (
         <Card>
           <div className="py-20 text-center">
-            <h2 className="text-xl font-semibold text-[#0F2D4A]">
+            <h2 className="text-xl font-semibold text-[#173A40]">
               Nenhuma aplicação cadastrada
             </h2>
             <p className="mt-2 text-slate-500">Crie a primeira aplicação on-line acima.</p>
@@ -94,10 +94,10 @@ export default async function EntrevistadosPage() {
               <Card key={groupKey}>
                 <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00838F]">
                       CPF
                     </p>
-                    <h2 className="mt-1 text-xl font-bold text-[#0F2D4A]">
+                    <h2 className="mt-1 text-xl font-bold text-[#173A40]">
                       {formatCpf(cpf)}
                     </h2>
                     {isPendingCpfGroup ? (
@@ -128,7 +128,7 @@ export default async function EntrevistadosPage() {
                             <p className="text-[15px] font-semibold leading-6 text-slate-500">
                               {item.code}
                             </p>
-                            <h3 className="mt-1 text-lg font-bold text-[#0F2D4A]">
+                            <h3 className="mt-1 text-lg font-bold text-[#173A40]">
                               {item.participant_name}
                             </h3>
                             <p className="mt-1 text-[15px] leading-6 text-slate-600">
@@ -143,7 +143,7 @@ export default async function EntrevistadosPage() {
                             <div className="mt-1 space-y-2 text-[15px] leading-7 text-slate-700">
                               {((item as any).fractals ?? []).map((fractal: any) => (
                                 <p key={fractal.position} className="whitespace-pre-wrap">
-                                  <span className="font-semibold text-[#0F2D4A]">
+                                  <span className="font-semibold text-[#173A40]">
                                     Fractal {fractal.position}:
                                   </span>{" "}
                                   {fractal.activity || "-"}
@@ -167,7 +167,7 @@ export default async function EntrevistadosPage() {
                                     href={link}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="font-semibold text-[#0F2D4A] underline"
+                                    className="font-semibold text-[#173A40] underline"
                                   >
                                     Abrir link
                                   </a>
@@ -185,7 +185,7 @@ export default async function EntrevistadosPage() {
                           {item.status !== "completed" &&
                           item.status !== "exported" ? (
                             <details>
-                              <summary className="cursor-pointer list-none font-semibold text-[#0F2D4A] underline">
+                              <summary className="cursor-pointer list-none font-semibold text-[#173A40] underline">
                                 Editar
                               </summary>
 
