@@ -22,7 +22,7 @@ export function SendJourneyLinkEmailButton({ journeyId, disabled = false }: { jo
             setMessage(error instanceof Error ? error.message : "Erro ao enviar e-mail.");
           }
         })}
-        className="font-semibold text-[#0F2D4A] underline disabled:cursor-not-allowed disabled:text-slate-400"
+        className="font-semibold text-[#173A40] underline disabled:cursor-not-allowed disabled:text-slate-400"
         title="Envia o link da avaliação para o e-mail cadastrado do avaliado."
       >
         {pending ? "Enviando..." : "Enviar por e-mail"}
