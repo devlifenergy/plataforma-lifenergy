@@ -13,7 +13,7 @@ export function Input({ label, error, className = "", ...props }: InputProps) {
       )}
 
       <input
-        className={`w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 ${className}`}
+        className={`w-full rounded-xl border border-slate-300 px-4 py-3 text-base leading-6 text-slate-900 outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20 ${className}`}
         {...props}
       />
 
