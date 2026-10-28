@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabaseAdmin";
 import { createClient } from "@/lib/supabaseServer";
 import { isValidCpf } from "@/lib/validation";
 import { extractTechnicalLibraryDocument } from "@/lib/technicalLibraryExtractor";
+import { logAuditEvent } from "@/services/audit/auditLog";
 
 async function currentProfile(){const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)throw new Error("Usuário não autenticado.");const {data:profile,error}=await supabase.from("profiles").select("id, organization_id, role").eq("auth_user_id",user.id).single();if(error||!profile)throw new Error("Perfil não encontrado.");return{supabase,profile};}
 async function fileToBase64(file:File){return Buffer.from(await file.arrayBuffer()).toString("base64");}
@@ -15,6 +16,61 @@ export async function listTechnicalLibraryDocuments(publicOnly=false){const admi
 export async function getTechnicalLibraryDocument(id:string){const admin=createAdminClient();const {data,error}=await admin.from("technical_library_documents").select("id,title,description,extracted_text,extracted_html,external_url,source_format,is_public,status,created_at").eq("id",id).eq("status","active").maybeSingle();if(error)throw new Error(error.message);if(!data)return null;if(!data.is_public){const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)return null;}return data;}
 export async function createTechnicalLibraryDocument(fd:FormData){const {profile}=await currentProfile();if(profile.role!=="super_admin")throw new Error("Apenas o super usuário pode publicar na Biblioteca Técnica.");const title=String(fd.get("title")||"").trim();const description=String(fd.get("description")||"").trim()||null;const externalUrl=normalizeExternalUrl(fd.get("external_url"));const isPublic=String(fd.get("is_public")||"")==="on";const file=ensureTechnicalFile(fd.get("file"));if(!title)throw new Error("Informe o título do conteúdo.");const extracted=await extractTechnicalLibraryDocument(file);const admin=createAdminClient();const {error}=await admin.from("technical_library_documents").insert({title,description,file_name:file.name,mime_type:file.type||null,file_size:file.size,file_content_base64:await fileToBase64(file),external_url:externalUrl,source_format:extracted.format,extracted_text:extracted.text,extracted_html:extracted.html,is_public:isPublic,status:"active",created_by:profile.id});if(error)throw new Error(error.message);revalidatePath("/painel/biblioteca-tecnica");revalidatePath("/biblioteca-tecnica");}
 export async function archiveTechnicalLibraryDocument(fd:FormData){const {profile}=await currentProfile();if(profile.role!=="super_admin")throw new Error("Acesso não autorizado.");const id=String(fd.get("document_id")||"").trim();const admin=createAdminClient();const {error}=await admin.from("technical_library_documents").update({status:"archived",updated_at:new Date().toISOString()}).eq("id",id);if(error)throw new Error(error.message);revalidatePath("/painel/biblioteca-tecnica");revalidatePath("/biblioteca-tecnica");}
+
+
+export async function deleteTechnicalLibraryDocument(fd: FormData) {
+  const { profile } = await currentProfile();
+  if (profile.role !== "super_admin") {
+    throw new Error("Apenas o superusuário pode excluir conteúdos da Biblioteca Técnica.");
+  }
+
+  const id = String(fd.get("document_id") || "").trim();
+  const confirmation = String(fd.get("confirmation") || "").trim();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    throw new Error("Identificador de conteúdo inválido.");
+  }
+  if (confirmation !== "EXCLUIR") {
+    throw new Error("Confirmação inválida. Digite EXCLUIR para continuar.");
+  }
+
+  const admin = createAdminClient();
+  const { data: document, error: lookupError } = await admin
+    .from("technical_library_documents")
+    .select("id, title, file_name, is_public, status")
+    .eq("id", id)
+    .maybeSingle();
+  if (lookupError) throw new Error(lookupError.message);
+  if (!document || document.status !== "active") {
+    throw new Error("Conteúdo não encontrado ou não está mais disponível.");
+  }
+
+  const { data: deleted, error: deleteError } = await admin
+    .from("technical_library_documents")
+    .delete()
+    .eq("id", id)
+    .eq("status", "active")
+    .select("id")
+    .maybeSingle();
+
+  if (deleteError) throw new Error(deleteError.message);
+  if (!deleted) throw new Error("Conteúdo já removido. Atualize a página.");
+
+  await logAuditEvent({
+    action: "technical_library.deleted",
+    entityType: "technical_library_document",
+    entityId: id,
+    description: `Conteúdo excluído definitivamente da Biblioteca Técnica: ${document.title}.`,
+    metadata: {
+      title: document.title,
+      file_name: document.file_name,
+      is_public: document.is_public,
+    },
+  });
+
+  revalidatePath("/painel/biblioteca-tecnica");
+  revalidatePath("/biblioteca-tecnica");
+  revalidatePath(`/biblioteca-tecnica/${id}`);
+}
 
 export async function listParticipantDocuments(){const {supabase,profile}=await currentProfile();if(!profile.organization_id)return[];const {data,error}=await supabase.from("participant_documents").select("id, journey_response_id, participant_cpf, title, category, file_name, mime_type, file_size, created_at").eq("organization_id",profile.organization_id).order("created_at",{ascending:false});if(error)throw new Error(error.message);return data??[];}
 export async function createParticipantDocument(fd:FormData){const {supabase,profile}=await currentProfile();if(!profile.organization_id)throw new Error("Empresa não encontrada.");const responseId=String(fd.get("journey_response_id")||"").trim();const title=String(fd.get("title")||"").trim();const category=String(fd.get("category")||"").trim()||null;const file=ensureFile(fd.get("file"));if(!responseId||!title)throw new Error("Informe o avaliado e o título do documento.");const {data:response,error:responseError}=await supabase.from("journey_responses").select("id, cpf, organization_id").eq("id",responseId).single();if(responseError||!response||response.organization_id!==profile.organization_id)throw new Error("Avaliado não encontrado.");if(!isValidCpf(response.cpf))throw new Error("O avaliado não possui CPF válido para o vínculo documental.");const {error}=await supabase.from("participant_documents").insert({organization_id:profile.organization_id,journey_response_id:response.id,participant_cpf:response.cpf,title,category,file_name:file.name,mime_type:file.type||null,file_size:file.size,file_content_base64:await fileToBase64(file),created_by:profile.id});if(error)throw new Error(error.message);revalidatePath("/painel/biblioteca");}
