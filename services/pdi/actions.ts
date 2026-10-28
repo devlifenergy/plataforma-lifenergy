@@ -67,6 +67,7 @@ function documentTitleForCategory(category: CorporateDocumentCategory) {
 function revalidatePdiAndLibrary() {
   revalidatePath("/painel/pdi");
   revalidatePath("/painel/biblioteca");
+  revalidatePath("/painel/logomarca");
 }
 
 
@@ -80,6 +81,20 @@ function assertLogoFile(file: File) {
   if (file.size > 1024 * 1024) {
     throw new Error("A logomarca deve ter no máximo 1 MB.");
   }
+}
+
+export async function getOrganizationLogoData() {
+  const { profile } = await getCurrentProfile();
+  const admin = createAdminClient();
+
+  const { data: organization, error } = await admin
+    .from("organizations")
+    .select("logo_file_name, logo_mime_type, logo_content_base64, logo_size, logo_position")
+    .eq("id", profile.organization_id)
+    .single();
+
+  if (error) throw new Error(error.message);
+  return organization;
 }
 
 export async function updateOrganizationLogo(formData: FormData) {
