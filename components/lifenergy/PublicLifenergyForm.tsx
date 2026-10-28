@@ -802,7 +802,7 @@ export function PublicLifenergyForm({
               className="mt-6 select-none rounded-2xl border border-[#F0955A]/40 bg-[#215266]/10 p-6"
               onCopy={(event) => event.preventDefault()}
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8A671E]">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#215266]">
                 Atividade apresentada pelo aplicador
               </p>
               <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-slate-800">
