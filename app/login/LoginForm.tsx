@@ -16,7 +16,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="flex w-full items-center justify-center rounded-xl bg-[#0F2A43] px-6 py-3.5 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+      className="flex w-full items-center justify-center rounded-xl bg-[#215266] px-6 py-3.5 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {pending ? (
         <>
@@ -84,7 +84,7 @@ export default function LoginForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0F2A43] focus:ring-4 focus:ring-[#0F2A43]/10"
+          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#173A40] focus:ring-4 focus:ring-[#173A40]/10"
           placeholder="email@empresa.com"
         />
 
@@ -95,11 +95,11 @@ export default function LoginForm() {
         )}
 
         {companyStatus === "found" && (
-          <div className="mt-3 rounded-xl border border-[#B98A2E]/25 bg-[#B98A2E]/5 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[#B98A2E]">
+          <div className="mt-3 rounded-xl border border-[#F0955A]/25 bg-[#215266]/5 px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#00838F]">
               Empresa
             </p>
-            <p className="mt-1 font-semibold text-[#0F2A43]">{companyName}</p>
+            <p className="mt-1 font-semibold text-[#173A40]">{companyName}</p>
           </div>
         )}
       </div>
@@ -122,7 +122,7 @@ export default function LoginForm() {
       </div>
 
       <div className="flex justify-end">
-        <Link href="/esqueci-senha" className="text-sm font-semibold text-[#0F2A43] underline-offset-4 hover:underline">
+        <Link href="/esqueci-senha" className="text-sm font-semibold text-[#173A40] underline-offset-4 hover:underline">
           Esqueci minha senha
         </Link>
       </div>
