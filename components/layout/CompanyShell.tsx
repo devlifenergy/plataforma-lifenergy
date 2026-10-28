@@ -44,21 +44,21 @@ export function CompanyShell({
   });
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] text-[#1F2933]">
+    <div className="min-h-screen bg-[#EEF5F5] text-[#173A40]">
       <header className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
-          <Link href="/painel" className="text-lg font-bold text-[#0F2A43] sm:text-xl">
+          <Link href="/painel" className="text-lg font-bold text-[#173A40] sm:text-xl">
             Lifenergy Digital
           </Link>
 
           <div className="flex min-w-0 items-center gap-3">
             <div className="min-w-0 text-right text-xs sm:text-sm">
-              <p className="max-w-[140px] truncate font-semibold text-[#0F2A43] sm:max-w-none">{organizationName}</p>
+              <p className="max-w-[140px] truncate font-semibold text-[#173A40] sm:max-w-none">{organizationName}</p>
               <p className="max-w-[140px] truncate text-slate-500 sm:max-w-none">{userName}</p>
             </div>
 
             <details className="relative md:hidden">
-              <summary className="cursor-pointer list-none rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-[#0F2A43] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F2A43]">
+              <summary className="cursor-pointer list-none rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-[#173A40] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#173A40]">
                 Menu
               </summary>
               <div className="absolute right-0 top-full z-50 mt-2 max-h-[75vh] w-[min(90vw,320px)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
@@ -67,7 +67,7 @@ export function CompanyShell({
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="block rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#F5F7FA] hover:text-[#0F2A43] focus-visible:outline-2 focus-visible:outline-[#0F2A43]"
+                      className="block rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#EEF5F5] hover:text-[#173A40] focus-visible:outline-2 focus-visible:outline-[#173A40]"
                     >
                       {item.label}
                     </Link>
@@ -91,7 +91,7 @@ export function CompanyShell({
               <Link
                 key={item.href}
                 href={item.href}
-                className="block rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#F5F7FA] hover:text-[#0F2A43]"
+                className="block rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#EEF5F5] hover:text-[#173A40]"
               >
                 {item.label}
               </Link>

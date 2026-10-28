@@ -219,7 +219,7 @@ export default async function ExportacoesPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#0F2D4A]">Laudos e Exportações</h1>
+        <h1 className="text-3xl font-bold text-[#173A40]">Laudos e Exportações</h1>
         <p className="mt-1 text-slate-500">
           Área exclusiva do super usuário para exportar dados de avaliações com filtros por empresa, avaliado e período.
         </p>
@@ -234,7 +234,7 @@ export default async function ExportacoesPage({ searchParams }: PageProps) {
             <select
               name="organization_id"
               defaultValue={organizationId}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             >
               <option value="">Todas as empresas</option>
               {(organizations ?? []).map((organization) => (
@@ -253,7 +253,7 @@ export default async function ExportacoesPage({ searchParams }: PageProps) {
               name="avaliado"
               defaultValue={avaliado}
               placeholder="Nome, e-mail ou CPF"
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             />
           </label>
 
@@ -265,7 +265,7 @@ export default async function ExportacoesPage({ searchParams }: PageProps) {
               name="start_date"
               type="date"
               defaultValue={startDate}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             />
           </label>
 
@@ -277,14 +277,14 @@ export default async function ExportacoesPage({ searchParams }: PageProps) {
               name="end_date"
               type="date"
               defaultValue={endDate}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20"
             />
           </label>
 
           <div className="flex flex-wrap gap-3 lg:col-span-4">
             <button
               type="submit"
-              className="rounded-xl border border-[#0F2D4A] bg-white px-6 py-3 font-semibold text-[#0F2D4A] transition hover:bg-slate-50"
+              className="rounded-xl border border-[#173A40] bg-white px-6 py-3 font-semibold text-[#173A40] transition hover:bg-slate-50"
             >
               Aplicar filtros
             </button>
@@ -296,7 +296,7 @@ export default async function ExportacoesPage({ searchParams }: PageProps) {
             </a>
             <a
               href={exportUrl}
-              className="rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90"
+              className="rounded-xl bg-[#215266] px-6 py-3 font-semibold text-white transition hover:opacity-90"
             >
               Exportar arquivo para Excel
             </a>
@@ -311,7 +311,7 @@ export default async function ExportacoesPage({ searchParams }: PageProps) {
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-[#0F2D4A]">
+            <h2 className="text-lg font-semibold text-[#173A40]">
               Preview dos dados que serão baixados
             </h2>
             <p className="mt-1 text-sm text-slate-500">

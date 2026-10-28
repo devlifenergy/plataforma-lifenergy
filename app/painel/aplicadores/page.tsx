@@ -16,7 +16,7 @@ export default async function AplicadoresPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#0F2D4A]">
+        <h1 className="text-3xl font-bold text-[#173A40]">
           Cadastro de Aplicadores
         </h1>
         <p className="mt-1 text-slate-500">
@@ -33,7 +33,7 @@ export default async function AplicadoresPage() {
       <Card>
         {applicators.length === 0 ? (
           <div className="py-20 text-center">
-            <h2 className="text-xl font-semibold text-[#0F2D4A]">
+            <h2 className="text-xl font-semibold text-[#173A40]">
               Nenhum aplicador cadastrado
             </h2>
             <p className="mt-2 text-slate-500">
@@ -81,7 +81,7 @@ export default async function AplicadoresPage() {
                     <td className="py-4">
                       <div className="flex items-start gap-4">
                         <details>
-                          <summary className="cursor-pointer list-none font-semibold text-[#0F2D4A] underline">
+                          <summary className="cursor-pointer list-none font-semibold text-[#173A40] underline">
                             Editar
                           </summary>
 
@@ -129,7 +129,7 @@ export default async function AplicadoresPage() {
                         >
                           <button
                             type="submit"
-                            className="font-semibold text-[#0F2D4A] underline"
+                            className="font-semibold text-[#173A40] underline"
                           >
                             {item.active ? "Inativar" : "Ativar"}
                           </button>

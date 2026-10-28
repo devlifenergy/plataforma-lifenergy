@@ -24,7 +24,7 @@ export function PasswordInput({
         id={inputId}
         disabled={disabled}
         type={isVisible ? "text" : "password"}
-        className={`${inputClassName || "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0F2A43] focus:ring-4 focus:ring-[#0F2A43]/10"} pr-12`}
+        className={`${inputClassName || "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#173A40] focus:ring-4 focus:ring-[#173A40]/10"} pr-12`}
       />
       <button
         type="button"
@@ -32,7 +32,7 @@ export function PasswordInput({
         onClick={() => setIsVisible((current) => !current)}
         aria-label={isVisible ? "Ocultar senha" : "Mostrar senha"}
         aria-pressed={isVisible}
-        className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-[#0F2A43] disabled:cursor-not-allowed disabled:opacity-50"
+        className="absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-[#173A40] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isVisible ? (
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

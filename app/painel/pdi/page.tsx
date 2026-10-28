@@ -35,8 +35,8 @@ export default async function PdiRelacionalPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#B98A2E]">Desenvolvimento humano</p>
-        <h1 className="mt-1 text-3xl font-bold text-[#0F2D4A]">Trilha Lifenergy</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#00838F]">Desenvolvimento humano</p>
+        <h1 className="mt-1 text-3xl font-bold text-[#173A40]">Trilha Lifenergy</h1>
         <p className="mt-2 max-w-4xl text-slate-500">A listagem é agrupada por CPF, mas cada relatório gera o seu próprio Trilha Lifenergy.</p>
       </div>
 
@@ -48,8 +48,8 @@ export default async function PdiRelacionalPage() {
         Array.from(groups.entries()).map(([cpfKey, items]) => (
           <Card key={cpfKey}>
             <div className="mb-5 border-b border-slate-200 pb-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">CPF</p>
-              <h2 className="mt-1 text-xl font-bold text-[#0F2D4A]">{formatCpf(items[0]?.cpf ?? null)}</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00838F]">CPF</p>
+              <h2 className="mt-1 text-xl font-bold text-[#173A40]">{formatCpf(items[0]?.cpf ?? null)}</h2>
               <p className="mt-1 text-sm text-slate-500">{items[0]?.participantName}</p>
             </div>
 
@@ -60,7 +60,7 @@ export default async function PdiRelacionalPage() {
                 return (
                   <div key={candidate.responseId} className="grid gap-4 rounded-2xl border border-slate-200 p-5 lg:grid-cols-[1fr_280px] lg:items-center">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B98A2E]">Relatório {candidate.code}</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#00838F]">Relatório {candidate.code}</p>
                       <p className="mt-2 text-[15px] leading-6 text-slate-600">Aplicador: {candidate.applicatorName} · Concluído em {formatDate(candidate.completedAt)}</p>
                       <p className="mt-1 text-sm text-slate-500">{generated ? "Trilha Lifenergy já gerado e salvo" : "Disponível para geração"}</p>
                     </div>

@@ -14,12 +14,12 @@ export default async function BibliotecaCorporativaPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#0F2D4A]">Biblioteca Corporativa Inteligente</h1>
+        <h1 className="text-3xl font-bold text-[#173A40]">Biblioteca Corporativa Inteligente</h1>
       </div>
 
       <Card>
         <div className="mb-5 border-b border-slate-200 pb-4">
-          <h2 className="text-2xl font-bold text-[#0F2D4A]">Documentos da empresa</h2>
+          <h2 className="text-2xl font-bold text-[#173A40]">Documentos da empresa</h2>
           <p className="mt-1 text-[15px] leading-6 text-slate-600">
             Para liberar o PDI Corporativo, são obrigatórios: cultura/valores, matriz de competências, descrição de cargos/funções e estratégia/metas/prioridades.
           </p>
@@ -49,7 +49,7 @@ export default async function BibliotecaCorporativaPage() {
 
       <Card>
         <div className="mb-5 border-b border-slate-200 pb-4">
-          <h2 className="text-2xl font-bold text-[#0F2D4A]">Documentos avaliados</h2>
+          <h2 className="text-2xl font-bold text-[#173A40]">Documentos avaliados</h2>
           <p className="mt-1 text-[15px] leading-6 text-slate-600">
             O campo Documento é a referência principal. O nome técnico do arquivo não é exibido nesta tabela.
           </p>
@@ -72,7 +72,7 @@ export default async function BibliotecaCorporativaPage() {
               <tbody className="divide-y divide-slate-100">
                 {(documents as any[]).map((doc: any) => (
                   <tr key={doc.id} className="align-top">
-                    <td className="px-4 py-3 font-semibold text-[#0F2D4A]">
+                    <td className="px-4 py-3 font-semibold text-[#173A40]">
                       {getCorporateDocumentCategoryLabel(doc.category)}
                     </td>
                     <td className="px-4 py-3 text-slate-700">{doc.title}</td>
@@ -87,7 +87,7 @@ export default async function BibliotecaCorporativaPage() {
                         </a>
 
                         <details className="rounded-xl border border-slate-200 bg-white px-3 py-1">
-                          <summary title="Alterar a categoria usada para classificar este documento." className="cursor-pointer text-xs font-bold text-[#0F2D4A]">
+                          <summary title="Alterar a categoria usada para classificar este documento." className="cursor-pointer text-xs font-bold text-[#173A40]">
                             Editar
                           </summary>
                           <form action={updateOrganizationDocument} className="mt-3 grid min-w-[280px] gap-2">
@@ -106,14 +106,14 @@ export default async function BibliotecaCorporativaPage() {
                                 </option>
                               ))}
                             </select>
-                            <button className="rounded-full border border-[#B8860B] px-3 py-1 text-xs font-bold text-[#0F2D4A] hover:bg-[#B8860B]/10">
+                            <button className="rounded-full border border-[#F0955A] px-3 py-1 text-xs font-bold text-[#173A40] hover:bg-[#215266]/10">
                               Salvar categoria
                             </button>
                           </form>
                         </details>
 
                         <details className="rounded-xl border border-slate-200 bg-white px-3 py-1">
-                          <summary title="Substituir o arquivo atual por uma versão mais recente." className="cursor-pointer text-xs font-bold text-[#0F2D4A]">
+                          <summary title="Substituir o arquivo atual por uma versão mais recente." className="cursor-pointer text-xs font-bold text-[#173A40]">
                             Atualizar
                           </summary>
                           <form action={updateOrganizationDocument} className="mt-3 grid min-w-[300px] gap-2">
@@ -129,7 +129,7 @@ export default async function BibliotecaCorporativaPage() {
                             />
                             <label
                               htmlFor={`update-file-${doc.id}`}
-                              className="inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#0F2D4A] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0F2D4A]/90"
+                              className="inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#215266] px-3 py-2 text-xs font-semibold text-white hover:bg-[#215266]/90"
                             >
                               Selecionar arquivo atualizado
                             </label>
@@ -139,7 +139,7 @@ export default async function BibliotecaCorporativaPage() {
                             <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
                               Ao atualizar este documento, os PDIs Corporativos já gerados devem ser gerados novamente para refletir o novo contexto.
                             </p>
-                            <button className="rounded-full border border-[#B8860B] px-3 py-1 text-xs font-bold text-[#0F2D4A] hover:bg-[#B8860B]/10">
+                            <button className="rounded-full border border-[#F0955A] px-3 py-1 text-xs font-bold text-[#173A40] hover:bg-[#215266]/10">
                               Atualizar documento
                             </button>
                           </form>

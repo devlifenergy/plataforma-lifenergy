@@ -96,7 +96,7 @@ function LicenseUsageCard({ metric }: { metric: LicenseMetric }) {
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="break-words text-sm font-bold leading-tight text-[#0F2D4A]">{metric.label}</p>
+          <p className="break-words text-sm font-bold leading-tight text-[#173A40]">{metric.label}</p>
           <p className="mt-1 text-xs text-slate-500">Gestão do saldo de licenças</p>
         </div>
         {isExhausted ? (
@@ -117,11 +117,11 @@ function LicenseUsageCard({ metric }: { metric: LicenseMetric }) {
       <div className="mt-4 grid grid-cols-3 gap-2 text-center">
         <div className="min-w-0 rounded-xl bg-white px-1.5 py-3 shadow-sm sm:px-2">
           <p className="break-words text-[9px] font-semibold uppercase leading-tight tracking-normal text-slate-400 sm:text-[10px]">Contratadas</p>
-          <p className="mt-1 text-lg font-bold text-[#0F2D4A]">{formatQuantity(metric.contracted)}</p>
+          <p className="mt-1 text-lg font-bold text-[#173A40]">{formatQuantity(metric.contracted)}</p>
         </div>
         <div className="min-w-0 rounded-xl bg-white px-1.5 py-3 shadow-sm sm:px-2">
           <p className="break-words text-[9px] font-semibold uppercase leading-tight tracking-normal text-slate-400 sm:text-[10px]">Usadas</p>
-          <p className="mt-1 text-lg font-bold text-[#0F2D4A]">{metric.used}</p>
+          <p className="mt-1 text-lg font-bold text-[#173A40]">{metric.used}</p>
         </div>
         <div className="min-w-0 rounded-xl bg-white px-1.5 py-3 shadow-sm sm:px-2">
           <p className="break-words text-[9px] font-semibold uppercase leading-tight tracking-normal text-slate-400 sm:text-[10px]">Saldo</p>
@@ -154,7 +154,7 @@ function CompanyStats({ companies }: { companies: Company[] }) {
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Empresas</p>
-        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{companies.length}</p>
+        <p className="mt-2 text-2xl font-bold text-[#173A40]">{companies.length}</p>
       </div>
       <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Ativas</p>
@@ -162,11 +162,11 @@ function CompanyStats({ companies }: { companies: Company[] }) {
       </div>
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Inativas</p>
-        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{inactiveCompanies}</p>
+        <p className="mt-2 text-2xl font-bold text-[#173A40]">{inactiveCompanies}</p>
       </div>
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Usadas</p>
-        <p className="mt-2 text-2xl font-bold text-[#0F2D4A]">{totalUsed}</p>
+        <p className="mt-2 text-2xl font-bold text-[#173A40]">{totalUsed}</p>
       </div>
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Saldo total</p>
@@ -179,9 +179,9 @@ function CompanyStats({ companies }: { companies: Company[] }) {
 function CompanyEditDetails({ company }: { company: Company }) {
   return (
     <details className="group rounded-2xl border border-slate-200 bg-white">
-      <summary className="flex cursor-pointer list-none flex-col gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-[#0F2D4A] transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between">
+      <summary className="flex cursor-pointer list-none flex-col gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-[#173A40] transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between">
         <span>Editar dados e licenças</span>
-        <span className="inline-flex w-full justify-center rounded-xl bg-[#0F2D4A] px-4 py-2 text-xs font-semibold text-white group-open:hidden sm:w-auto">
+        <span className="inline-flex w-full justify-center rounded-xl bg-[#215266] px-4 py-2 text-xs font-semibold text-white group-open:hidden sm:w-auto">
           Abrir edição
         </span>
         <span className="hidden w-full justify-center rounded-xl bg-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 group-open:inline-flex sm:w-auto">
@@ -203,7 +203,7 @@ function CompanyEditDetails({ company }: { company: Company }) {
                   name="company_name"
                   required
                   defaultValue={company.name}
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#173A40]"
                 />
               </label>
 
@@ -213,7 +213,7 @@ function CompanyEditDetails({ company }: { company: Company }) {
                   name="admin_name"
                   required
                   defaultValue={company.adminName}
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#173A40]"
                 />
               </label>
 
@@ -224,13 +224,13 @@ function CompanyEditDetails({ company }: { company: Company }) {
                   required
                   type="email"
                   defaultValue={company.adminEmail}
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#173A40]"
                 />
               </label>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="text-sm font-bold text-[#0F2D4A]">Licenças contratadas</p>
+              <p className="text-sm font-bold text-[#173A40]">Licenças contratadas</p>
               <p className="mt-1 text-xs text-slate-500">
                 Ajuste o total contratado. O saldo exibido no card considera as licenças já usadas no ciclo atual.
               </p>
@@ -243,7 +243,7 @@ function CompanyEditDetails({ company }: { company: Company }) {
                     min="0"
                     required
                     defaultValue={company.licenseIndividualReports ?? 0}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#173A40]"
                   />
                 </label>
 
@@ -255,7 +255,7 @@ function CompanyEditDetails({ company }: { company: Company }) {
                     min="0"
                     required
                     defaultValue={company.licensePdiRelational ?? 0}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#173A40]"
                   />
                 </label>
 
@@ -267,7 +267,7 @@ function CompanyEditDetails({ company }: { company: Company }) {
                     min="0"
                     required
                     defaultValue={company.licensePdiCorporate ?? 0}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#173A40]"
                   />
                 </label>
               </div>
@@ -278,10 +278,10 @@ function CompanyEditDetails({ company }: { company: Company }) {
                 <input
                   name="notify_license_addition"
                   type="checkbox"
-                  className="mt-1 h-5 w-5 rounded border-amber-300 text-[#0F2D4A]"
+                  className="mt-1 h-5 w-5 rounded border-amber-300 text-[#173A40]"
                 />
                 <span>
-                  <strong className="block text-sm text-[#0F2D4A]">
+                  <strong className="block text-sm text-[#173A40]">
                     Enviar e-mail sobre novas licenças ao salvar
                   </strong>
                   <span className="mt-1 block text-xs leading-5 text-slate-600">
@@ -300,12 +300,12 @@ function CompanyEditDetails({ company }: { company: Company }) {
                   minLength={6}
                   autoComplete="new-password"
                   placeholder="Deixe em branco para manter a senha atual"
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#0F2D4A]"
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 outline-none transition focus:border-[#173A40]"
                 />
                 <span className="mt-1 block text-xs text-slate-500">Mínimo de 6 caracteres.</span>
               </label>
 
-              <button className="w-full rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90 lg:w-auto">
+              <button className="w-full rounded-xl bg-[#215266] px-6 py-3 font-semibold text-white transition hover:opacity-90 lg:w-auto">
                 Salvar alterações
               </button>
             </div>
@@ -329,7 +329,7 @@ function CompanyCard({ company }: { company: Company }) {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 space-y-2">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <h3 className="break-words text-xl font-bold text-[#0F2D4A]">{company.name}</h3>
+              <h3 className="break-words text-xl font-bold text-[#173A40]">{company.name}</h3>
               <StatusBadge status={company.status} />
             </div>
             <p className="break-words text-sm text-slate-600">
@@ -376,10 +376,10 @@ export default async function EmpresasPage() {
   return (
     <div className="max-w-full space-y-6 overflow-x-hidden">
       <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
           Superusuário
         </p>
-        <h1 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Empresas</h1>
+        <h1 className="mt-2 text-3xl font-bold text-[#173A40]">Empresas</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
           Gerencie empresas, administradores e licenças com visão clara de contratadas, usadas e disponíveis.
         </p>
@@ -388,9 +388,9 @@ export default async function EmpresasPage() {
       <CompanyStats companies={companies} />
 
       <details className="group rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 text-lg font-semibold text-[#0F2D4A] transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 text-lg font-semibold text-[#173A40] transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <span>Cadastrar nova empresa</span>
-          <span className="inline-flex w-full justify-center rounded-xl bg-[#0F2D4A] px-4 py-2 text-xs font-semibold text-white group-open:hidden sm:w-auto">
+          <span className="inline-flex w-full justify-center rounded-xl bg-[#215266] px-4 py-2 text-xs font-semibold text-white group-open:hidden sm:w-auto">
             Abrir cadastro
           </span>
           <span className="hidden w-full justify-center rounded-xl bg-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 group-open:inline-flex sm:w-auto">
@@ -404,7 +404,7 @@ export default async function EmpresasPage() {
 
       <section className="space-y-4">
         <div className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-          <h2 className="text-xl font-semibold text-[#0F2D4A]">Empresas cadastradas</h2>
+          <h2 className="text-xl font-semibold text-[#173A40]">Empresas cadastradas</h2>
           <p className="mt-1 text-sm text-slate-500">
             {companies.length === 0
               ? "Nenhuma empresa cadastrada."

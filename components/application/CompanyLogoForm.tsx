@@ -87,7 +87,7 @@ export function CompanyLogoForm({ hasLogo, logoFileName, logoDataUrl, logoSize, 
         <div className="flex flex-col gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 sm:flex-row sm:items-center">
           <label
             htmlFor={inputId}
-            className={`inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#0F2D4A] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0F2D4A]/90 ${
+            className={`inline-flex cursor-pointer items-center justify-center rounded-lg bg-[#215266] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#215266]/90 ${
               isPending ? "pointer-events-none opacity-60" : ""
             }`}
           >
@@ -100,7 +100,7 @@ export function CompanyLogoForm({ hasLogo, logoFileName, logoDataUrl, logoSize, 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="mb-2 block text-sm font-semibold text-slate-700">Tamanho no cabeçalho</span>
-          <select name="logo_size" defaultValue={logoSize || "medium"} disabled={isPending} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#B8860B]">
+          <select name="logo_size" defaultValue={logoSize || "medium"} disabled={isPending} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#00838F]">
             <option value="small">Pequeno</option>
             <option value="medium">Médio</option>
             <option value="large">Grande</option>
@@ -108,7 +108,7 @@ export function CompanyLogoForm({ hasLogo, logoFileName, logoDataUrl, logoSize, 
         </label>
         <label className="block">
           <span className="mb-2 block text-sm font-semibold text-slate-700">Posição no cabeçalho</span>
-          <select name="logo_position" defaultValue={logoPosition || "center"} disabled={isPending} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#B8860B]">
+          <select name="logo_position" defaultValue={logoPosition || "center"} disabled={isPending} className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-[#00838F]">
             <option value="left">Esquerda</option>
             <option value="center">Centro</option>
             <option value="right">Direita</option>

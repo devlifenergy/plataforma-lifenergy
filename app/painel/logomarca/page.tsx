@@ -12,7 +12,7 @@ export default async function CadastroLogomarcaPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[#0F2D4A]">Cadastro da Logomarca</h1>
+        <h1 className="text-3xl font-bold text-[#173A40]">Cadastro da Logomarca</h1>
         <p className="mt-1 max-w-4xl text-slate-500">
           Cadastre ou atualize a logomarca da empresa e defina sua apresentação no cabeçalho dos relatórios.
         </p>
@@ -20,7 +20,7 @@ export default async function CadastroLogomarcaPage() {
 
       <Card>
         <div className="mb-5 border-b border-slate-200 pb-4">
-          <h2 className="text-2xl font-bold text-[#0F2D4A]">Logomarca da empresa</h2>
+          <h2 className="text-2xl font-bold text-[#173A40]">Logomarca da empresa</h2>
           <p className="mt-1 text-[15px] leading-6 text-slate-600">
             A logomarca cadastrada será usada no cabeçalho dos próximos relatórios gerados pela plataforma.
           </p>

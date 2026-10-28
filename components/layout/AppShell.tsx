@@ -13,14 +13,14 @@ const menuItems = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F5F7FA] text-[#1F2933]">
+    <div className="min-h-screen bg-[#EEF5F5] text-[#173A40]">
       <header className="border-b border-slate-200 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-[#0F2A43]">
+          <Link href="/" className="text-xl font-bold text-[#173A40]">
             Lifenergy Digital
           </Link>
 
-          <span className="text-sm font-medium text-[#B98A2E]">
+          <span className="text-sm font-medium text-[#00838F]">
             Projeto Vercel 2.0
           </span>
         </div>
@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="block rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#F5F7FA] hover:text-[#0F2A43]"
+                className="block rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-[#EEF5F5] hover:text-[#173A40]"
               >
                 {item.label}
               </Link>

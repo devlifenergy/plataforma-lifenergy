@@ -9,9 +9,9 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variants = {
-    primary: "bg-[#0F2D4A] text-white hover:opacity-90",
+    primary: "bg-[#215266] text-white hover:opacity-90",
     secondary:
-      "border border-[#0F2D4A] bg-white text-[#0F2D4A] hover:bg-slate-50",
+      "border border-[#173A40] bg-white text-[#173A40] hover:bg-slate-50",
     danger: "bg-red-600 text-white hover:bg-red-700",
   };
 

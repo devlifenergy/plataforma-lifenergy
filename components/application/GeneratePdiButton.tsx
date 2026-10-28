@@ -139,8 +139,8 @@ export function GeneratePdiButton({
           onClick={() => handleAction("generate")}
           className={`w-full whitespace-nowrap rounded-full border px-4 py-2 text-center text-[14px] font-bold transition ${
             pdiType === "corporate"
-              ? "border-[#B8860B] bg-[#D9B861] text-[#0F2D4A] shadow-sm hover:bg-[#E5C87F]"
-              : "border-[#0F2D4A] bg-[#0F2D4A] text-white shadow-sm hover:bg-[#173E5F]"
+              ? "border-[#F0955A] bg-[#8FD0CF] text-[#173A40] shadow-sm hover:bg-[#8FD0CF]"
+              : "border-[#173A40] bg-[#215266] text-white shadow-sm hover:bg-[#215266]"
           } ${isBusy || isBlocked ? "cursor-not-allowed opacity-60" : ""}`}
         >
           {activeAction === "generate" ? "Gerando PDI..." : buttonLabel}
@@ -151,7 +151,7 @@ export function GeneratePdiButton({
             type="button"
             disabled={isBusy || isBlocked}
             onClick={() => handleAction("regenerate")}
-            className={`w-full whitespace-nowrap rounded-full border border-[#B8860B]/40 bg-[#B8860B]/8 px-4 py-2 text-center text-[14px] font-bold text-[#0F2D4A] transition hover:bg-[#B8860B]/15 ${
+            className={`w-full whitespace-nowrap rounded-full border border-[#F0955A]/40 bg-[#215266]/8 px-4 py-2 text-center text-[14px] font-bold text-[#173A40] transition hover:bg-[#215266]/15 ${
               isBusy || isBlocked ? "cursor-not-allowed opacity-60" : ""
             }`}
           >

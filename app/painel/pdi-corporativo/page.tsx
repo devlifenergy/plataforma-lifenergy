@@ -11,10 +11,10 @@ function normalizeCpf(value: string | null) { return String(value ?? "").replace
 function formatCpf(value: string | null) { const d = normalizeCpf(value); return d.length === 11 ? d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : "CPF não informado"; }
 
 function Field({ name, label, value, required = false }: { name: string; label: string; value?: string | null; required?: boolean }) {
-  return <label className="block"><span className="mb-2 block text-sm font-semibold text-slate-700">{label}{required ? " *" : ""}</span><input name={name} required={required} defaultValue={value ?? ""} className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-[#B8860B]" /></label>;
+  return <label className="block"><span className="mb-2 block text-sm font-semibold text-slate-700">{label}{required ? " *" : ""}</span><input name={name} required={required} defaultValue={value ?? ""} className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-[#00838F]" /></label>;
 }
 function Area({ name, label, value }: { name: string; label: string; value?: string | null }) {
-  return <label className="block"><span className="mb-2 block text-sm font-semibold text-slate-700">{label}</span><textarea name={name} rows={3} defaultValue={value ?? ""} className="w-full rounded-xl border border-slate-300 px-4 py-3 leading-6 outline-none focus:border-[#B8860B]" /></label>;
+  return <label className="block"><span className="mb-2 block text-sm font-semibold text-slate-700">{label}</span><textarea name={name} rows={3} defaultValue={value ?? ""} className="w-full rounded-xl border border-slate-300 px-4 py-3 leading-6 outline-none focus:border-[#00838F]" /></label>;
 }
 
 export default async function PdiCorporativoPage() {
@@ -33,15 +33,15 @@ export default async function PdiCorporativoPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#B98A2E]">Desenvolvimento corporativo</p>
-        <h1 className="mt-1 text-3xl font-bold text-[#0F2D4A]">PDI Corporativo</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#00838F]">Desenvolvimento corporativo</p>
+        <h1 className="mt-1 text-3xl font-bold text-[#173A40]">PDI Corporativo</h1>
         <p className="mt-2 max-w-4xl text-slate-500">A listagem é agrupada por CPF. Cada Relatório Lifenergy gera um PDI Corporativo próprio, direcionado pelo cargo informado no Contexto Operacional.</p>
       </div>
 
       <LicenseBalanceCards summary={licenseSummary} show={["corporate"]} />
 
       {!libraryStatus.ready ? (
-        <Card><div className="rounded-2xl bg-amber-50 p-5 text-amber-900"><p className="font-bold">Biblioteca Corporativa pendente</p><p className="mt-2 text-sm leading-6">Documentos obrigatórios: {missingLabels.join("; ")}.</p><Link href="/painel/biblioteca" className="mt-4 inline-flex rounded-full bg-[#0F2D4A] px-4 py-2 text-sm font-bold text-white">Abrir Biblioteca Corporativa</Link></div></Card>
+        <Card><div className="rounded-2xl bg-amber-50 p-5 text-amber-900"><p className="font-bold">Biblioteca Corporativa pendente</p><p className="mt-2 text-sm leading-6">Documentos obrigatórios: {missingLabels.join("; ")}.</p><Link href="/painel/biblioteca" className="mt-4 inline-flex rounded-full bg-[#215266] px-4 py-2 text-sm font-bold text-white">Abrir Biblioteca Corporativa</Link></div></Card>
       ) : null}
 
       {reportCandidates.length === 0 ? (
@@ -49,8 +49,8 @@ export default async function PdiCorporativoPage() {
       ) : Array.from(groups.entries()).map(([cpfKey, items]) => (
         <Card key={cpfKey}>
           <div className="mb-5 border-b border-slate-200 pb-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">CPF</p>
-            <h2 className="mt-1 text-xl font-bold text-[#0F2D4A]">{formatCpf(items[0]?.cpf ?? null)}</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#00838F]">CPF</p>
+            <h2 className="mt-1 text-xl font-bold text-[#173A40]">{formatCpf(items[0]?.cpf ?? null)}</h2>
             <p className="mt-1 text-sm text-slate-500">{items[0]?.participantName}</p>
           </div>
 
@@ -72,7 +72,7 @@ export default async function PdiCorporativoPage() {
                 <div key={candidate.responseId} className="rounded-2xl border border-slate-200 p-5">
                   <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
                     <div>
-                      <p className="text-sm font-semibold text-[#B98A2E]">Relatório {candidate.code}</p>
+                      <p className="text-sm font-semibold text-[#00838F]">Relatório {candidate.code}</p>
                       <p className="mt-2 text-sm text-slate-600">Cargo: <strong>{ctx?.current_job_title || "não informado"}</strong> · Área: {ctx?.current_area || "-"}</p>
                       <p className="mt-1 text-xs text-slate-500">{generated ? "PDI Corporativo já gerado e salvo" : "Aguardando geração"}</p>
                     </div>
@@ -80,7 +80,7 @@ export default async function PdiCorporativoPage() {
                   </div>
 
                   <details className="mt-4 rounded-xl bg-slate-50 p-4">
-                    <summary className="cursor-pointer list-none font-bold text-[#0F2D4A] underline">Contexto Operacional do PDI</summary>
+                    <summary className="cursor-pointer list-none font-bold text-[#173A40] underline">Contexto Operacional do PDI</summary>
                     <form action={savePdiContext} className="mt-4 space-y-4">
                       <input type="hidden" name="journey_response_id" value={candidate.responseId} />
                       <input type="hidden" name="pdi_type" value="corporate" />
