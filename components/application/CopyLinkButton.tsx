@@ -26,7 +26,7 @@ export function CopyLinkButton({ path }: CopyLinkButtonProps) {
     <button
       type="button"
       onClick={handleCopy}
-      className="font-semibold text-[#0F2D4A] underline"
+      className="font-semibold text-[#173A40] underline"
     >
       {copied ? "Link copiado" : "Copiar link"}
     </button>
