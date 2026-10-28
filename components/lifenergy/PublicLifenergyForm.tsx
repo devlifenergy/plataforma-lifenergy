@@ -119,7 +119,7 @@ function localTimeToDatabase(date: Date) {
 }
 
 function fieldClass(extra = "") {
-  return `w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 outline-none transition focus:border-[#B8860B] focus:ring-2 focus:ring-[#B8860B]/20 ${extra}`;
+  return `w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 outline-none transition focus:border-[#00838F] focus:ring-2 focus:ring-[#00838F]/20 ${extra}`;
 }
 
 function labelClass() {
@@ -506,10 +506,10 @@ export function PublicLifenergyForm({
         disabled={disabled}
         className={`rounded-2xl border p-5 text-left leading-7 transition ${
           selected
-            ? "border-[#B98A2E] bg-[#B98A2E] text-white"
+            ? "border-[#F0955A] bg-[#215266] text-white"
             : disabled
               ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-              : "border-slate-200 bg-white text-slate-700 hover:border-[#B98A2E]"
+              : "border-slate-200 bg-white text-slate-700 hover:border-[#F0955A]"
         }`}
       >
         <span className="block text-base font-semibold">{responseLabel(index)}</span>
@@ -529,12 +529,12 @@ export function PublicLifenergyForm({
 
     return (
       <section key={fractal.position} className="rounded-2xl border border-slate-200 p-5">
-        <h3 className="text-2xl font-bold text-[#0F2D4A]">
+        <h3 className="text-2xl font-bold text-[#173A40]">
           Fractal {fractal.position} de {configuredFractals.length}
         </h3>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <div className="rounded-xl bg-slate-50 p-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#00838F]">
               Atividade apresentada
             </p>
             <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-slate-700">
@@ -542,7 +542,7 @@ export function PublicLifenergyForm({
             </p>
           </div>
           <div className="rounded-xl bg-slate-50 p-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#00838F]">
               Atividade digitada pelo avaliado
             </p>
             <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-slate-700">
@@ -555,16 +555,16 @@ export function PublicLifenergyForm({
           <table className="w-full min-w-[760px] border-collapse text-left">
             <thead className="bg-slate-50">
               <tr className="border-b border-slate-200">
-                <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Resposta</th>
-                <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Importância</th>
-                <th className="px-5 py-4 text-base font-bold text-[#0F2D4A]">Justificativa</th>
+                <th className="px-5 py-4 text-base font-bold text-[#173A40]">Resposta</th>
+                <th className="px-5 py-4 text-base font-bold text-[#173A40]">Importância</th>
+                <th className="px-5 py-4 text-base font-bold text-[#173A40]">Justificativa</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((item) => (
                 <tr key={item.index} className="border-b border-slate-100 last:border-0">
                   <td className="px-5 py-4 align-top">
-                    <p className="font-semibold text-[#0F2D4A]">{responseLabel(item.index)}</p>
+                    <p className="font-semibold text-[#173A40]">{responseLabel(item.index)}</p>
                     <p className="mt-1 text-base text-slate-600">{item.response}</p>
                   </td>
                   <td className="px-5 py-4 align-top text-base text-slate-700">
@@ -579,8 +579,8 @@ export function PublicLifenergyForm({
           </table>
         </div>
 
-        <div className="mt-6 rounded-xl bg-[#0F2D4A]/5 p-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+        <div className="mt-6 rounded-xl bg-[#215266]/5 p-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#00838F]">
             Reflexão após essa tarefa
           </p>
           <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-slate-700">
@@ -635,21 +635,21 @@ export function PublicLifenergyForm({
       <input type="hidden" name="legal_acceptance" value={legalAccepted ? "on" : ""} />
 
       <header className="sticky top-0 z-10 -mx-6 -mt-6 border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur md:-mx-8 md:-mt-8 md:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#B98A2E]">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#00838F]">
           Lifenergy Digital
         </p>
-        <h1 className="mt-1 text-2xl font-bold text-[#0F2D4A]">
+        <h1 className="mt-1 text-2xl font-bold text-[#173A40]">
           Passo {step} de {totalSteps} da sua tarefa.
         </h1>
         <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-200">
           <div
-            className="h-full rounded-full bg-[#0F2D4A] transition-all"
+            className="h-full rounded-full bg-[#215266] transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm font-medium text-slate-600">
           <p>Acompanhe aqui o seu avanço nessa tarefa.</p>
-          <p className="rounded-full bg-[#0F2D4A]/10 px-3 py-1 font-bold text-[#0F2D4A]">
+          <p className="rounded-full bg-[#215266]/10 px-3 py-1 font-bold text-[#173A40]">
             Tempo de resposta: {formatElapsedTime(elapsedSeconds)}
           </p>
         </div>
@@ -658,10 +658,10 @@ export function PublicLifenergyForm({
       <main className="mt-10 min-h-[520px]">
         {step === 1 && (
           <section className="space-y-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
               {organizationName}
             </p>
-            <h2 className="text-4xl font-bold text-[#0F2D4A]">
+            <h2 className="text-4xl font-bold text-[#173A40]">
               Bem-vindo ao Lifenergy Digital — seu cantinho de reflexão e crescimento pessoal.
             </h2>
             <div className="space-y-4 text-base leading-8 text-slate-700">
@@ -674,7 +674,7 @@ export function PublicLifenergyForm({
               <p>
                 Cada tarefa deverá ser realizada em sequência, com atenção e sem interrupções.
               </p>
-              <p className="rounded-xl border border-[#B98A2E]/30 bg-[#B98A2E]/10 px-4 py-3 font-semibold text-[#0F2D4A]">
+              <p className="rounded-xl border border-[#F0955A]/30 bg-[#215266]/10 px-4 py-3 font-semibold text-[#173A40]">
                 Após clicar em Continuar, você deve seguir todos os passos até o final.
               </p>
             </div>
@@ -683,7 +683,7 @@ export function PublicLifenergyForm({
 
         {step === 2 && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Antes de iniciar</h2>
+            <h2 className="text-3xl font-bold text-[#173A40]">Antes de iniciar</h2>
             <div className="mt-8 space-y-5 rounded-2xl bg-slate-50 p-6 text-base leading-8 text-slate-700">
               <p>
                 Você iniciará, a partir de agora, uma avaliação do seu padrão relacional — uma prática de autopercepção guiada pela Metodologia Lifenergy.
@@ -701,7 +701,7 @@ export function PublicLifenergyForm({
                 Durante toda a atividade, siga cada etapa na ordem apresentada. Evite antecipar respostas e mantenha sua atenção voltada para a tarefa.
               </p>
             </div>
-            <p className="mt-6 font-bold text-[#0F2D4A]">
+            <p className="mt-6 font-bold text-[#173A40]">
               Ao continuar, você confirma que leu e compreendeu as orientações iniciais.
             </p>
           </section>
@@ -709,7 +709,7 @@ export function PublicLifenergyForm({
 
         {step === 3 && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">Identificação</h2>
+            <h2 className="text-3xl font-bold text-[#173A40]">Identificação</h2>
             <p className="mt-2 text-slate-600">
               Preencha seus dados de identificação para iniciar a atividade.
             </p>
@@ -789,17 +789,17 @@ export function PublicLifenergyForm({
 
         {currentStage === 1 && currentFractal && currentState && (
           <section>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
               {renderFractalTitle()}
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">
+            <h2 className="mt-2 text-3xl font-bold text-[#173A40]">
               Fractal de Comportamento
             </h2>
             <p className="mt-2 text-slate-600">
               Leia a atividade apresentada e siga a orientação abaixo.
             </p>
             <div
-              className="mt-6 select-none rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-6"
+              className="mt-6 select-none rounded-2xl border border-[#F0955A]/40 bg-[#215266]/10 p-6"
               onCopy={(event) => event.preventDefault()}
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8A671E]">
@@ -809,7 +809,7 @@ export function PublicLifenergyForm({
                 {displayFractalActivity(currentFractal.activity)}
               </p>
             </div>
-            <p className="mt-6 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
+            <p className="mt-6 rounded-xl bg-[#215266]/5 px-4 py-3 text-base font-bold leading-7 text-[#173A40]">
               Escreva o texto acima no quadro abaixo.
             </p>
             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-6">
@@ -829,11 +829,11 @@ export function PublicLifenergyForm({
 
         {currentStage === 2 && currentFractal && currentState && (
           <section>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
               {renderFractalTitle()}
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Registro das respostas</h2>
-            <p className="mt-2 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
+            <h2 className="mt-2 text-3xl font-bold text-[#173A40]">Registro das respostas</h2>
+            <p className="mt-2 rounded-xl bg-[#215266]/5 px-4 py-3 text-base font-bold leading-7 text-[#173A40]">
               Escreva três respostas espontâneas para a tarefa.
             </p>
             <div className="mt-8 grid gap-5">
@@ -859,11 +859,11 @@ export function PublicLifenergyForm({
 
         {currentStage === 3 && currentState && (
           <section>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
               {renderFractalTitle()}
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Maior Importância</h2>
-            <p className="mt-2 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
+            <h2 className="mt-2 text-3xl font-bold text-[#173A40]">Maior Importância</h2>
+            <p className="mt-2 rounded-xl bg-[#215266]/5 px-4 py-3 text-base font-bold leading-7 text-[#173A40]">
               Releia suas respostas e clique na que você considera de maior importância.
             </p>
             <div className="mt-8 grid gap-4">{[1, 2, 3].map((index) => renderResponseButton(index, "highest"))}</div>
@@ -872,10 +872,10 @@ export function PublicLifenergyForm({
 
         {currentStage === 4 && currentState && (
           <section>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
               {renderFractalTitle()}
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Menor Importância</h2>
+            <h2 className="mt-2 text-3xl font-bold text-[#173A40]">Menor Importância</h2>
             <p className="mt-2 text-slate-600">
               Agora clique na resposta que você considera de menor importância.
             </p>
@@ -885,22 +885,22 @@ export function PublicLifenergyForm({
 
         {currentStage === 5 && currentState && (
           <section>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
               {renderFractalTitle()}
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Média Importância</h2>
+            <h2 className="mt-2 text-3xl font-bold text-[#173A40]">Média Importância</h2>
             <p className="mt-2 text-slate-600">
               A resposta restante será considerada de média importância.
             </p>
             {remainingResponse(currentState) ? (
-              <div className="mt-8 rounded-2xl border-2 border-[#0F2D4A] bg-[#0F2D4A]/5 p-5 text-slate-700 shadow-sm">
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+              <div className="mt-8 rounded-2xl border-2 border-[#173A40] bg-[#215266]/5 p-5 text-slate-700 shadow-sm">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#00838F]">
                   {responseLabel(remainingResponse(currentState) ?? 1)}
                 </p>
-                <p className="mt-3 text-base font-semibold text-[#0F2D4A]">
+                <p className="mt-3 text-base font-semibold text-[#173A40]">
                   {responseByIndex(currentState, remainingResponse(currentState) ?? 1)}
                 </p>
-                <p className="mt-3 font-bold text-[#0F2D4A]">Média Importância</p>
+                <p className="mt-3 font-bold text-[#173A40]">Média Importância</p>
               </div>
             ) : null}
           </section>
@@ -908,11 +908,11 @@ export function PublicLifenergyForm({
 
         {currentStage === 6 && currentState && (
           <section>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
               {renderFractalTitle()}
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Justificativas</h2>
-            <p className="mt-2 rounded-xl bg-[#0F2D4A]/5 px-4 py-3 text-base font-bold leading-7 text-[#0F2D4A]">
+            <h2 className="mt-2 text-3xl font-bold text-[#173A40]">Justificativas</h2>
+            <p className="mt-2 rounded-xl bg-[#215266]/5 px-4 py-3 text-base font-bold leading-7 text-[#173A40]">
               Releia suas respostas e clique na que você considera de maior importância.
             </p>
             <p className="mt-3 text-slate-600">
@@ -924,10 +924,10 @@ export function PublicLifenergyForm({
                 .sort((a, b) => b.hierarchy - a.hierarchy)
                 .map((item) => (
                   <div key={item.index} className="rounded-2xl border border-slate-200 p-5">
-                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#B98A2E]">
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#00838F]">
                       {hierarchyLabel(item.hierarchy)}
                     </p>
-                    <p className="mt-3 font-semibold text-[#0F2D4A]">{responseLabel(item.index)}</p>
+                    <p className="mt-3 font-semibold text-[#173A40]">{responseLabel(item.index)}</p>
                     <p className="mt-2 text-slate-700">{responseByIndex(currentState, item.index)}</p>
                     <label className="mt-5 block">
                       <span className={labelClass()}>Justificativa *</span>
@@ -951,10 +951,10 @@ export function PublicLifenergyForm({
 
         {currentStage === 7 && currentState && (
           <section>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#B98A2E]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#00838F]">
               {renderFractalTitle()}
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-[#0F2D4A]">Reflexão após essa tarefa</h2>
+            <h2 className="mt-2 text-3xl font-bold text-[#173A40]">Reflexão após essa tarefa</h2>
             <label className="mt-8 block">
               <span className={labelClass()}>
                 Agora pare, pense e escreva como você está sentindo-se após essa tarefa. *
@@ -970,11 +970,11 @@ export function PublicLifenergyForm({
 
         {currentStage === 8 && currentFractal && currentState && (
           <section>
-            <h2 className="text-3xl font-bold text-[#0F2D4A]">
+            <h2 className="text-3xl font-bold text-[#173A40]">
               Quadro resumo do {renderFractalTitle()}
             </h2>
-            <div className="mt-4 rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-5 text-slate-700">
-              <p className="font-bold text-[#0F2D4A]">Revise antes de continuar.</p>
+            <div className="mt-4 rounded-2xl border border-[#F0955A]/40 bg-[#215266]/10 p-5 text-slate-700">
+              <p className="font-bold text-[#173A40]">Revise antes de continuar.</p>
               <p className="mt-2 leading-7">
                 Confira a atividade digitada, as três respostas, as importâncias, as justificativas
                 e a reflexão após essa tarefa. Caso queira alterar alguma informação deste fractal,
@@ -989,17 +989,17 @@ export function PublicLifenergyForm({
       </main>
 
       {!isLastFractalSummary ? (
-        <p className="mt-8 text-[15px] font-semibold leading-6 text-[#0F2D4A]">
+        <p className="mt-8 text-[15px] font-semibold leading-6 text-[#173A40]">
           Para seguir, clique em continuar.
         </p>
       ) : null}
 
       {isLastFractalSummary ? (
-        <section className="mt-8 rounded-2xl border border-[#B98A2E]/40 bg-[#B98A2E]/10 p-5">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#B98A2E]">
+        <section className="mt-8 rounded-2xl border border-[#F0955A]/40 bg-[#215266]/10 p-5">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#00838F]">
             Privacidade e uso de dados
           </p>
-          <h3 className="mt-2 text-xl font-bold text-[#0F2D4A]">
+          <h3 className="mt-2 text-xl font-bold text-[#173A40]">
             Ciência para conclusão da aplicação
           </h3>
           <p className="mt-3 text-base leading-7 text-slate-700">
@@ -1010,14 +1010,14 @@ export function PublicLifenergyForm({
               type="checkbox"
               checked={legalAccepted}
               onChange={(event) => setLegalAccepted(event.target.checked)}
-              className="mt-1 h-5 w-5 rounded border-slate-300 text-[#0F2D4A]"
+              className="mt-1 h-5 w-5 rounded border-slate-300 text-[#173A40]"
             />
             <span>
               Li e estou ciente sobre o uso dos meus dados para esta aplicação, conforme a{" "}
               <Link
                 href={`/politica-de-privacidade?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`}
                 target="_blank"
-                className="font-bold text-[#0F6C87] underline"
+                className="font-bold text-[#00838F] underline"
               >
                 Política de Privacidade
               </Link>{" "}
@@ -1025,7 +1025,7 @@ export function PublicLifenergyForm({
               <Link
                 href={`/termo-de-participacao?returnTo=${encodeURIComponent(`/r/${token}/formulario`)}`}
                 target="_blank"
-                className="font-bold text-[#0F6C87] underline"
+                className="font-bold text-[#00838F] underline"
               >
                 Termo de Participação
               </Link>
@@ -1033,7 +1033,7 @@ export function PublicLifenergyForm({
             </span>
           </label>
           {!legalAccepted ? (
-            <p className="mt-3 text-sm font-semibold text-[#0F2D4A]">
+            <p className="mt-3 text-sm font-semibold text-[#173A40]">
               Marque a ciência para habilitar o envio da aplicação.
             </p>
           ) : null}
@@ -1051,7 +1051,7 @@ export function PublicLifenergyForm({
           className={`rounded-xl px-6 py-3 font-semibold transition ${
             step === 1
               ? "cursor-not-allowed bg-slate-100 text-slate-400"
-              : "border border-[#0F2D4A] bg-white text-[#0F2D4A] hover:bg-slate-50"
+              : "border border-[#173A40] bg-white text-[#173A40] hover:bg-slate-50"
           }`}
         >
           Voltar
@@ -1067,7 +1067,7 @@ export function PublicLifenergyForm({
             disabled={!canContinue()}
             className={`rounded-xl px-6 py-3 font-semibold transition ${
               canContinue()
-                ? "bg-[#0F2D4A] text-white hover:opacity-90"
+                ? "bg-[#215266] text-white hover:opacity-90"
                 : "cursor-not-allowed bg-slate-200 text-slate-500"
             }`}
           >
@@ -1081,7 +1081,7 @@ export function PublicLifenergyForm({
           <button
             type="submit"
             disabled={isSubmitting || !legalAccepted}
-            className="rounded-xl bg-[#0F2D4A] px-6 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl bg-[#215266] px-6 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Enviando avaliação..." : "Concluir Avaliação"}
           </button>
